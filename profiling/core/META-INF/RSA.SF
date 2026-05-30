@@ -1,0 +1,265 @@
+Signature-Version: 1.0
+Created-By: 25.0.1 (Oracle Corporation)
+SHA-384-Digest-Manifest: yoRJVvxJ7FrlRFxxc2g2rKKc5PY5B8SXn6nWfbig8RyMgjl
+ f9JEnaukVCLkThIQ/
+SHA-384-Digest-Manifest-Main-Attributes: NLYj7SnmUmlSwBcb4xdADvtC4AK3Ydc
+ UDTkDI8OzHYWs6p6rgyn01E2rnair+n5j
+
+Name: plugin.xml
+SHA-384-Digest: eFj3VDmBdMIwpho2IRABZj+K9Rmj/LCThuA8dDwittY3ASCI0SgX/Jls
+ hwGqmNBG
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/CompareResult.cla
+ ss
+SHA-384-Digest: C+XxsAnf2/trUoAv836+E30S+288qliPI7gNL/FTOPceRwI33/AsQiNc
+ gcZmoqDI
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/FormattingAndCommentsMatc
+ her.class
+SHA-384-Digest: INkZEv9jJn6SoOBGG5qJ/jpjTwNTfHimiQWiOTY3ABW4x2ETKq4s/08q
+ hzcYnPbQ
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/NumberAndSourceMa
+ tcher.class
+SHA-384-Digest: zYb8n04ntSHyLY6DqKSKQCy/rDGMBqvxaM45w0+o8GvgRjlLaRhGi+H9
+ DyDamOU1
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/ICompareResult.class
+SHA-384-Digest: TbHM6GaeSFR0PuleERZbGoONREP9jnoFaw+DXI3Iyt1baXa2sGFF75W+
+ OMSmRVjL
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/ResultsStore.class
+SHA-384-Digest: NtosJudMXiu6R7RITTz5Em4FWxfQSG7LU3zk2+E4GeInf218vtslKNei
+ asl+hKCt
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/BslModuleLineReader.class
+SHA-384-Digest: tlmvWLnGa6B71RWKEWB0Qlk9ZPdp+SRcZIPLXPKIjta6Sty6Sa8SLheE
+ KkYD2mcm
+
+Name: plugin.properties
+SHA-384-Digest: izgl3c/yDP6oNfC1xAuPGHt0KPz57jlYehJtw430GEcK5cWWyLSwJPC1
+ Tm3e9/c8
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/StoreWithSources$MethodDe
+ scription.class
+SHA-384-Digest: h+0W7lLPn8u4vFJjBbd6lehyXWNscAY2VU+1vCZWfa4jAFcJ5eSiNoIl
+ NVP1C0t7
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/CompareService.cl
+ ass
+SHA-384-Digest: QfDKJv29A7RAQyZo807mq8k/e3JXDj2Wo/Svr43JdIu/khOS4op8vShB
+ VdOLh6D2
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/ProfilingService.class
+SHA-384-Digest: aEQ1+ehiM8BNb+A9b0yX5C5yRvuAXet1ip3GZF70QFpm2ZjW9dDdA7a+
+ dh693Igh
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/SourcelessStore.class
+SHA-384-Digest: ikv9ykgOYu/Z9pz8yNAC/MW2eFUcs4d+/m+HevHrklOkQlU2L/4mS8Lr
+ 4ql+E2Ii
+
+Name: com/_1c/g5/v8/dt/profiling/core/IProfilingEventProcessor.class
+SHA-384-Digest: HL1FGREsNpvNHAcf+iMG81KLwzpCnaE0A4ytcxBDCtNQsdgwXrud4RWh
+ 3pkD989X
+
+Name: com/_1c/g5/v8/dt/profiling/core/ILineProfilingResult.class
+SHA-384-Digest: eRugJgmni9NHXY1OVnBL5B3gb21EKIsAZcif41xKA+mGHCS0d3e0hbDv
+ LXigENfF
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/ILineTrimmer.class
+SHA-384-Digest: XF9HT8R3qBTgx/SqgRxiaJjaJhuqa/ji/AA1MvvvSfTWoBxxGWCmq7ik
+ S4RFLeqi
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/StoreWithSources.class
+SHA-384-Digest: RWaI/BYTr23hk0xN51WB9jqtA3f1gKOFOFb6T9J2U/CP4QrdhgcmfcWb
+ JZHBHSl1
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/ProfilingService$Profilin
+ gState.class
+SHA-384-Digest: ntsrrqMJ+7Pmn190kpVXpAln7gidftGHrSeaY/zjlc/pfeJH/79GRA8Z
+ ny0SW/Cp
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/ProfilingCoreModule.class
+SHA-384-Digest: OuJdA4X2UEZdc6zCpT7tTm+ZuILTnhYNyQjLVtq442zdamHGzKCM6ZmS
+ 7s0xgyL6
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/LineCompareResult
+ .class
+SHA-384-Digest: UUaufVkxc97F6jkGU8oq14ivPr1n+GtSH+ER+m1xmKspgbIF+lDOXrMR
+ 6r7UZ0xp
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/StoreWithSources$1.class
+SHA-384-Digest: R1tvyr6F734o6tcgnPn6MepnLgEBKyZuwJwcS6jIhWdrHL2qP9r2eaEt
+ 8rak5zDr
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/messages.properties
+SHA-384-Digest: +c38I69fP2BhgqRcNJ8q50TuQ/M9aoCJgIOhZ2fPn0nyJtMvj2OaSRij
+ exXayHwr
+
+Name: com/_1c/g5/v8/dt/profiling/core/IResultsStore.class
+SHA-384-Digest: O5U2fYhCvxFOOpQ32ZsOBYzPAdzmpsGElAIZvqj10/3bNWSReeUjZOJc
+ 2Z35OPMg
+
+Name: com/_1c/g5/v8/dt/profiling/core/IProfilingResult.class
+SHA-384-Digest: SJ0T5aOmj14ZmROPS3Ri86kfG2Jduj0mcEz67LJRjbvjA9BWd1LDWp/1
+ hjRbpFxA
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/ICompareService.class
+SHA-384-Digest: MEBE/GV7V8VMlhfC6dslOF6uwnK3vqDDd06SOPPP+AIy0DOyRkqS6hJh
+ Spqbxtnu
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/MethodLineMapComputer$Met
+ hodDescription.class
+SHA-384-Digest: M1asc7EW4sgXLfGjiBsu3hJ7L67Vd8xSekDA+JG+Vs5zj9kwQjNrirdT
+ UruRoyOT
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/UnmatchedLineComp
+ areResult.class
+SHA-384-Digest: udSuldg0iLAIzLI+rvYHyU1vTniPscoyzgB4TZ2kJoS72TJdbwoAQ+nY
+ urw5Grgb
+
+Name: com/_1c/g5/v8/dt/profiling/core/Messages.class
+SHA-384-Digest: ca+Zus4oGmXjfR2f2z7zicJ+wuqj4EaFzJACgd2OhCyuCUszNXzFYKL1
+ u7aWmQaP
+
+Name: plugin_ru.properties
+SHA-384-Digest: YbbzqYm41Av0Qe7cjok1MUfI5AfOA621X1LQ/2t9R4czUsA5pa0lk1Zi
+ i7xuFmIb
+
+Name: META-INF/maven/com._1c.g5.v8.dt.profiling/com._1c.g5.v8.dt.profili
+ ng.core/pom.xml
+SHA-384-Digest: Py5NHwxfVw/pnIL763wiNimOqdnVmJHg5wl0flpt0/w6uFTHGBsS1qAT
+ iqhOXYXI
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/IModuleCompareResult.class
+SHA-384-Digest: pyv9JIXR9oY4gEZuCicR9k42Xu6sDK2phDD6IqXr10IwzKSUrGPpJnPB
+ hx+EnFb/
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/messages_ru.properties
+SHA-384-Digest: JYOnusPwOGmGk7/C0Tc/alvLLIPjjgoR57Y707V43Z1E9CJtTOK+XpPx
+ ZoHirCPU
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/IMethodCompareResult.class
+SHA-384-Digest: xOWq77BKzuSMe0dwwdOqTTTs92KS2XT7KkalTRlJU8BJsSYmdAaNEGpQ
+ KekHd7Fd
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/IElementCompareResult.clas
+ s
+SHA-384-Digest: 8YmcfTdKW2AK/EEg5nxASI/Pp4Bz5U1hogrCQEyn7xtFLdxGMfB3/H2f
+ Koqpx9Pd
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/IUnmatchedCompareResult.cl
+ ass
+SHA-384-Digest: sxk9AvURz3YTGs1q4hJS7J1dFrk2K+pXHYopzhr0hkUHObI3RS/4SQuG
+ UBLV7ZEW
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/ProfilingResult.class
+SHA-384-Digest: Nf4vHAmEez3+PdvpyawCmt9xYVkFadnn7yDOxDHa99A5W6zXwDLHMSqs
+ KIL+Jdi5
+
+Name: com/_1c/g5/v8/dt/profiling/core/messages_ru.properties
+SHA-384-Digest: thLD7pu/Budao+zYIMta1dGKiZp+bY8I1quH14cnEnr5SS24z3Nh2OUm
+ Jpu8+Syr
+
+Name: .options
+SHA-384-Digest: 99hxqYTV+9NXXjcEYaWTVIN2LkRrx8A6gdS5rO/JlFlsnYM3LX5PuDV2
+ uvIECKXR
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/ProfilingCorePlugin.class
+SHA-384-Digest: VKv9lmlfK45C/2l9KkFXqLCU7WSIfcmswuKRCEo/x9Zb+qxOU/8BeuFi
+ 4MZika9z
+
+Name: com/_1c/g5/v8/dt/profiling/core/ServerCallSignal.class
+SHA-384-Digest: Z3+Oew+c+v0bcUjsnLEVMx36O/ShUeGm81z2YQwp5HyxgbYvoLjBtk6F
+ R1R9KMO+
+
+Name: com/_1c/g5/v8/dt/profiling/core/messages.properties
+SHA-384-Digest: dJogMHcepvze/n3fFWJyspt/uQaaDNjZjwtGCAfN0jD/lg5+VtO4g0rK
+ r5vYiB8E
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/ITimeDiffsComparatorResult
+ .class
+SHA-384-Digest: hs9GNz7EJ9XUY+c+bdeWYOCVW/HPqGeZgp5hkMHPXLcI9Wz3NpoIngGd
+ e/14D0oO
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/ILineCompareResult.class
+SHA-384-Digest: 2RUayv384Q16JY2EXKGvO70v6tuERnvcJmdI6J4Quq+r7yXnSbfTLQI+
+ xP/mjVT6
+
+Name: com/_1c/g5/v8/dt/profiling/core/IProfilingService.class
+SHA-384-Digest: 5Y/+mPyBwzi1lsy9Grepd9idjjlCM65iofx56ooR27tFfYcRwOyply8Y
+ v/t9168c
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/ModuleCompareResu
+ lt.class
+SHA-384-Digest: NWDT9RW4XQzhZD/KiGF7DEChHMSbw93RjxvGXpUyp8dEQWm/04cRhl9O
+ yn4BLywd
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/IBslModuleLineReader.clas
+ s
+SHA-384-Digest: JBmMNaOeBBJROymYUBkdA9SYHZ1eCpNV9SE4gt6BzMG/0m40IKu5cLkr
+ YUEiZYIV
+
+Name: com/_1c/g5/v8/dt/profiling/core/IProfilingResultListener.class
+SHA-384-Digest: ypnMKEj6YtwOUEeJtmFlqa/JvsFAhpVcwmUXjzF7+p3XkheTlnKQ5kP0
+ aK0javCP
+
+Name: com/_1c/g5/v8/dt/profiling/core/ILineMatcher.class
+SHA-384-Digest: CsZ2BMTGBWdnQqdc6wMJ81AsHN06vruzsHSpAPCQ1dodwEx8ssDdMPod
+ HAnVaE2L
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/UnmatchedMethodCo
+ mpareResult.class
+SHA-384-Digest: cQPMVxfg0kY7fefXCfRhd3NHV1gfPe3DpjQmdOhfg8WZhlc0fUO53+/m
+ QGfI3DTX
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/LineProfilingResult.class
+SHA-384-Digest: J4kAs0W3bMQ0gg48+ZdN7CzZFzbesiUPC/TpXBqOSR0IcLXOnWSrWIKu
+ 6nYWcl2y
+
+Name: com/_1c/g5/v8/dt/profiling/core/compare/CompareSide.class
+SHA-384-Digest: RTA6ClgYqze7oaSflL9NmZDIgS0DAaNa0A/RDjl+8N03KHpJyeC2PvDz
+ H7iLn8PX
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/Messages.class
+SHA-384-Digest: uycXCrjJRR+zXiWkjXZUa7M5wFtGaawygWV6Psaitt1JfPLt+WJTZ1DF
+ bggpuaK9
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/NumberAndSourceMa
+ tcher$LineDescription.class
+SHA-384-Digest: nJ7ApcozpODDAbL9VxA+bEWTBgYoymI0mjY4hEOIF7HaLxGv1UpcE++U
+ EM1IuD1U
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/UnmatchedModuleCo
+ mpareResult.class
+SHA-384-Digest: GRzRXX0PAWbF2z9CijhZ8QW2WHGpCokK5+UeWoiWVbnDJTGVc4xZSxY1
+ VukvnQgE
+
+Name: com/_1c/g5/v8/dt/profiling/core/IProfileTarget.class
+SHA-384-Digest: xM6rT7uyMGNzwkGeHCrgpU180wYrTSxkEXnuYlVCq/R8lPAS3f5xpehN
+ 0lE4l4ff
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/MethodCompareResu
+ lt.class
+SHA-384-Digest: QszPetIqvCFtMNWtmJWgvLeb8+++6AVXqKU3R4rMpxbE5R4J/yYKOAgW
+ Vth9vklR
+
+Name: com/_1c/g5/v8/dt/profiling/core/IProfilingTimeHolder.class
+SHA-384-Digest: O4KnRpVQecHAMolkTQ/TGll2zd3B1XdDv/3L415bw/Bgi/OycdvRKKAW
+ ql1imm7v
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/MethodLineMapComputer.cla
+ ss
+SHA-384-Digest: RiiwOwJfg29YzvjZf2zG2DFCGoTkyJfkW0Cnt/rsStwwZf718+3FrwYk
+ o5pJzjlp
+
+Name: com/_1c/g5/v8/dt/internal/profiling/core/compare/ILineResultsMatch
+ er.class
+SHA-384-Digest: yy9KI60NDme0vn26CEHr0taPZQPNbfqt17rfbzAfOmpMa/sm52k5LhyX
+ iZpe4VFG
+
+Name: META-INF/maven/com._1c.g5.v8.dt.profiling/com._1c.g5.v8.dt.profili
+ ng.core/pom.properties
+SHA-384-Digest: /pXRq2GJAlZz3kwKZesrFD0B3WvjljyOtW3HJP1eDhB9Eed3BKhJuA36
+ Rh8ZB8nP
+

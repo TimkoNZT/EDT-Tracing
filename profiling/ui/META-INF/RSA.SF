@@ -1,0 +1,1002 @@
+Signature-Version: 1.0
+Created-By: 25.0.1 (Oracle Corporation)
+SHA-384-Digest-Manifest: PrHo35Ugy5fJkjZ7ybZkiWiSZ5GqrXztBIpPKy7sccpA6i+
+ yZnpT+uOMwOxn2y69
+SHA-384-Digest-Manifest-Main-Attributes: 8aDxdfe299YsqGbwAO9vVnn9Sx7J0Xe
+ LKUbVaYxtdrZEMCF/nlrvOLZjFyo8iIUb
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/Messages.class
+SHA-384-Digest: hdM0g5C4AR5VSPuDbXzDruoXsTKjkLTrKaRS6Ket8xhlHuWwQyEaXUOG
+ zBivM7n5
+
+Name: plugin.xml
+SHA-384-Digest: dY4yqgUqS0CdmAw8h6s18Jd7DI7n5mgfNxWvIRbsnA1M2jrq1jcShe+N
+ cJUe9abM
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$9.
+ class
+SHA-384-Digest: NZf2rfnW1rgXVLs28ePPgvTWKLLG8P4EX35DwotWa3ndTXA5dhQXT5Fm
+ rDbpJgr4
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$5.c
+ lass
+SHA-384-Digest: j0qIIA9QKI5uqu16WVXrW3qUEl1/xTT0xxL0NrbjpjXGJvHQVjhGyb/M
+ JRdmo1fM
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$11.
+ class
+SHA-384-Digest: xXLoP+OAsNJJ/EwEuIakRQfWQxfIy+c0aAU+eaSuCP68iMFovZM8I/06
+ CnT33MSN
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodStati
+ stic.class
+SHA-384-Digest: l2cEc3SRCRp8avSQchoxsYvncrd3orj9DA+2kFMgaoBGE6cXXoRAYIk0
+ t+RPJjTl
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/messages.properties
+SHA-384-Digest: FUF1p5zeM/6f84JHRmuQA0Ng3dEr6AGyZTfOGpuhme88pHGDabXJ7WjQ
+ +qGo0QY6
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/messages.pro
+ perties
+SHA-384-Digest: GgILEn8ffNlSgTojniC+JJgO7wL5igzeGbHKE5iyDXtSNwqoX8fR/7Tw
+ ujot+1NO
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/Messages.cla
+ ss
+SHA-384-Digest: UpcxZ/dcV4yZcJilWDTSNdm97FK+NLRK7M/OrZtpUvM7fX7sn+OgsSdo
+ sNYKpXQz
+
+Name: icons/elcl16/abs_diff@2x.png
+SHA-384-Digest: ZIexpn26s/GOadtjdeo5fJcXNIgPY0NqNyBZy2NPPArQ9E06RhdqbLYQ
+ ygElPYxC
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ResultsImportW
+ izard.class
+SHA-384-Digest: EsdMRgQV8iJFPh3wfP1oAc4cUEajTGt5GdnZRbTFfhRfmD6Zga01V31z
+ xCIfNOxT
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/ResultSelect
+ ionPage.class
+SHA-384-Digest: fJPNE57Qa9Jud+yBFJtRKHEkZTMlRoo4u4t7F4jDfwxYJyJZSVLCRjge
+ bCNWlJRu
+
+Name: icons/elcl16/method_list.gif
+SHA-384-Digest: YBRHIj77tfnGQInOsogOm2mubXG0tz1gIbRmdsXUqpeFZdzU4cAEv+oz
+ sfjr6TkO
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CleanTimeLabel
+ Provider.class
+SHA-384-Digest: wi5q37YpcYVmyEO1fIqXMKWKtcE8+xzouQNH9Oghz38YjMek8D/c4oC/
+ /ucLhhBf
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ProfilingResultOpener.class
+SHA-384-Digest: 9aEu+hkgUDLG6TqXSTZ9ELTw6WEBlwgj9iJKo02fygUPvkxxc8qGukbm
+ qKR7T1K5
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$1.c
+ lass
+SHA-384-Digest: WAu4/jfxTJS+VONrFKHBR67A4w/PFMtUYDeTVYD0pmmku6mOvjk8zoSN
+ HVrnMsul
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/MethodLineMapComputer$Metho
+ dDescription.class
+SHA-384-Digest: q1Wai0O8qO6mbT2KMxSBz87SHuidlzsLegKbr+IADNHtMtXhGZeHQadY
+ UHn7m/Ch
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/RulerSwitcher.class
+SHA-384-Digest: Yh75rUXD4Wit8kZ0R+gZeTFG3dP18WiI4N8prQ0A1eQP/doeDSsf+R07
+ nWdjhKUd
+
+Name: icons/obj16/internal_server_call.png
+SHA-384-Digest: RxmBL0n8e0H+Dgc3k1SC1oaoUUSrYpetkElo33qS4syekjEMxFgG831M
+ SSGMmK6l
+
+Name: icons/elcl16/absolute_comparing.png
+SHA-384-Digest: MOE5NdV4cgQc2u9YQTRorcXDuSJo64YWS/KKil82osZgbK3fmjyaZEar
+ xt6fjpfg
+
+Name: icons/elcl16/rename.gif
+SHA-384-Digest: hlAUgvUE+oNQhz+8tg+N2tbUwY+M/+v/phoC0Qp41dlcAmvUmH9eyZY2
+ neok7xMu
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/CenterImageLabelProvid
+ er.class
+SHA-384-Digest: OwA4ke/NF2+kLtmDpBLzmdCwTtj0tFHt1jyyTpt6moKX+3aQ1lBwbw9e
+ rONKMTKW
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$5.class
+SHA-384-Digest: m3DNtziaMcLkhA89ulBoo3ygX25LcGJvwYq1Jk+GuJrUN0Kp4fGvLPO/
+ OJBWKkjp
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/DiffThresholdF
+ ilter.class
+SHA-384-Digest: VY5jaSy+iIw4s1oUqv/VgaaNBI16aejdhISbIAfwi+AelFJZIKlEnc/B
+ qNLHwl6r
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/CompareWizar
+ d.class
+SHA-384-Digest: 1ywBdk3s4DoNDQlmMtnRumyF4ogT6gKvNKDKryTMfPpfqX+TvEKRF68j
+ QgQtT5IX
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/messages_ru.pr
+ operties
+SHA-384-Digest: eZ5/1hilcWoqzCHOI1q1K2xK5V9EmaQrL6Ipqpcaycr+1IZL3eMWMo7g
+ WspGw3hx
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$11.class
+SHA-384-Digest: VxeyqlEp3cGeIZl8WyynUZHtNOsrz9O351YLfquG7FlavdYO473wT7fH
+ RHj01qVu
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$10
+ .class
+SHA-384-Digest: bGKzKQfL+fEoKRPQdEBct6kV+Zp4Cm2AR+trH9RT1POuFri5wOov3mXe
+ lqjF0bIJ
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodTreeC
+ ontentProvider.class
+SHA-384-Digest: kCFMWkjSvzjRGe8ko1cZQ+ubBPn33CB6QL7+xDjbh/Se3yfNDca3beCC
+ mL6jeF98
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/ResultSelect
+ ionPage$4.class
+SHA-384-Digest: OCMHuefmvS6wKFg6ujJ0pA55epQnlU8KMqdKb1sJLhAU7FCejQA0ncFK
+ uDPVF7AF
+
+Name: icons/elcl16/disabled.gif
+SHA-384-Digest: UjcYyWAlWEkJ02bTERY7bJpuIsKFkkW9whACFvDrjokvLrf5gR2uzGkL
+ GqF8o+SS
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/DiffLabelProvi
+ der.class
+SHA-384-Digest: 6vsK9kA7MmQHpU5vxLrVDGibJJlhSb90O2FfqCiC2yZ/muPs7way/EZA
+ EDUswi3n
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodListV
+ iew.class
+SHA-384-Digest: LRuUb8N28cvgDg5jHYsfLo0jXalVWhJWVRkDie7rBxyc0LKt3znIfF6K
+ aaYLingC
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareTreeCom
+ parator.class
+SHA-384-Digest: 6VIXZucDiAQog9BIJyTH47VI+FQwOowPmyxIjNQVb5yU2sSOZmHrq0Qp
+ HB3nSQJB
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableProfilingVi
+ ew$4.class
+SHA-384-Digest: PZoUPLjGW9X6eynEqB5E5ziL3cvRF/DiJNexma8+9ftV39I1h8PvgU4+
+ /czHkCcz
+
+Name: META-INF/maven/com._1c.g5.v8.dt.profiling/com._1c.g5.v8.dt.profili
+ ng.ui/pom.xml
+SHA-384-Digest: VTwzIp4n7NiohwajO/GQnDR9yWsi5liYkayl0HqltFak2zb0ib9Ubhlb
+ fgfQYwTQ
+
+Name: icons/elcl16/server16.png
+SHA-384-Digest: fbBXM5SIH9eTReFD4easU/dNDiYjKSHKwEeuBQ+VFi85HWxBb0LCnr1A
+ HrjiMIWg
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage.cla
+ ss
+SHA-384-Digest: zMHadvIoCuuUFAemDCJfsl+E2bV//fU0Cj757XrkY4NLqEv4s+NE81Uk
+ aHozrySJ
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ProfilingUIPlugin.class
+SHA-384-Digest: +4f742snz0A9eGyR8Ky+EMkLJC8VQH/mfOlJUxIuCWZVWJwTw6CyP2h4
+ O+bFx5/f
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$6.class
+SHA-384-Digest: oW1mh8JcWmDhYJa9qU+D0kpu6Cju8nztE+3nWTrKUaxNvITWwwG2UWcb
+ nMYxhNng
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$11
+ .class
+SHA-384-Digest: /8qZ4Pt9Dcc1GEyOPXNwMPCkTOlsLNmUDkfoERAVjZTrQx3KJnQtQcug
+ d8r0RpvN
+
+Name: icons/elcl16/diff_comparing@2x.png
+SHA-384-Digest: HVRKofhTIXT0tNe0KrINSk9YzPFNakKlNbXP1t2B3oBQWRCLyjMlKTaw
+ Q0XwezDR
+
+Name: icons/obj16/server_mobile_standalone.png
+SHA-384-Digest: jMTDxCFRYGk0glX35kwsCic6U75TxqSBtUJ8TxFFYIQdw0l+gTiuDAGY
+ 4/ZL7Bvu
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodListV
+ iew$2.class
+SHA-384-Digest: iLMMkIBb7/UqF0HHvuq/Q93e1JAKx+dS5+PGHEB1thSM6jecszH/I/AS
+ gejI/xRt
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ruler/messages_ru.propertie
+ s
+SHA-384-Digest: aQN93IdrtSMJpMUIntJtE6aXYmnYciD/ruhgUY2ET7b/hm7t9jrbq6Jc
+ Bi08mHy+
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$6.c
+ lass
+SHA-384-Digest: CeeZYFzV0vVxgzxNWdB+qtWThqm2aYhwqTswkse74kLLBIPNAcZb0osC
+ qE9/oLT+
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$7.c
+ lass
+SHA-384-Digest: nMahVR8eEaUKTsk4A6OJ55Vohf4cbT/wX4Uw8KywP2Iy8htERSdYDOm2
+ BdAXHtz7
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/messages.prope
+ rties
+SHA-384-Digest: /bD5my2h5s/yZlOGWXITovBsvz1+SD2AOd4TpoxlQR8cc1XU0tKF1EBo
+ BSoZ6/0a
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/ResultsTableComp
+ arator.class
+SHA-384-Digest: ojQP5Kv1P/YSwrwMSS6fDfl4aNbVIdUItcYEQnTG3IOu82ZEnb/UHxB4
+ EkE0+rSo
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareTreeCon
+ tentProvider.class
+SHA-384-Digest: ZgrtOnhiJsR6R59UUIK8bqHypXdd8ODso4eQGQ9YS0f2t6adaQTE9Mx8
+ I2HB2xwD
+
+Name: icons/elcl16/profiling_16_import.png
+SHA-384-Digest: sqaZ9N4JhONtn83Xj7UgrHQsMWodpGDXddO0nvOXuKebG0ZQECkLZwGL
+ HzF/QEEB
+
+Name: icons/elcl16/server_mobile_standalone16.png
+SHA-384-Digest: 4qlTP/yE094T6GP5qZtI0TRqYvyJInhyIZW0r1l7X/srKP94X4xPXYRx
+ 6TLLuZ/i
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableFilter.clas
+ s
+SHA-384-Digest: kkO2pvMYH/kRaSHehHh8u6gPYNfXESaDBE9tV4VO/LOSwnl8XEZZwETf
+ DOP8I5qB
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodListL
+ abelProvider.class
+SHA-384-Digest: nhecxMxim82MaJvXnFc0OQEfHCmAFmlOd7rXfaBE46fzx98umc3ZXtKK
+ qEVj1seG
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ResultsImportW
+ izard$1.class
+SHA-384-Digest: dkfgwt/M81hHs9GFfN6ylxZKXgmodHy7lgxS/Qj4zDUIQnQb2CrohpGe
+ qunW1nt9
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableProfilingVi
+ ew$3.class
+SHA-384-Digest: ieNRlAbg6EX94EWVkVtiA4aYxH1c1SIGijrUbQUzZ18L78UVAUGtZ4UR
+ SsQXqNyR
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ServerCallLabelProvide
+ r.class
+SHA-384-Digest: DWNyH4EM9nZj2RMKAKHDcur6gmKBP/RhCbogOGSdsLg1F9JSu600tQkW
+ 6VMt234Q
+
+Name: icons/obj16/server_call.png
+SHA-384-Digest: Fe7bwEgXZytuJzji2Vhn42c1d4fyO0yzWwjGp3SH+Sy5RfaMHsibL9Ha
+ 1gAawYVz
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$1.class
+SHA-384-Digest: z9onX5x5MBQWmwN77wotdIAm6/oT4Z9KyX3x6UtjsfwSJgKscWVIxF5l
+ tK33G//r
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/DiffThresholdI
+ nputDialog$ThresholdValidator.class
+SHA-384-Digest: oArcQMBSZObrgVgxo9iDoMjPFtrgl+K94KhQomXVRHP+TrnZQEL8XS9/
+ S/pGYKf9
+
+Name: icons/elcl16/filter_by_diff.gif
+SHA-384-Digest: 8nXVP3TVofSAI/ML9RwbV5o7i7N7klF9tIK2w56j0NfB8Tu7DVkTmAAU
+ CmsA+IxM
+
+Name: icons/elcl16/profiling_32_export.png
+SHA-384-Digest: EJ1VCn/TQXAkhBuDblN5OMt5js//NhNUH2iLUSYJnS/j+zTkoI3RbBka
+ 5omIQgmq
+
+Name: icons/wizban/import.png
+SHA-384-Digest: eaw2pCaPiW0kO2nMPCzhlxfWuP7+dzFUi71feGWFYrdNOhwB6zJot+4M
+ cYXOuL6D
+
+Name: icons/etool16/compare_view.gif
+SHA-384-Digest: D2vfTihtnlSgPLG50u/uVvj/sZndwhAcKI+q7R9Yo/InrBFYqiPMQHde
+ IKWHYbz6
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$PartSwit
+ ch.class
+SHA-384-Digest: Gn0A9iP8OXqDi/MXc5VKtNVi9pDy/DtlJ0r6MbW+8ukkDZjQ7HgL9Umw
+ QhxmRFEN
+
+Name: icons/elcl16/disabled@2x.gif
+SHA-384-Digest: 7LbsT/uOgEtgtzmtDralntJ5erQnhG9/ykDE+ULR4C1GMX8/KhafkVXS
+ +jhyNqmY
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/ModuleStati
+ stic.class
+SHA-384-Digest: usv8zOTLBQ3GlOpnIYk4APJD6oaFX8hIZj9PgLZBB9ZRIuxuLB+UCf33
+ 1C0Bygha
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/Messages.class
+SHA-384-Digest: IIlGFshrmoQzoXwdpS6tFTFRagJ7FVCnSPjMAVbUj1CWMPHa+2Xn/ERm
+ 9pI/oXh0
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView.cl
+ ass
+SHA-384-Digest: RgbP6nUF+RsBiD1RYkmSN57FNTirGk3TnrF76vwkr/0DtCYNRKNB7E3O
+ MCx6R0i3
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodListV
+ iew$1.class
+SHA-384-Digest: TxWLq3WBPU6JUaLhqhyoZUeH61Z+Ox1X0DGeMIWtILObJjTBdAUW0opk
+ YGx708bb
+
+Name: icons/elcl16/growth_rate@2x.png
+SHA-384-Digest: BBZKaP4QB0fiOALb/XjzvwU6eoyPlujeS78qRCoeGcPd2Jro26VQG8C3
+ dL1aljVZ
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ruler/LineDataComputer.clas
+ s
+SHA-384-Digest: oOj4ww8Fp6jmaSK2HgYvdKlXmQiXpwESdJbSkxneNHzrwNdXcrPddlIO
+ QseCv1Z8
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/Messages.class
+SHA-384-Digest: p5jeM3z4v55l3BKAvtCiWZ5VT6s98m1Q7LmsEL+EpLSenwd7lMdwqY4o
+ r9xbrjHr
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/Messages.class
+SHA-384-Digest: Rnv1Fgo3pvWbaz6VkOsglvqobmkPOj7oJxcpvu3sqc1KHOa1lfXkmqah
+ W9z39c4E
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/ResultSelect
+ ionPage$5.class
+SHA-384-Digest: b3uQdJyOD6L6PqrRIBwXtb0V2aZLlK6wAWL5EEskSDRH4kOIz83570bj
+ IhxQ9g4n
+
+Name: icons/elcl16/rename@2x.gif
+SHA-384-Digest: HZywkQT0Y1jQyh4l7HJvPt5Xod+AiwnIpjwLTaO6IA/30+s34lXEHaiH
+ SCfWq48i
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/AllResultsTabl
+ eComparator.class
+SHA-384-Digest: xPN7/zpQB1PKQ4sTSImuqe/FznZPLUf1JbzjrtwoQk8eK+V9+hxBrr5P
+ VDfGMAau
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$8.
+ class
+SHA-384-Digest: 1rDhs+DrQC/1xN1AGqgiGGYtJRs6m4eSbp2Im6hRRHF5SIZwlT7nqMYe
+ lsd1G/o6
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$2.c
+ lass
+SHA-384-Digest: mMjOu/3K1GYCLNI1ULYLfMMK+Hith2WwFlQ4vVvXqGNSdjzo9E7htlCs
+ ls9ZhBF3
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ruler/OutdatedResultsHandle
+ r.class
+SHA-384-Digest: bCG5lldGI7hZh93NGbSqoCHnIr2raktuocIPjaHgg5RjKpxp31Ncn3V4
+ cS2/wxhf
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ModuleLabelProvider.cl
+ ass
+SHA-384-Digest: rqkAgNiWC1ltX9w3qdk/kDQ9+kNMZSagGxwSaiCArDgsx2FitmMDsbLA
+ ToC3qs+F
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareResultW
+ rapper.class
+SHA-384-Digest: bQu0RASwgylB9IGzibMIzjIqXaSLXTJ8BjSpqhRpzLQFZh5+UeRjekxh
+ WTM4xLtA
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$5.c
+ lass
+SHA-384-Digest: fA6zW/68b2vvSQZWLzvOpJ2tp6lnhtWMn3hRgN4SytXceVGhshOIvg1s
+ idxo9l0u
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$1.c
+ lass
+SHA-384-Digest: fHk0M+dDirJFlunMlUyaZ+mzz5baICDfSDuq/R1DFMxRS4M8I1uDpuDs
+ VNR8x0TS
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/MethodNameLabe
+ lProvider.class
+SHA-384-Digest: z34i3zhpHWvkl7kprKH+GtQIKcae73M4hA1WGt6vqFy7nIc8ZsyOB8HJ
+ kV0yrdkf
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareTreeFil
+ ter.class
+SHA-384-Digest: Fc+eg+Knuiwg28hAgtEnPllQnK3kPGZHiwthMbrAWOqyi9XVgftfQgz7
+ 4xM4bJWo
+
+Name: icons/elcl16/server16@2x.png
+SHA-384-Digest: oZp/+8NV3rNSV/1WG/oZKCGgUu8XozRGQP24/+HM72yuW/t9yZPJx3Qc
+ 2+zbcjAy
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ruler/ProfilingResultsRuler
+ $2.class
+SHA-384-Digest: RAdUVB6OJX1mgp5zTBy9kd9RUTpQNJp3yARRs5XKnIBvsjCaIDQjKVOe
+ oCP6JgQn
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$3.c
+ lass
+SHA-384-Digest: MQm04m/7SPLnzusyDEqJqq/fIxNDFjgqY4kH75sHYMVOMq8GyoK3o+ZO
+ ARFW5/AK
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$9.class
+SHA-384-Digest: y5tJg+S+ZiDGYk49kDuVfUHS+j8Z+Ah78H0b1tfnmQD/83oxQU7Vg6f0
+ XOG9YQWv
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/ResultSelect
+ ionPage$3.class
+SHA-384-Digest: BxzfkLNBuYcjhG+X4qJP4LQScgirXN1ElwxEp6gaj0MELlodM0Q1S20s
+ PXV1iacC
+
+Name: icons/elcl16/diff_comparing.png
+SHA-384-Digest: lq0WHYYy+T6fOqCDC9qRR9hSEgzkNFFMIjHQ9999Bv+u8X6UfWH+VDUV
+ iAyZripP
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/messages_ru.
+ properties
+SHA-384-Digest: tngjsjg1f7m16WOki+en9ovH2c90ONTwrp88dlgC2NX4YECgWYTeMKc7
+ pyfDutf9
+
+Name: icons/elcl16/client16.png
+SHA-384-Digest: Bjb7gbpwWtvnS/bMjvJcROCIT997ADG82sRvhzH8NNQGoeJAWe8NhxSx
+ zZit9upb
+
+Name: icons/elcl16/group_lines.gif
+SHA-384-Digest: rEcIHmyhr7pB29pW2z1e75sPfh8oWy6CTrzZQxHt3NR3L2VBpRAmThhH
+ w5N5KQ+8
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ResultsExportW
+ izard$1.class
+SHA-384-Digest: kHqAOCGdp+462IzE3GuhikDYmI/qXbZM+IYlHGf5HSn15GLiQMTrJUav
+ uXOV89MB
+
+Name: icons/elcl16/absolute_comparing@2x.png
+SHA-384-Digest: T9BxTkHB3JxlNTMqud/HeoepCQb5MkUadzB/WNgaK/bi6TOInNZ/yRjW
+ NvvMJFHk
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/ResultSelect
+ ionPage$2.class
+SHA-384-Digest: zqQMXpuY9S0Qrm3tEEY71nnIAzsazr3G9+xsALrYpoNg0jY2+2ibYgrh
+ eHQ5RKu4
+
+Name: icons/elcl16/group_methods.gif
+SHA-384-Digest: vzy3Myk/ZOxECm9opfmmR8VISpCXntH2jqc1e4lr6lsJL0NBSGUMmWbL
+ okO269a0
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ruler/Messages.class
+SHA-384-Digest: O4CMsPW3crR5qzjtdEB04qU6kup07jJfodbQGyVcQSFmE38yD8ubuVht
+ gBY1Wp/y
+
+Name: icons/elcl16/filter_by_diff@2x.gif
+SHA-384-Digest: oOZ/EUSYgEcQZ2Sos3UDxSsqgrYPt5vAn+tL0p0Lk6D4eJkwYv6YndnB
+ +fu5+ViU
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ruler/messages.properties
+SHA-384-Digest: X6ZO9QFq8mwM+39eveHLA0A3/IWHcstLII1tx+QdMiSvl/Kvh9/uz8k4
+ KSJ0zADm
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/messages.propert
+ ies
+SHA-384-Digest: HL0oQKWPKb2IolGZfOs94KjG44Ecy8lJ7SvzDt6XS7qDDA56uFNl5r3d
+ AYgfJbsZ
+
+Name: icons/wizban/export.png
+SHA-384-Digest: jTFweFaYjwk9oEGBd+K1CM8iZzzGzIsqrW1wyxkuApc2wvkYxaX/k6DJ
+ 5MAsK1pD
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/ResultSelect
+ ionPage$1.class
+SHA-384-Digest: H6b1QO5UP/1CQPbQnQ7N7d35sNfD+shYBgle/bxQzSf960qh888y0L/S
+ hGU23VdP
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/ResultSelect
+ ionPage$5$1.class
+SHA-384-Digest: MaFk9b1ae+EOyR7LxpMdUQ5xy8qzMBi0nCbqUn8pB6Tn5ypyp6cJMRFL
+ kkiK7Hea
+
+Name: icons/elcl16/growth_rate.png
+SHA-384-Digest: SLYQ5NMqrke6Lc9Fnxcm+vHKwtBcLxjJw8phvdZ2gQHcVs2tqWp3yyGH
+ aBj5gkie
+
+Name: icons/wizban/compare.png
+SHA-384-Digest: 8/KUy5LRXpTzl2+bbBf+ZgQb1qXAF8lc6waUxAt2rL6KDqsXGvKCxr8A
+ 7OKYhOtK
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage.cla
+ ss
+SHA-384-Digest: r+XItM0WsYtE+uwVcDPhOchmdrSqY1HsIY382mlX+iHF9Eb+zc3N5HX4
+ lYAMlyYA
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/messages.properties
+SHA-384-Digest: xShyJNlGOs415TSrxaHDYRuH6vHl52b1B/23oUlV21fh/FaDlJmT2Mqn
+ DGtL6Zw+
+
+Name: icons/elcl16/group_methods@2x.gif
+SHA-384-Digest: GQ51BbBHV5fHLDH0st3vI7QcETHY/Y445i0GgC3kAS7svek/ZoA8ZHAy
+ YdprSh2W
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableProfilingVi
+ ew$7.class
+SHA-384-Digest: aTupgQhmnTidRtvFZ4qphHzSxaaS9osAnvogmnDBGrvx+NZNqDyNvrC8
+ F3JLP/mN
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ProfilingUIUtils.class
+SHA-384-Digest: jyBEkpkKdbaI9ZOPmJY2ujjhjDwhg7PgLdiIdMOXFIMXYXbdi2ZLrRyi
+ NWlTEewJ
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$2.c
+ lass
+SHA-384-Digest: bbZ16YXbrupcBVoxyXGisDZeoUxR8a/dehnDFZ9b8G/X5FWpwbmX7cLh
+ KsRre/I4
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$6.
+ class
+SHA-384-Digest: Maz1aIIVrdQ+NsF5SGw7V+EXYXxTtFP7wJ4K++E7sT2csdAfUcUK9gpC
+ p1VcI92a
+
+Name: icons/elcl16/profiling_16_export@2x.png
+SHA-384-Digest: Q4kGGjC3Ic6LyYby/7gAuPauSP+VAm19Fq9RVHPJuRWjOkk4liOZIcJX
+ jYO7fL6M
+
+Name: META-INF/maven/com._1c.g5.v8.dt.profiling/com._1c.g5.v8.dt.profili
+ ng.ui/pom.properties
+SHA-384-Digest: HdXK/asBO5Z31Ztr+Dx206Axp6MCk5O2zVO0DF1c4+RlhXlW6hbqeoJi
+ sz+h1p3w
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$8.class
+SHA-384-Digest: D7ASVN4q5SN/eF6af29gGmy1WU1GpCcosjPUiytUu1e4olBt1mnUz+Pc
+ +kllb7Bp
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$4.c
+ lass
+SHA-384-Digest: offtMa9TA7gbj6RF4rch/iWZ8yVMAjCU1L/Nlx16yL+hWPzvvC9GP3dx
+ AHZWkJX5
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$9.c
+ lass
+SHA-384-Digest: xN4Gxziw1CmYq6hp09Y8aYzT3Hz9DgaEpPj80aAmGBACfh69Lcne0juz
+ cjzHjmE8
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ControlsPanel$DateSele
+ ctorLabelProvider.class
+SHA-384-Digest: s7xARii3WG4MVEzOyFO7yTIne9Y0rvA2ax6JWZAdmqyaDBpBE3rwSYYk
+ u/LIrM8I
+
+Name: icons/etool16/profiling_32.png
+SHA-384-Digest: mKZlSJ0eF81tYTGAfHrTK4+EA9DWpsJRlL6Jay8juJwttYIj7CIUq5RW
+ G9cyppSC
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$9$1
+ .class
+SHA-384-Digest: zGRuDRJgXk2rizI/leU4ghOLPIKZEhLNOxV0tVta9TKlErcjD01fg970
+ tBqZAcpP
+
+Name: icons/elcl16/profiling_16_export.png
+SHA-384-Digest: ws/VF9DCk01165jd4OA7PZ4QG6OBr3z50NEac/W12NbwxBnCV/OajL+1
+ 4VZuiDgI
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$9$1
+ .class
+SHA-384-Digest: kcfpCY91kFhitphuE3iHJYpb37BbjQeVs2wgeFmif210YbYi+e4mPxNc
+ BjLbCRtX
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$1.
+ class
+SHA-384-Digest: XS0hI9NCYwu2E9iWjPxtbSrW72GZNTix6H5IM1rYor2P2tNTKxEpnYI9
+ i2yazzkh
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ruler/ProfilingResultsRuler
+ $1.class
+SHA-384-Digest: 0bi1jLmcYYX4FdXO5NwHlbKTu/WCzF6IoybYfEPs4/W/eWMzvHll0OfT
+ amQkIl/8
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ProfilingUIExecutableExtens
+ ionFactory.class
+SHA-384-Digest: Grr6fY9kzQ4gqi1AIILXiqOUwMLP0pZYmLBjUfvZMV+1m7814V5fMpwg
+ iEEE/RVR
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$8.c
+ lass
+SHA-384-Digest: pOYmIszwf5fgnnYL+CwoGPrYeW2EzLTNZXoIgn5D0dxX6c+rRV1pacRO
+ 12kjk2Rp
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ControlsPanel$1.class
+SHA-384-Digest: Gw6Uqv33lr4XjX6r5mvLTxVAiSFS78envp83mnbZMPuMvUVhuRJHjhG+
+ DiDi1LT+
+
+Name: icons/obj16/client.png
+SHA-384-Digest: aOZ3iIzhhXxZeWvJENzL1VYQPzJIk0ezJRpP9a5R71cIB5UXm+sMP+hV
+ xIg75VOE
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$2.class
+SHA-384-Digest: i662/pZIAg+YsG7636K8dUwxO4ArxI3PVhRURyksjEX7oT8SsgCpGUnU
+ 1iybOQUo
+
+Name: icons/elcl16/group_lines@2x.gif
+SHA-384-Digest: tsWYKG3wqgpwKjN6hF5ArrxG9gpfiw2V68Gw3gPRO8i7tAMS5MGqa3Lo
+ m5AYi+z6
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableProfilingVi
+ ew$1.class
+SHA-384-Digest: qlL0aWNo3Xt3yQ1SpkBL137fAfOoK8p/6ZLy0SasuQwQ2wiaA+J3+mmI
+ AurKVyb8
+
+Name: icons/obj16/server.png
+SHA-384-Digest: /mtKHxOx6XqHP9a0mUJCAFfVZ5mtxcW2kyvhMLeYnUjw75M7mQ9tKdpN
+ xKMQ2yR0
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$13
+ .class
+SHA-384-Digest: ZXfMXX1Wo7QfK4aMQIBz/2FacTR5OnS9Z0LtKvuH9SIKuELjOaYH+YeP
+ VCtdyvOY
+
+Name: icons/etool16/profiling_32@2x.png
+SHA-384-Digest: 9M7zxsaH/nAVyvkvParTmG/uoyDQtc4NfsDSpqrzdocvmY+4xwPaNFDq
+ Mvg1S7mG
+
+Name: plugin_ru.properties
+SHA-384-Digest: zFIOVPQOXBnmA683dR3ftpnvYAbFNWofIki+7Wtt9PkS2lcPiHX8ld//
+ zFxQ+fcK
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/messages_ru.properties
+SHA-384-Digest: 7jFs9UFxM+VhoQ+jkdbRQVHTB1DOh2Oa5v30Oj7GoSVjjmNSikFaoseJ
+ qhXPbj8J
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/IProfilingViewTreePart.clas
+ s
+SHA-384-Digest: IlFtW3gFbiJXA3tGvshLGGaR6hU2MZpnJZTK+DSFD+XtW/MMbYeh759R
+ Uu3YihGf
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/ResultSelect
+ ionPage$6.class
+SHA-384-Digest: voG0WtRXYU8eON/Zgjr8i9Lz+7OV1ciqCi/9bNOTBwmrrA/koXs6PrbE
+ uqQeaJ5G
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/messages_ru
+ .properties
+SHA-384-Digest: RWbMalRk7zNMK7jw8RDTq00tWw40kDC6O6y4SYI/9XPPWZNxNexttqQQ
+ S2dHZFiM
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$7.
+ class
+SHA-384-Digest: K7idQFkXIo4SBzFT0Qd5/CN3sB9vJWnoM+/QPo5pXi/lNEHJEeSJdXXz
+ idaoNuZ7
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ControlsPanel.class
+SHA-384-Digest: vBQ7ECmoMRkShI+ROIUsMDxF/9JtVh8L9x33hVFNUS9rsrXNSGD2A9ad
+ DTZOBjwy
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableProfilingVi
+ ew$2.class
+SHA-384-Digest: l6EFhD7nFvFhzudz8fa5+Z+3EK5iz8xrltwt/xe/9o12VEQTgr169AzG
+ U/cqNnA+
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView.class
+SHA-384-Digest: Oc4XUOR4xZYrqW/0iRnRHmTY6rbTBiVw65fB0uxbHyqYUIkQWd+fXrVV
+ 4Q/k1nZ1
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodsTree
+ Filter.class
+SHA-384-Digest: 21LdYOc9Zk4L49yNGo/rC//sQxgblgCXhs0Glm087Gmta86vROnT592W
+ RwFMeQsR
+
+Name: icons/elcl16/compare_view.gif
+SHA-384-Digest: As5CkA++/qouAvDXIbRlrz1vLjhm/+e3Nj86wZdIezb/LxO3qts0yLi2
+ NF7HYa2F
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/messages_ru.properties
+SHA-384-Digest: RQBoNAvrfFQ1oEH/RFOBiUUVrCrUUywmanhNTvnK0+hzXCl0ckejI2Eu
+ /DjAHaEY
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodsTree
+ Comparator.class
+SHA-384-Digest: fDuqI5jWAI7dZ06LIEHULeTPN9bx/WwXBYzk5yza/yy8+kJ/XzTLpPES
+ lLHuXLOV
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ShowRulerHandler.class
+SHA-384-Digest: ztANsGfVnnid0cHc46pHdye1+gjMeqVdW0jCSzG8zkRP7g82rptFXKoH
+ ZKW/KnZX
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$12
+ .class
+SHA-384-Digest: MN7UWJYyD8ApmPjubM0h9tX4tqN/jgJbvmUhM3aSGkpBeoBQUjXZw3Uh
+ Z6umgo8I
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableProfilingVi
+ ew.class
+SHA-384-Digest: NKe8PW4y7LurYcsCmLmgtVpGgg/urfpQhznJLyQf2xPIChKLYrUWWSDU
+ JcEgAJhM
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/messages_ru.prop
+ erties
+SHA-384-Digest: AvNkVVJ5NAkPEzT0g3IrTwz9qt06JlJR7+1rgUelaW/ElKhZL0z6orSq
+ dN4F2Mn9
+
+Name: icons/elcl16/enabled@2x.gif
+SHA-384-Digest: 25iKf+vayuIJB3WT4e1RArnQB0zsQZuDdQ3vQlv01ypv3fP2EAFgnyVr
+ MvcF6ity
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$3.c
+ lass
+SHA-384-Digest: MQVcYmwAqoMUHPWusDEJKrOhEtSiSsNJYk31dRTz8HHxMcqb/2m8zytp
+ sDgVtgYm
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/MethodListV
+ iew$1$1.class
+SHA-384-Digest: lsjw3CaIHwXJ3gIZSlvUO/7pL9gD+oTUKuErwWLUq33Vh4ZIMrpH/iLT
+ dTT4BvvW
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$9.c
+ lass
+SHA-384-Digest: bQxGVUPkTspvxw0kEdci28EfEDSjHe+JYdbTgZJiT1zabAWznB9CMEk7
+ WeeyTMzP
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$7.class
+SHA-384-Digest: TUmEP0GXTzAMSrYbEDCjPhlPCWIQQxR2N77EbcYOPHP/gLfnTj+3KRo3
+ 6OQUfFSi
+
+Name: icons/elcl16/enabled.gif
+SHA-384-Digest: PC876c0O50O3jigqpjJfq4ro3GlkNMNO2tJjeDVvAQLjMhSg8k7txPQb
+ bFu5qp1A
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/MethodLineMapComputer.class
+SHA-384-Digest: HVz6RivJcBEe24f0PG4A6YKvfJYtiKhsxfg2V8gurhPyA3WjcW3Ui/sB
+ GOHhX3BA
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/IResultChangeListener.class
+SHA-384-Digest: xAltaKMramE8MUEnNSGydBOlnOq3EeBEQUqH34ZE0Hds2m3/knLvbc8K
+ uO7aSsSA
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ResultsExportW
+ izard.class
+SHA-384-Digest: 6LpJ36cs8MEHf8SnavWrLbN0XZ6c6XsWmoQa3WB54768JEF/947IAcgP
+ Gl6N91Bi
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$4.class
+SHA-384-Digest: t4wHtJLNz1z8V1tzp1BiClQ12Fxzwvskhq0Zj6Nn2Oz7uqjgEGKuRuAU
+ 2lMLsFIW
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/IProfilingViewPart.class
+SHA-384-Digest: t82kOWw+xL5WQ4VSwBs5vySrBNIQYvxIcHfxLrPJpI1GiSVbaFvturY0
+ 3RfzxNPR
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$2.
+ class
+SHA-384-Digest: 9wOz/WOaTywrsChGwo5TfOO5w2aUbPCc6Bthgn1FzyM87vvlBA0WKJQp
+ hfIRZO+e
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/FullTimeColumn
+ LabelProvider.class
+SHA-384-Digest: RuS7JNUVqhRxnDCVJiyhiFpyCZ7Yb1wk6Ln3D8AQeszttyI6ZDZVBvsC
+ 2LlbbVa2
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$12.class
+SHA-384-Digest: Lkome/CpMTkhpS9DTLRVWXECrwbfo55/TTlsokh8qbCyxqZz3k1MRqh9
+ X6tiNVg8
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ToggleProfilingHandler.clas
+ s
+SHA-384-Digest: x+roP5eHZLSwEhNPZGHalGK3AxvkGL3FYDgNDyZzad1MNWocZp7mJK8p
+ +xD5zDpJ
+
+Name: icons/elcl16/profiling_32_import@2x.png
+SHA-384-Digest: /gWwtffl7iBMCHw01oTDgz2YSWhkD7RTvO9/ZaRAvZi4bqpCD/olqStp
+ 1mIGwiAO
+
+Name: plugin.properties
+SHA-384-Digest: WNrO+2d96kAwCEG5nh5RN5WKi9ZAb1PG9kjtQBiFNn+qHCtAqhHNtCF9
+ q7WUq2cm
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ResultsComparator.clas
+ s
+SHA-384-Digest: UIKs1h6d5+oZnHEDhS/o5NQbdq1CJz/KycINDZylc6DKvv/GphwnX+Yb
+ jjVqW5S4
+
+Name: icons/elcl16/method_list@2x.gif
+SHA-384-Digest: eLlTgnE3jteD5/uxcOe2JPzthzZJITDgIZaasvFHDbwgG8e4rXRnwCZp
+ s2v5xhMu
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/messages_ru.pr
+ operties
+SHA-384-Digest: TmT6duB/kJKKIKo2NajAt0XX+2RmYScgtNkWmTmx98hbd+9uuoKmLthD
+ hO7Jpmgh
+
+Name: icons/elcl16/profiling_32_import.png
+SHA-384-Digest: Ms4ZsFiRRnljXVRWI0iXHGp6CPwTVJkvmGYN2bDypJMH8hGXzSA351D7
+ PU/F5JrQ
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/messages.pr
+ operties
+SHA-384-Digest: Wsql3p9qbyzOtaYTn56wGy/lpcmDqnA8oMH7Po2KWeIlaR28F45teLtg
+ LswDgjw/
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/Messages.cl
+ ass
+SHA-384-Digest: uJK4T9TzNhqxqMk41cA0hCbcwBefCFSCu7zFc71nlvOW4IhU6wPNnUvn
+ 02fqOULR
+
+Name: icons/elcl16/server_mobile_standalone16@2x.png
+SHA-384-Digest: tXR5TlEwTidzqxXSF93DWhTEcDe8m32ssmN7Rux4kyW8xqiV2pE79zLF
+ bhjJh6sz
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/messages.prope
+ rties
+SHA-384-Digest: tgO7d4Rw1fDCsxSSJxSKNVWb8ddATgcrId7cW732+uM1WVvHdochXWeE
+ uWuvXXQ2
+
+Name: icons/etool16/profiling@2x.png
+SHA-384-Digest: fSiLJ803yI8fLlzMewELIXsuWy9vLTFC4fRhkl3Q6YTkmu2GlIx2pbev
+ 70F7FTth
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$4.c
+ lass
+SHA-384-Digest: RzGdzJS97JQlyIXR6hzXdJZWwDl+guLKoRegTm5u2d5Fme6ZXz+XcArJ
+ e2nseHN+
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/methodlist/StatisticsR
+ esult.class
+SHA-384-Digest: j0/htrupeDGUGbaee9nXi02r9ixhn42QVuhhBoA4SspW0XzxRLQZC9aN
+ 5ZXVVO6m
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/TimeWithPercentageLabe
+ lProvider.class
+SHA-384-Digest: TzFczop7xmVFMk9YTqKRGqByOFKDNDMISApN+Lt7gQNeSxzLlxp82aPg
+ dvKVtcDZ
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$10.
+ class
+SHA-384-Digest: sZVmWVnVSwpmYKDIFUdqfHpF9gRb6oN1xUV30lhHa1y7i576/wVyyV4t
+ DRJyOMuf
+
+Name: icons/elcl16/expand_all@2x.gif
+SHA-384-Digest: LkY+o+lyBW4mfdXysoZaedyafiAWlhQubIYYCrOB4oTzeIJ6R92VaJM6
+ 8X4qyc9D
+
+Name: icons/elcl16/enabled_hc@2x.gif
+SHA-384-Digest: 13VRCBR8+VrbmZQAYfn6a2/dqgo7B2VpSW9lg8KKcTFAFKvhob1qg9O6
+ s9PSS1Hy
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/Messages.class
+SHA-384-Digest: laIVRCq3BZFZjghgIEvQ1Oq+FvRY7SQ5w+fpdoSNeigtuknEuA/M44Qs
+ EaJsCISG
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$5.
+ class
+SHA-384-Digest: 6930E7ra4xWEz1mPmG33zV3Ma6Xl57qjQ1HigkAv4gnyqQVP2tgu9zM2
+ B9mh9FuY
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ImportPage$8.c
+ lass
+SHA-384-Digest: cPzhmK8vy75cqjyc1Qj7qH5mRflvpEpW3Hv2JmPoIKlFm/N77FbH660o
+ SkUFgZc8
+
+Name: icons/elcl16/table.gif
+SHA-384-Digest: rCCv00YubU0BGNsMIMB0Ks+vJO5YdNLYVpCqBAZQMoxrz71wo9oN5qj8
+ yJ6ixt63
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/DiffThresholdI
+ nputDialog.class
+SHA-384-Digest: qF4Pahhwrv8eMqd/8nzs4ZxeJPMf4upWMsH/yJs53EeP2H3O5Ts7ryOR
+ xonSycy6
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$10.class
+SHA-384-Digest: sW+WHzgtFmFkQ+TrsVzHj0q1WAZ8cczJdtETAvx6U56dL/QosEycI8BA
+ SeI5GPA/
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ModuleEditorOpener.cla
+ ss
+SHA-384-Digest: YG4/x2Hx3ik7DyApGEHSvNpin4GCpMDly5SnlRrIrtVjsoQZ9KMpZzjw
+ qiIhPkzd
+
+Name: icons/etool16/profiling.png
+SHA-384-Digest: UKg4fkKL41AA/T99uDs6znJQBMUx47o/uoJviCPnYnipAX2hXA0p/mzQ
+ bkkFFEKZ
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$15
+ .class
+SHA-384-Digest: ve7iMFmgQb56Yxzws4C8nDO7qoktOB1P0BNINTfAA/uC/ckYCL3SO8tE
+ FoxW/Nak
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableProfilingVi
+ ew$5.class
+SHA-384-Digest: wUJjk8hUCt9ctWmsNGtFa1CisazEyYKrVROhHWjMwLATOsLKUlqrGbps
+ VtnMJGN5
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/wizard/CompareWizar
+ d$1.class
+SHA-384-Digest: lBnq3qxaZOuajEs3Fp8q7kjC/Ei5//yfOKSzadWoEIRY3k9Xf5js8rMK
+ OiBcLYb2
+
+Name: icons/elcl16/abs_diff.png
+SHA-384-Digest: jr+r+PjXItGa6eHx4PPsQbEdtMT/JOICjx2Oyz2aghf6ZLn1qUM7pUke
+ xySJvJXd
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$7.c
+ lass
+SHA-384-Digest: ehJYvtxJjRtSvUrEEJf1JG0DcKhvRkLctCR/46VF8sBmL/6LePgfjmNu
+ gBSeuIAr
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$4.
+ class
+SHA-384-Digest: IbX0HItg4wdpqihCGioKTduezKkZz5bSm7CxojwlPuAzM4ZpvJgYcjLz
+ /NAxH2HN
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$10.
+ class
+SHA-384-Digest: vWKQkZh5Nvpz1OxMxsD1Nx6/T0BHdvKihUWcrNb4R5TPRpXQVqW7LqQ3
+ oEtp+vmR
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/ProfilingView$3.class
+SHA-384-Digest: Ea12vePqpi3xhWS0cUhYiHzRjER9qwbHvj6z8oDg2y//DX6dicLw6etI
+ YZYJA6fO
+
+Name: icons/elcl16/enabled_hc.gif
+SHA-384-Digest: bz8+FVWTGbJF6JSc83D+FxgdQR1TCYK/Pw2ftXLMouYZpcIkXKK+6Trv
+ 3HGVKYaI
+
+Name: icons/elcl16/table@2x.gif
+SHA-384-Digest: 4cvEaxcAIe862XydoKP4K2p7M3noIwAfCMKznEHgHXFBDj1HO4WQXCD+
+ yMLp13vy
+
+Name: icons/elcl16/compare_view@2x.gif
+SHA-384-Digest: s0rjA10Sn3RGqgiLbb49owiLyoyfEUbKD2oCk7o6WRIrRTSrPOcOnej1
+ /VGPSLCC
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$3.
+ class
+SHA-384-Digest: vXBOCNVeG1WYYz+TzGfr0cCueOjIYcN0YRsIHg/B4exW6FZ7qdLPmxki
+ XEuryL/c
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ruler/ProfilingResultsRuler
+ .class
+SHA-384-Digest: 1ENa8SGDzkItKpiqLLji+N7K3eNleVUr+WggmvgN/jnRPnLiRGvxTrfV
+ kxmQuiuZ
+
+Name: icons/elcl16/expand_all.gif
+SHA-384-Digest: 51yTxLNbPuFb5PTLMhxYgikVrrcZH9IXiEakb16ONo1kufKotDApw1IM
+ w8h7Ga90
+
+Name: icons/etool16/compare_view@2x.gif
+SHA-384-Digest: BdttejRhkJpPfK8YLKl/oGDHwWQGWH7yLrrxN8ibGIaoFbEiPcSQnnmh
+ RBkZShCI
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/compare/view/CompareView$14
+ .class
+SHA-384-Digest: Izlq0jsEdSghYzRIyodKbR/1gKDxZocSCD1aWhfEodaekqqBLg7XD0jW
+ Enjv6dCD
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/ProfilingUIDependenciesModu
+ le.class
+SHA-384-Digest: qZtwavq2UHW/MQ8FHZD31ghHkk1qhU2EhFouVmjUy2cwj1Q1XfsSth2p
+ pZ4H05c1
+
+Name: icons/elcl16/client16@2x.png
+SHA-384-Digest: UJoGWZL3+NkuUl11JAH2Jr3yOjguIOHLmwsM1gHxXP8VtmhYBpBWz6gE
+ 6yWk1guv
+
+Name: icons/elcl16/profiling_16_import@2x.png
+SHA-384-Digest: ZpTqF4SUxTdmVYhECopTRjNj51+OFKwh2O3K64rVb8nZZF99grqPcBUs
+ Fq1cShMt
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/CallsLabelProvider.cla
+ ss
+SHA-384-Digest: 3MKR3V/wmQ9GsUiRE4la8BPyrkLXdO8MsWmnf0WwZeFu5UB59Url5SG3
+ vvwWylC6
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/view/table/TableProfilingVi
+ ew$6.class
+SHA-384-Digest: Q3Or1EM5Er+hmOehMouFsnorqBIe2ehBB7ydTbijZGbai2SUlIkQ/pEO
+ XL2H3T3S
+
+Name: icons/elcl16/profiling_32_export@2x.png
+SHA-384-Digest: fcWpxBKtJOXLLWVCxrAFe1sOtTmnborfUyd6kre8PfSPQlSpyC5+WpPi
+ P2GF3pc1
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/PerformanceMenuVariableProv
+ ider.class
+SHA-384-Digest: kN/VkK46+UfM7NmOrOw5Zl7U4OZOzUHXX7I73bblAWO/i84vtKCZwBmQ
+ 3aVN/S0l
+
+Name: com/_1c/g5/v8/dt/internal/profiling/ui/exportimport/ExportPage$6.c
+ lass
+SHA-384-Digest: nt94u2dDVo3eSZqhQV+MAXzfV/QgekPJQQbkl1idDIxw9sHkICcOgNmI
+ fy+/LxeG
+

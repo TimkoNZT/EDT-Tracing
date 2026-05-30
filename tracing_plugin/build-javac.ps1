@@ -64,7 +64,8 @@ $requiredPatterns = @(
     "org.eclipse.osgi.services_*.jar",
     "com._1c.g5.v8.dt.debug.core_*.jar",
     "com._1c.g5.v8.dt.debug.model_*.jar",
-    "org.eclipse.emf.common_*.jar"
+    "org.eclipse.emf.common_*.jar",
+    "org.eclipse.emf.ecore_*.jar"
 )
 
 $classpathJars = @()
@@ -134,7 +135,7 @@ $metaInfModule = Join-Path $ModuleDir "META-INF"
 $metaInfStage = Join-Path $jarStage "META-INF"
 New-Item -ItemType Directory -Path $metaInfStage -Force | Out-Null
 Copy-Item "$metaInfModule\MANIFEST.MF" $metaInfStage -Force
-if (Test-Path "$metaInfModule\messages*.properties") { Copy-Item "$metaInfModule\messages*.properties" $metaInfStage -Force }
+if (Test-Path "$metaInfModule\messages*.properties") { Copy-Item -Path "$metaInfModule\messages*.properties" -Destination $metaInfStage -Force }
 
 # Copy icons from module
 if (Test-Path (Join-Path $ModuleDir "icons")) { Copy-Item (Join-Path $ModuleDir "icons") $jarStage -Recurse -Force }
@@ -255,14 +256,17 @@ Bundle-Activator: com._1c.g5.v8.dt.internal.tracing.ui.TracingUIActivator
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: 1C
 Bundle-Localization: META-INF/messages
-Require-Bundle: com._1c.g5.v8.dt.profiling.core;bundle-version="[5.0.0,10.0.0)",
-                 org.eclipse.debug.ui,
+Require-Bundle: org.eclipse.debug.ui,
                  org.eclipse.debug.core,
                  org.eclipse.ui.workbench,
+                 org.eclipse.core.runtime;bundle-version="[3.11.1,4.0.0)",
                  org.eclipse.jface;bundle-version="[3.0.0,4.0.0)",
-                 org.eclipse.core.commands;bundle-version="[3.6.0,4.0.0)",
                  org.eclipse.swt;bundle-version="[3.100.0,4.0.0)",
-                 org.eclipse.e4.ui.workbench;bundle-version="[1.8.0,2.0.0)"
+                 com._1c.g5.v8.dt.debug.model;bundle-version="[3.0.0,10.0.0)"
+Import-Package: com._1c.g5.v8.dt.profiling.core;version="[5.0.0,10.0.0)",
+  org.eclipse.core.commands,
+  org.eclipse.emf.common,
+  org.osgi.framework
 Export-Package: com._1c.g5.v8.dt.internal.tracing.ui.view;version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
           </instruction>

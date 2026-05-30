@@ -16,10 +16,10 @@
             id="com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing"
             name="%command.toggleTracing.name"
             description="%command.toggleTracing.description">
-         <state
-               class="org.eclipse.ui.handlers.RegistryToggleState:false"
-               id="org.eclipse.ui.commands.toggleState">
-         </state>
+          <state
+                class="org.eclipse.core.commands.ToggleState"
+                id="org.eclipse.ui.commands.toggleState">
+          </state>
       </command>
    </extension>
 
@@ -40,16 +40,14 @@
                style="toggle">
          </command>
       </menuContribution>
-      <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=additions">
-         <menu
-               id="com._1c.g5.v8.dt.tracing.ui.menu"
-               label="%menu.tracing.name">
-            <command
-                  commandId="com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing"
-                  label="%command.toggleTracing.name"
-                  style="toggle">
-            </command>
-         </menu>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.run?after=breakpointGroup">
+         <command
+               commandId="com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing"
+               label="%command.toggleTracing.name"
+               style="toggle">
+         </command>
       </menuContribution>
    </extension>
 

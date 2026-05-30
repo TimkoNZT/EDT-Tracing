@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugBaseData"
+            class="com._1c.g5.v8.dt.debug.model.base.data.DataPackage"
+            genModel="model/Data.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Data -->
+      <parser
+            type="data"
+            class="com._1c.g5.v8.dt.debug.model.base.data.util.DataResourceFactoryImpl"/>
+   </extension>
+
+
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugArea"
+            class="com._1c.g5.v8.dt.debug.model.area.AreaPackage"
+            genModel="model/Area.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Area -->
+      <parser
+            type="area"
+            class="com._1c.g5.v8.dt.debug.model.area.util.AreaResourceFactoryImpl"/>
+   </extension>
+
+
+   
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugBreakpoints"
+            class="com._1c.g5.v8.dt.debug.model.breakpoints.BreakpointsPackage"
+            genModel="model/Breakpoints.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Breakpoints -->
+      <parser
+            type="breakpoints"
+            class="com._1c.g5.v8.dt.debug.model.breakpoints.util.BreakpointsResourceFactoryImpl"/>
+   </extension>
+
+
+   
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugCalculations"
+            class="com._1c.g5.v8.dt.debug.model.calculations.CalculationsPackage"
+            genModel="model/Calculations.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Calculations -->
+      <parser
+            type="calculations"
+            class="com._1c.g5.v8.dt.debug.model.calculations.util.CalculationsResourceFactoryImpl"/>
+   </extension>
+
+
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugDBGUICommands"
+            class="com._1c.g5.v8.dt.debug.model.dbgui.commands.CommandsPackage"
+            genModel="model/Commands.xcore"/>
+   </extension>
+   
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Commands -->
+      <parser
+            type="commands"
+            class="com._1c.g5.v8.dt.debug.model.dbgui.commands.util.CommandsResourceFactoryImpl"/>
+   </extension>
+
+
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugForegroundData"
+            class="com._1c.g5.v8.dt.debug.model.foreground.data.DataPackage"
+            genModel="model/ForegroundData.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated core -->
+      <parser
+            type="foregroundData"
+            class="com._1c.g5.v8.dt.debug.model.foreground.data.util.DataResourceFactoryImpl"/>
+   </extension>
+
+
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugMeasure"
+            class="com._1c.g5.v8.dt.debug.model.measure.MeasurePackage"
+            genModel="model/Measure.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Measure -->
+      <parser
+            type="measure"
+            class="com._1c.g5.v8.dt.debug.model.measure.util.MeasureResourceFactoryImpl"/>
+   </extension>
+
+
+   
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugRTEInfo"
+            class="com._1c.g5.v8.dt.debug.model.rte.info.InfoPackage"
+            genModel="model/Info.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Info -->
+      <parser
+            type="info"
+            class="com._1c.g5.v8.dt.debug.model.rte.info.util.InfoResourceFactoryImpl"/>
+   </extension>
+
+
+   
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugRDBGRequestResponse"
+            class="com._1c.g5.v8.dt.debug.model.rdbg.request.response.ResponsePackage"
+            genModel="model/Response.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Response -->
+      <parser
+            type="response"
+            class="com._1c.g5.v8.dt.debug.model.rdbg.request.response.util.ResponseResourceFactoryImpl"/>
+   </extension>
+
+
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated core -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugRTEFilter"
+            class="com._1c.g5.v8.dt.debug.model.rte.filter.FilterPackage"
+            genModel="model/Filter.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Filter -->
+      <parser
+            type="filter"
+            class="com._1c.g5.v8.dt.debug.model.rte.filter.util.FilterResourceFactoryImpl"/>
+   </extension>
+   
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated Core -->
+      <package
+            uri="http://v8.1c.ru/8.1/data/core"
+            class="com._1c.g5.v8.dt.debug.model.core.CorePackage"
+            genModel="model/Core.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Core -->
+      <parser
+            type="core"
+            class="com._1c.g5.v8.dt.debug.model.core.util.CoreResourceFactoryImpl"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated BslExceptions -->
+      <package
+            uri="http://v8.1c.ru/8.2/bsl"
+            class="com._1c.g5.v8.dt.debug.model.bsl.exceptions.ExceptionsPackage"
+            genModel="model/BslExceptions.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated BslExceptions -->
+      <parser
+            type="exceptions"
+            class="com._1c.g5.v8.dt.debug.model.bsl.exceptions.util.ExceptionsResourceFactoryImpl"/>
+   </extension>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated Attach -->
+      <package
+            uri="http://v8.1c.ru/8.3/debugger/debugAutoAttach"
+            class="com._1c.g5.v8.dt.debug.model.attach.AttachPackage"
+            genModel="model/Attach.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Attach -->
+      <parser
+            type="attach"
+            class="com._1c.g5.v8.dt.debug.model.attach.util.AttachResourceFactoryImpl"/>
+   </extension>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated Virtual -->
+      <package
+            uri="http://v8.1c.ru/8.2/virtual-resource-system"
+            class="com._1c.g5.v8.dt.debug.model.virtual.VirtualPackage"
+            genModel="model/Virtual.xcore"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated Virtual -->
+      <parser
+            type="virtual"
+            class="com._1c.g5.v8.dt.debug.model.virtual.util.VirtualResourceFactoryImpl"/>
+   </extension>
+</plugin>
