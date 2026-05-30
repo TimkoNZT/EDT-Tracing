@@ -47,11 +47,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.TableColumn;
 
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.handlers.RegistryToggleState;
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.State;
 import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260530-005";
+    private static final String BUILD_TAG = "20260530-006";
     private static final int MAX_STEPS = 100000;
     private static final int MAX_CONSECUTIVE_NULL = 5;
 
@@ -96,6 +100,20 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
         createColumns();
         createToolbarActions();
+
+        // Reset persisted toggle state — RegistryToggleState survives restarts
+        ICommandService cs = (ICommandService)
+            getSite().getService(ICommandService.class);
+        if (cs != null) {
+            Command cmd = cs.getCommand(
+                "com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing");
+            if (cmd != null) {
+                State st = cmd.getState(RegistryToggleState.STATE_ID);
+                if (st != null && Boolean.TRUE.equals(st.getValue())) {
+                    st.setValue(false);
+                }
+            }
+        }
 
         tableViewer.addDoubleClickListener(event -> {
             IStructuredSelection sel = (IStructuredSelection) event.getSelection();
@@ -405,23 +423,23 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             }
             for (IThread t : threads) {
                 boolean suspended = t.isSuspended();
-                boolean canStepInto = t instanceof IStep
-                    && ((IStep) t).canStepInto();
+                boolean canStepOver = t instanceof IStep
+                    && ((IStep) t).canStepOver();
                 log("stepNextTarget: " + safeTargetName(dt) + "/"
                     + safeThreadName(t) + " suspended=" + suspended
-                    + " canStepInto=" + canStepInto);
-                if (suspended && canStepInto) {
+                    + " canStepOver=" + canStepOver);
+                if (suspended && canStepOver) {
                     try {
                         steppedTarget = dt;
                         steppedThread = t;
-                        ((IStep) t).stepInto();
-                        log("stepNextTarget: stepInto called on "
+                        ((IStep) t).stepOver();
+                        log("stepNextTarget: stepOver called on "
                             + safeTargetName(dt) + "/" + safeThreadName(t));
                         return;
                     } catch (DebugException e) {
                         steppedTarget = null;
                         steppedThread = null;
-                        log("stepInto failed: " + e.getMessage());
+                        log("stepOver failed: " + e.getMessage());
                     }
                 }
             }

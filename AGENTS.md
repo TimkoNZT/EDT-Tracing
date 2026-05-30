@@ -119,8 +119,11 @@ D:\EDT\EDT_tracing/
 - **Две Guava**: В EDT есть `com.google.guava_15.0.0` (Eclipse) и `32.1.3.jre` (1C). Использовать `.jre`.
 - **DebugEvent.getDetail() в EDT**: EDT **НЕ** выставляет стандартные Eclipse-флаги в detail (`CLIENT_REQUEST`, `STEP_END`). Все SUSPEND-события приходят с `detail=16` (`BREAKPOINT`) независимо от причины (step или breakpoint). **Решение**: не проверять detail вообще.
 - **getTopStackFrame() после stepInto**: EDT может не успеть заполнить фрейм к моменту обработки SUSPEND. Используем `resolveFrame()` с retry-циклом (до 400ms).
-- **stepOver() в EDT**: при stepOver после завершения шага thread может показать `suspended=false`, если шаг вышел из BSL-контекста. **Решение**: использовать `stepInto()` — он гарантированно заходит внутрь BSL-методов, где фрейм доступен.
+- **stepOver() в EDT**: stepOver предпочтительнее stepInto. stepInto входит в нативные вызовы (`StrSplit` и т.д.) и выходит из BSL-контекста, теряя фрейм. stepOver выполняет строку целиком и останавливается на следующей — реже выходит из BSL.
 - **Stale SUSPEND-события**: если таргет уже был suspended в момент старта трассировки (например, на breakpoint), его SUSPEND-событие может прийти с задержкой во время фазы степпинга. Отфильтровываем через `steppedTarget && dt != steppedTarget`.
+- **stepInto после programmatic suspend**: первый stepInto работает (заходит в BSL-метод), второй stepInto из тела метода вызывает нативную функцию → поток выходит из BSL. После step SUSPEND поток RUNNING (не suspended), фрейма нет. Re-suspend ловит поток в непредсказуемой позиции (BSL или platform).
+- **ToggleState**: `RegistryToggleState` сохраняет состояние между сессиями Eclipse → кнопка отображается нажатой при старте. `org.eclipse.core.commands.ToggleState` без initial value даёт NPE в `HandlerProxy.updateElement()`. Решение: использовать `RegistryToggleState:false` и сбрасывать `state.setValue(false)` в `createPartControl()` при старте вьюхи.
+- **Git**: первый коммит (build 005) — `git log` для истории.
 
 ---
 
