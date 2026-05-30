@@ -136,6 +136,18 @@ New-Item -ItemType Directory -Path $metaInfStage -Force | Out-Null
 Copy-Item "$metaInfModule\MANIFEST.MF" $metaInfStage -Force
 if (Test-Path "$metaInfModule\messages*.properties") { Copy-Item "$metaInfModule\messages*.properties" $metaInfStage -Force }
 
+# Copy icons from module
+if (Test-Path (Join-Path $ModuleDir "icons")) { Copy-Item (Join-Path $ModuleDir "icons") $jarStage -Recurse -Force }
+
+# Copy resource bundles (.properties) from source tree
+Get-ChildItem $SrcDir -Recurse -Filter "*.properties" | ForEach-Object {
+    $relPath = $_.FullName.Substring($SrcDir.Length + 1)
+    $destPath = Join-Path $jarStage $relPath
+    $destDir = Split-Path $destPath -Parent
+    if (-not (Test-Path $destDir)) { New-Item -ItemType Directory -Path $destDir -Force | Out-Null }
+    Copy-Item $_.FullName $destDir -Force
+}
+
 # Copy root-level files (plugin.xml, fragment.e4xmi) to JAR root
 if (Test-Path (Join-Path $ModuleDir "plugin.xml")) { Copy-Item (Join-Path $ModuleDir "plugin.xml") $jarStage -Force }
 if (Test-Path (Join-Path $ModuleDir "fragment.e4xmi")) { Copy-Item (Join-Path $ModuleDir "fragment.e4xmi") $jarStage -Force }

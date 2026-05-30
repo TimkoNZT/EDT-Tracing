@@ -36,8 +36,20 @@
                commandId="com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing"
                label="%command.toggleTracing.name"
                tooltip="%command.toggleTracing.description"
+               icon="icons/tracing.png"
                style="toggle">
          </command>
+      </menuContribution>
+      <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="com._1c.g5.v8.dt.tracing.ui.menu"
+               label="%menu.tracing.name">
+            <command
+                  commandId="com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing"
+                  label="%command.toggleTracing.name"
+                  style="toggle">
+            </command>
+         </menu>
       </menuContribution>
    </extension>
 

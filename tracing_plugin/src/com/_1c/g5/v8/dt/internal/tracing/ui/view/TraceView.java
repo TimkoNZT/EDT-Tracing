@@ -32,6 +32,17 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart {
 
+    private static final String TRACE_COL_MODULE = Messages.TraceView_Module;
+    private static final String TRACE_COL_METHOD = Messages.TraceView_Method;
+    private static final String TRACE_COL_LINE_NUM = Messages.TraceView_LineNumber;
+    private static final String TRACE_COL_LINE = Messages.TraceView_Line;
+    private static final String TRACE_COL_CALLS = Messages.TraceView_Calls;
+    private static final String TRACE_COL_DURATION = Messages.TraceView_Duration;
+    private static final String TRACE_COL_PURE_TIME = Messages.TraceView_PureTime;
+    private static final String TRACE_COL_PERCENT = Messages.TraceView_Percent;
+    private static final String TRACE_COL_TARGET = Messages.TraceView_Target;
+    private static final String TRACE_COL_SERVER_CALL = Messages.TraceView_ServerCall;
+
     public static final String ID = "com._1c.g5.v8.dt.tracing.ui.TraceView";
 
     private TableViewer tableViewer;
@@ -103,11 +114,11 @@ public class TraceView extends ViewPart {
 
     private void createColumns() {
         String[] titles = {
-            "Module", "Method", "Line#", "Line",
-            "Calls", "Duration(ms)", "Pure(ms)", "%",
-            "Target", "ServerCall"
+            TRACE_COL_MODULE, TRACE_COL_METHOD, TRACE_COL_LINE_NUM, TRACE_COL_LINE,
+            TRACE_COL_CALLS, TRACE_COL_DURATION, TRACE_COL_PURE_TIME, TRACE_COL_PERCENT,
+            TRACE_COL_TARGET, TRACE_COL_SERVER_CALL
         };
-        int[] widths = { 150, 200, 50, 200, 50, 80, 80, 50, 80, 60 };
+        int[] widths = { 150, 200, 60, 200, 60, 90, 80, 50, 80, 80 };
 
         for (int i = 0; i < titles.length; i++) {
             TableViewerColumn tvc = new TableViewerColumn(tableViewer, SWT.NONE);
