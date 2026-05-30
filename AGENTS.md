@@ -82,6 +82,25 @@ org.eclipse.e4.ui.services        1.6.200.v20231030-2045
 
 ---
 
+## Toggle command (RegistryToggleState)
+
+- Для toolbar-кнопки со `style="toggle"` нужно зарегистрировать `<state>` в команде:
+  ```xml
+  <command id="..." name="..." description="...">
+     <state class="org.eclipse.ui.handlers.RegistryToggleState:false"
+            id="org.eclipse.ui.commands.toggleState"/>
+  </command>
+  ```
+- Без этого `HandlerUtil.toggleCommandState()` падает с `The command does not have a toggle state`.
+- Класс `org.eclipse.ui.handlers.RegistryToggleState` входит в `org.eclipse.ui.workbench`.
+
+## Workspace
+
+- EDT workspace: `D:\EDT\Workspace`
+- `.metadata/.log` — основной лог ошибок EDT.
+
+---
+
 ## Classpath для компиляции (~28 JAR)
 
 - `org.eclipse.swt.win32.win32.x86_64_*.jar` — обязателен (основной SWT пустой).
@@ -105,7 +124,4 @@ org.eclipse.e4.ui.services        1.6.200.v20231030-2045
 
 ## Ссылочные плагины
 
-- `com.company1c.link.ide.edt_4.0.3/` — пример e4-фрагмента (exploded bundle) с SampleView.
 - `com._1c.g5.v8.dt.profiling.ui_*.jar` — пример legacy view + ExecutableExtensionFactory.
-- `legacy-view-plugin/` — наш минимальный legacy sample (подтверждённо работает).
-- `e4-fragment-plugin/` — наш минимальный e4-фрагмент (не проверен до конца).

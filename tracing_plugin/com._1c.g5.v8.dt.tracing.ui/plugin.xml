@@ -16,6 +16,10 @@
             id="com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing"
             name="%command.toggleTracing.name"
             description="%command.toggleTracing.description">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:false"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
       </command>
    </extension>
 
