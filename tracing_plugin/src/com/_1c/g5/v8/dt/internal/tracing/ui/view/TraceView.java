@@ -3,7 +3,6 @@ package com._1c.g5.v8.dt.internal.tracing.ui.view;
 import com._1c.g5.v8.dt.internal.tracing.ui.TracingUIActivator;
 
 import java.io.BufferedWriter;
-import org.eclipse.core.resources.IFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,8 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
@@ -30,7 +27,9 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
@@ -53,10 +52,10 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260530-012";
+    private static final String BUILD_TAG = "20260530-014";
     private static final int MAX_STEPS = 100000;
-    private static final int FRAME_POLL_ATTEMPTS = 20;
-    private static final int FRAME_POLL_DELAY_MS = 250;
+    private static final int FRAME_POLL_ATTEMPTS = 600;
+    private static final int FRAME_POLL_DELAY_MS = 100;
 
     private static final String TRACE_COL_STEP  = Messages.TraceView_StepNo;
     private static final String TRACE_COL_TIME  = Messages.TraceView_Time;
@@ -588,41 +587,10 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                 .getActiveWorkbenchWindow().getActivePage();
             if (page == null) return;
 
-            // 1. Try source locator from the launch
-            Object sourceElement = null;
-            org.eclipse.debug.core.model.ISourceLocator sl =
-                frame.getLaunch().getSourceLocator();
-            if (sl != null)
-                sourceElement = sl.getSourceElement(frame);
-            if (sourceElement instanceof IFile) {
-                IDE.openEditor(page, (IFile) sourceElement, true);
-                return;
-            }
-
-            // 2. Try frame.getAdapter(IFile.class)
-            IFile adapted = frame.getAdapter(IFile.class);
-            if (adapted != null) {
-                IDE.openEditor(page, adapted, true);
-                return;
-            }
-
-            // 3. Parse module name from frame name ("ModuleName.MethodName")
-            String fname = safeFrameName(frame);
-            int dot = fname.lastIndexOf('.');
-            if (dot > 0) {
-                String module = fname.substring(0, dot);
-                // EDT modules are typically under src/ with .bsl/.Form/Module.bsl
-                IFile[] all = ResourcesPlugin.getWorkspace().getRoot()
-                    .findFilesForLocationURI(java.net.URI.create(
-                        "file:///" + module.replace('.', '/')));
-                // Too broad — log and let user know
-                log("try opening module: " + module);
-            }
-
-            log("no source for " + fname
-                + " (sourceElement="
-                + (sourceElement != null ? sourceElement.getClass().getName() : "null")
-                + ")");
+            // Use DebugUITools source lookup — delegates to EDT's
+            // BslSourceDisplay for IBslStackFrame (Module → editor)
+            DebugUITools.displaySource(
+                DebugUITools.lookupSource(frame, null), page);
         } catch (Exception e) {
             TracingUIActivator.getDefault().getLog().log(
                 new Status(IStatus.ERROR, TracingUIActivator.PLUGIN_ID,

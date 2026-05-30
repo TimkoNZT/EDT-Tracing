@@ -56,7 +56,7 @@ D:\EDT\EDT_tracing/
 2. **Suspend** каждого таргета (без breakpoint-ов)
 3. Регистрируемся как `IDebugEventSetListener` на `DebugPlugin`
 4. **Round-robin**: каждый `SUSPEND` → `stepInto()` на следующем таргете → запись (target, thread, frame, line)
-5. **Frame population**: после SUSPEND может быть задержка до 5с (`resolveFrame()` — 20 попыток × 250ms)
+  5. **Frame population**: после SUSPEND может быть задержка до 10мин (`resolveFrame()` — 600 попыток × 100ms)
 6. **Null frame**: если фрейма нет (выход из BSL), `stepNextTarget()` сам ре-суспендит таргет
 7. **Новые таргеты**: при каждом SUSPEND сканируем `getDebugTargets()` на предмет новых
 8. **TERMINATE**: удаляем таргет из списка, если все завершены — стоп
