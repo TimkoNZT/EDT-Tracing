@@ -239,8 +239,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         }
 
         if (targets.isEmpty()) {
-            log("startTracing: no suspendable targets");
-            return;
+            log("startTracing: no targets yet, waiting for new targets");
         }
 
         tracingActive = true;
@@ -286,6 +285,8 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         for (DebugEvent ev : events) {
             if (ev.getKind() == DebugEvent.SUSPEND) {
                 handleSuspend(ev);
+            } else if (ev.getKind() == DebugEvent.CREATE) {
+                handleCreate(ev);
             } else if (ev.getKind() == DebugEvent.TERMINATE) {
                 Object src = ev.getSource();
                 if (src instanceof IDebugTarget) {
@@ -384,7 +385,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         TraceStepRecord rec = new TraceStepRecord(
             ++stepCount, targetName, threadName,
             frameName, lineNumber, System.currentTimeMillis(), frame);
-        traceRecords.add(rec);
+        traceRecords.add(0, rec);
 
         Display.getDefault().asyncExec(() -> {
             if (!tableViewer.getTable().isDisposed()) {
@@ -488,6 +489,27 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                 log("checkNewTargets: added " + safeTargetName(dt));
             }
         }
+    }
+
+    private void handleCreate(DebugEvent event) {
+        Object src = event.getSource();
+        if (!(src instanceof IDebugTarget)) return;
+        IDebugTarget dt = (IDebugTarget) src;
+        if (targets.contains(dt)) return;
+        if (!(dt instanceof ISuspendResume)) return;
+        ISuspendResume sr = (ISuspendResume) dt;
+        targets.add(dt);
+        if (!sr.isSuspended() && sr.canSuspend()) {
+            pendingSuspends++;
+            try {
+                sr.suspend();
+                suspendedByUs.add(dt);
+            } catch (DebugException e) {
+                log("suspend new target on CREATE failed: " + e.getMessage());
+                pendingSuspends--;
+            }
+        }
+        log("handleCreate: added " + safeTargetName(dt));
     }
 
     // ==================== Helpers ====================
