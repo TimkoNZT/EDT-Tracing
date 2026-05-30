@@ -26,6 +26,13 @@ D:\EDT\EDT_tracing/
   - Авто-определяет EDT, компилирует `src/`, пакует JAR.
   - Итог: P2-репозиторий + ZIP в `tracing_plugin/dist/`.
 
+- **Deploy (quick copy)**: после сборки скопировать JAR в кэш EDT для быстрого тестирования (без переустановки через P2):
+  ```
+  Copy-Item -LiteralPath "D:\EDT\EDT_tracing\tracing_plugin\dist\p2repo\plugins\com._1c.g5.v8.dt.tracing.ui_1.0.0.jar" `
+    -Destination "C:\Users\Тимур\.eclipse\org.eclipse.platform_4.30.0_233488020_win32_win32_x86_64\plugins\" -Force
+  ```
+  (путь может отличаться для другой версии EDT — находится через `eclipse.p2.data.area` в `configuration/config.ini` EDT-установки + смотрим `plugins/` в конфигурационной локации Eclipse, куда P2 ставит плагины)
+
 - **Важно: `plugin.xml` должен быть в корне модуля** (не внутри `META-INF/`!), иначе Eclipse не видит extension-точки. Build-скрипты копируют `plugin.xml` в корень JAR отдельно от `META-INF/`.
 
 - **Feature обязателен** — без него p2 не показывает плагин в Install New Software.
@@ -48,9 +55,12 @@ D:\EDT\EDT_tracing/
 1. **Toggle ON**: собираем ВСЕ `IDebugTarget` из `ILaunchManager.getDebugTargets()`, фильтр по `instanceof ISuspendResume`
 2. **Suspend** каждого таргета (без breakpoint-ов)
 3. Регистрируемся как `IDebugEventSetListener` на `DebugPlugin`
-4. **Round-robin**: каждый `SUSPEND` с `DebugEvent.STEP_END` → запись (target, thread, frame, line) → stepOver следующего таргета
-5. **Новые таргеты**: при каждом SUSPEND сканируем `getDebugTargets()` на предмет новых
-6. **Toggle OFF / MAX_STEPS / все таргеты завершены**: `resume()` всех
+4. **Round-robin**: каждый `SUSPEND` → `stepInto()` на следующем таргете → запись (target, thread, frame, line)
+5. **Frame population**: после SUSPEND может быть задержка до 5с (`resolveFrame()` — 20 попыток × 250ms)
+6. **Null frame**: если фрейма нет (выход из BSL), `stepNextTarget()` сам ре-суспендит таргет
+7. **Новые таргеты**: при каждом SUSPEND сканируем `getDebugTargets()` на предмет новых
+8. **TERMINATE**: удаляем таргет из списка, если все завершены — стоп
+9. **Toggle OFF / MAX_STEPS / все таргеты завершены**: `resume()` всех
 
 ### Ключевые классы (Eclipse Debug API)
 
@@ -118,8 +128,9 @@ D:\EDT\EDT_tracing/
 - **1cedtc.exe**: Ищется рекурсивно под `$edtHome`.
 - **Две Guava**: В EDT есть `com.google.guava_15.0.0` (Eclipse) и `32.1.3.jre` (1C). Использовать `.jre`.
 - **DebugEvent.getDetail() в EDT**: EDT **НЕ** выставляет стандартные Eclipse-флаги в detail (`CLIENT_REQUEST`, `STEP_END`). Все SUSPEND-события приходят с `detail=16` (`BREAKPOINT`) независимо от причины (step или breakpoint). **Решение**: не проверять detail вообще.
-- **getTopStackFrame() после stepInto**: EDT может не успеть заполнить фрейм к моменту обработки SUSPEND. Используем `resolveFrame()` с retry-циклом (до 400ms).
-- **stepOver() в EDT**: stepOver предпочтительнее stepInto. stepInto входит в нативные вызовы (`StrSplit` и т.д.) и выходит из BSL-контекста, теряя фрейм. stepOver выполняет строку целиком и останавливается на следующей — реже выходит из BSL.
+- **RDBG step**: `RuntimeDebugHttpClient` шлёт POST `cmd=step` с `RDBGStepRequest(action=DebugStepAction.STEP_IN|STEP|STEP_OUT, targetID)`. Разница между stepInto и stepOver — только enum, вся логика в 1С runtime.
+- **getTopStackFrame() после stepInto**: EDT может не успеть заполнить фрейм к моменту обработки SUSPEND. Используем `resolveFrame()` с retry-циклом (до 5с = 20 × 250ms).
+- **Null frame после stepInto**: stepInto может выйти из BSL (нативный вызов, конец функции). Фрейм null. Поток RUNNING. Решение: `stepNextTarget()` ре-суспендит таргет, следующий SUSPEND → снова stepInto. Никакого чёрного списка или счётчика — проверяем только жив ли таргет (TERMINATE удаляет из списка).
 - **Stale SUSPEND-события**: если таргет уже был suspended в момент старта трассировки (например, на breakpoint), его SUSPEND-событие может прийти с задержкой во время фазы степпинга. Отфильтровываем через `steppedTarget && dt != steppedTarget`.
 - **stepInto после programmatic suspend**: первый stepInto работает (заходит в BSL-метод), второй stepInto из тела метода вызывает нативную функцию → поток выходит из BSL. После step SUSPEND поток RUNNING (не suspended), фрейма нет. Re-suspend ловит поток в непредсказуемой позиции (BSL или platform).
 - **ToggleState**: `RegistryToggleState` сохраняет состояние между сессиями Eclipse → кнопка отображается нажатой при старте. `org.eclipse.core.commands.ToggleState` без initial value даёт NPE в `HandlerProxy.updateElement()`. Решение: использовать `RegistryToggleState:false` и сбрасывать `state.setValue(false)` в `createPartControl()` при старте вьюхи.

@@ -10,10 +10,8 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
@@ -55,9 +53,10 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260530-006";
+    private static final String BUILD_TAG = "20260530-012";
     private static final int MAX_STEPS = 100000;
-    private static final int MAX_CONSECUTIVE_NULL = 5;
+    private static final int FRAME_POLL_ATTEMPTS = 20;
+    private static final int FRAME_POLL_DELAY_MS = 250;
 
     private static final String TRACE_COL_STEP  = Messages.TraceView_StepNo;
     private static final String TRACE_COL_TIME  = Messages.TraceView_Time;
@@ -80,7 +79,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private int stepCount;
     private int pendingSuspends;
     private int currentTargetIndex;
-    private final Map<IDebugTarget, Integer> consecutiveNullFrames = new HashMap<>();
+    private final Set<IDebugTarget> stepOverMode = new HashSet<>();
 
     private void log(String msg) {
         TracingUIActivator.getDefault().getLog().log(
@@ -187,7 +186,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         pendingSuspends = 0;
         currentTargetIndex = -1;
         suspendedByUs.clear();
-        consecutiveNullFrames.clear();
+        stepOverMode.clear();
 
         for (IDebugTarget dt : lm.getDebugTargets()) {
             if (!(dt instanceof ISuspendResume)) continue;
@@ -275,7 +274,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         }
         targets.clear();
         suspendedByUs.clear();
-        consecutiveNullFrames.clear();
+        stepOverMode.clear();
         log("stopTracing: " + stepCount + " steps recorded");
     }
 
@@ -287,6 +286,18 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         for (DebugEvent ev : events) {
             if (ev.getKind() == DebugEvent.SUSPEND) {
                 handleSuspend(ev);
+            } else if (ev.getKind() == DebugEvent.TERMINATE) {
+                Object src = ev.getSource();
+                if (src instanceof IDebugTarget) {
+                    IDebugTarget dt = (IDebugTarget) src;
+                    if (targets.remove(dt)) {
+                        log("TERMINATE: removed " + safeTargetName(dt));
+                    }
+                    if (targets.isEmpty()) {
+                        log("all targets terminated — stopping");
+                        stopTracing();
+                    }
+                }
             }
         }
     }
@@ -342,33 +353,12 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         IStackFrame frame = resolveFrame(thread);
 
         if (frame == null) {
-            int nullCount = consecutiveNullFrames.merge(dt, 1, Integer::sum);
             log("frame null for " + targetName + "/" + safeThreadName(thread)
-                + " — step exited BSL (null#" + nullCount + " of "
-                + MAX_CONSECUTIVE_NULL + ")");
-            if (nullCount >= MAX_CONSECUTIVE_NULL) {
-                log("too many consecutive null frames for " + targetName
-                    + " — removing target");
-                targets.remove(dt);
-                consecutiveNullFrames.remove(dt);
-                checkNewTargets();
-                if (targets.isEmpty()) {
-                    log("no targets left — stopping");
-                    stopTracing();
-                    return;
-                }
-                stepNextTarget();
-                return;
-            }
-            // Target is no longer suspended after a null-frame step.
-            // Don't re-suspend here — let stepNextTarget() handle re-suspends
-            // for ALL non-suspended targets via its fallback loop.
-            checkNewTargets();
+                + " — step exited BSL, switching to stepOver for this target");
+            stepOverMode.add(dt);
             stepNextTarget();
             return;
         }
-        // Successful step — reset consecutive null counter for this target
-        consecutiveNullFrames.remove(dt);
 
         String threadName = safeThreadName(thread);
         String frameName = safeFrameName(frame);
@@ -423,23 +413,30 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             }
             for (IThread t : threads) {
                 boolean suspended = t.isSuspended();
-                boolean canStepOver = t instanceof IStep
-                    && ((IStep) t).canStepOver();
+                boolean canStep = t instanceof IStep && ((IStep) t).canStepInto();
                 log("stepNextTarget: " + safeTargetName(dt) + "/"
                     + safeThreadName(t) + " suspended=" + suspended
-                    + " canStepOver=" + canStepOver);
-                if (suspended && canStepOver) {
+                    + " canStepInto=" + canStep);
+                if (suspended && canStep) {
+                    boolean useStepOver = stepOverMode.contains(dt);
                     try {
                         steppedTarget = dt;
                         steppedThread = t;
-                        ((IStep) t).stepOver();
-                        log("stepNextTarget: stepOver called on "
-                            + safeTargetName(dt) + "/" + safeThreadName(t));
+                        if (useStepOver) {
+                            ((IStep) t).stepOver();
+                            log("stepNextTarget: stepOver called on "
+                                + safeTargetName(dt) + "/" + safeThreadName(t));
+                        } else {
+                            ((IStep) t).stepInto();
+                            log("stepNextTarget: stepInto called on "
+                                + safeTargetName(dt) + "/" + safeThreadName(t));
+                        }
                         return;
                     } catch (DebugException e) {
                         steppedTarget = null;
                         steppedThread = null;
-                        log("stepOver failed: " + e.getMessage());
+                        log((useStepOver ? "stepOver" : "stepInto")
+                            + " failed: " + e.getMessage());
                     }
                 }
             }
@@ -521,21 +518,16 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private static IStackFrame resolveFrame(IThread thread) {
         if (thread == null) return null;
-        // Give EDT time to populate the frame after SUSPEND
-        try { Thread.sleep(50); } catch (InterruptedException e) { return null; }
-        for (int attempt = 0; attempt < 10; attempt++) {
+        for (int attempt = 0; attempt < FRAME_POLL_ATTEMPTS; attempt++) {
             try {
                 IStackFrame f = thread.getTopStackFrame();
                 if (f != null) return f;
             } catch (DebugException e) { /* retry */ }
-            // Fallback: getStackFrames() works in EDT when getTopStackFrame() returns null
             try {
                 IStackFrame[] frames = thread.getStackFrames();
                 if (frames != null && frames.length > 0) return frames[0];
             } catch (DebugException e) { /* ignore */ }
-            // Early exit: thread is no longer suspended — frame won't come
-            if (!thread.isSuspended()) break;
-            try { Thread.sleep(100); } catch (InterruptedException e) { break; }
+            try { Thread.sleep(FRAME_POLL_DELAY_MS); } catch (InterruptedException e) { break; }
         }
         return null;
     }
