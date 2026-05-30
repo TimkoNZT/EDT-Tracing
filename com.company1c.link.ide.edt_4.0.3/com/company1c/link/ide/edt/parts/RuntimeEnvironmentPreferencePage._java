@@ -1,0 +1,412 @@
+/**
+ * Copyright (C) 2015, 1C
+ */
+package com._1c.g5.v8.dt.internal.platform.services.ui.runtimes.environments;
+
+import static java.lang.String.format;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.CheckStateChangedEvent;
+import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.ICheckStateProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
+
+import com._1c.g5.v8.dt.platform.services.core.runtimes.IRuntimeInstallationChangeListener;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.IRuntimeInstallationManager;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.IRuntimeType;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.IRuntimeTypeRegistry;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.RuntimeInstallations;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IExecutionEnvironment;
+import com._1c.g5.v8.dt.platform.services.core.runtimes.environments.IExecutionEnvironmentProvider;
+import com._1c.g5.v8.dt.platform.services.model.RuntimeInstallation;
+import com._1c.g5.v8.dt.platform.services.ui.CheckedBoldColumnLabelProvider;
+import com._1c.g5.v8.dt.platform.services.ui.PlatformServicesUiPlugin;
+import com._1c.g5.wiring.ServiceAccess;
+import com._1c.g5.wiring.ServiceProperties;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+
+/**
+ * 1C:Enterprise Runtime environment preference page.
+ *
+ * @author Peter Churbanov
+ */
+public class RuntimeEnvironmentPreferencePage
+    extends PreferencePage
+    implements IWorkbenchPreferencePage, IRuntimeInstallationChangeListener
+{
+    private static final String HELP_CONTEXT_ID = PlatformServicesUiPlugin.ID + ".runtime_environment_prefs_context"; //$NON-NLS-1$
+
+    @Inject
+    private IExecutionEnvironmentProvider executionEnvironmentProvider;
+
+    @Inject
+    private IRuntimeTypeRegistry runtimeTypeRegistry;
+
+    private TableViewer environments;
+    private Map<String, CheckboxTableViewer> runtimeInstallations;
+    private Map<IExecutionEnvironment, Map<String, RuntimeInstallation>> changes;
+
+    @Override
+    public boolean performOk()
+    {
+        for (Entry<IExecutionEnvironment, Map<String, RuntimeInstallation>> change : changes.entrySet())
+        {
+            for (Entry<String, RuntimeInstallation> defaultEntry : change.getValue().entrySet())
+            {
+                if (defaultEntry.getValue() == null)
+                {
+                    change.getKey().clearDefault(defaultEntry.getKey());
+                }
+                else
+                {
+                    change.getKey().setDefault(defaultEntry.getValue());
+                }
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void init(IWorkbench workbench)
+    {
+        changes = Maps.newHashMap();
+
+        runtimeTypeRegistry.getTypes().stream().map(type -> getInstallationManager(type.getId())).forEach(
+            manager -> manager.addRuntimeInstallationChangeListener(this));
+    }
+
+    @Override
+    public void dispose()
+    {
+        runtimeTypeRegistry.getTypes().stream().map(type -> getInstallationManager(type.getId())).forEach(
+            manager -> manager.removeRuntimeInstallationChangeListener(this));
+
+        super.dispose();
+    }
+
+    @Override
+    public void installationsAdded(Collection<RuntimeInstallation> installations)
+    {
+        IExecutionEnvironment environment = getSelectedEnvironment();
+        if (environment != null)
+        {
+            runtimeInstallations.entrySet().forEach(
+                entry -> setViewerContent(entry.getValue(), environment, entry.getKey()));
+        }
+    }
+
+    @Override
+    public void installationsRemoved(Collection<RuntimeInstallation> installations)
+    {
+        IExecutionEnvironment environment = getSelectedEnvironment();
+        if (environment != null)
+        {
+            runtimeInstallations.entrySet().forEach(
+                entry -> setViewerContent(entry.getValue(), environment, entry.getKey()));
+        }
+    }
+
+    @Override
+    public void createControl(Composite parent)
+    {
+        super.createControl(parent);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), HELP_CONTEXT_ID);
+    }
+
+    @Override
+    protected Control createContents(Composite parent)
+    {
+        noDefaultAndApplyButton();
+
+        Composite composite = new Composite(parent, SWT.NONE);
+        GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(composite);
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(composite);
+
+        Label title = new Label(composite, SWT.NONE | SWT.WRAP);
+        GridDataFactory.fillDefaults().grab(true, false).hint(300, SWT.DEFAULT).span(2, 1).applyTo(title);
+        title.setText(Messages.RuntimeEnvironmentPreferencePage_This_page_displays_execution_environments);
+
+        Composite left = new Composite(composite, SWT.NONE);
+        GridLayoutFactory.fillDefaults().applyTo(left);
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(left);
+
+        environments = createEnvironmentsTable(left);
+
+        Composite right = new Composite(composite, SWT.NONE);
+        GridLayoutFactory.fillDefaults().applyTo(right);
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(right);
+
+        runtimeInstallations = runtimeTypeRegistry.getTypes().stream().collect(
+            Collectors.toMap(IRuntimeType::getId, type -> createRuntimesTable(right, type)));
+
+        return composite;
+    }
+
+    /**
+     * Create table viewer of the execution environments.
+     *
+     * @param parent the parent composite, cannot be <code>null</code>
+     * @return created viewer, never <code>null</code>
+     */
+    protected TableViewer createEnvironmentsTable(Composite parent)
+    {
+        Label haeder = new Label(parent, SWT.NONE);
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(haeder);
+        haeder.setText(Messages.RuntimeEnvironmentPreferencePage_Execution_environments);
+
+        TableViewer viewer =
+            new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+        viewer.setContentProvider(ArrayContentProvider.getInstance());
+        viewer.setComparator(new ViewerComparator()
+        {
+            @Override
+            public int compare(Viewer viewer, Object first, Object second)
+            {
+                // reverse order: greater environments up to top
+                return -((IExecutionEnvironment)first).compareTo(((IExecutionEnvironment)second));
+            }
+        });
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer.getTable());
+
+        viewer.setInput(executionEnvironmentProvider.getEnvironments());
+        viewer.addSelectionChangedListener(event -> runtimeInstallations.entrySet().forEach(entry -> {
+            IStructuredSelection selection = (IStructuredSelection)event.getSelection();
+            if (!selection.isEmpty())
+            {
+                IExecutionEnvironment environment = (IExecutionEnvironment)selection.getFirstElement();
+                setViewerContent(entry.getValue(), environment, entry.getKey());
+            }
+            else
+            {
+                entry.getValue().setInput(Collections.emptyList());
+            }
+            entry.getValue().refresh();
+        }));
+
+        return viewer;
+    }
+
+    /**
+     * Create checkable viewer of the 1C:Enterprise installations of the given 1C:Enterprise
+     * Runtime type.
+     *
+     * @param parent the parent composite, cannot be <code>null</code>
+     * @param type the 1C:Enterprise Runtime type, cannot be <code>null</code>
+     * @return created viewer, never <code>null</code>
+     */
+    protected CheckboxTableViewer createRuntimesTable(Composite parent, IRuntimeType type)
+    {
+        Link haeder = new Link(parent, SWT.NONE);
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(haeder);
+        haeder.setText(format("<a>%s:</a>", type.getDescription())); //$NON-NLS-1$
+        haeder.addSelectionListener(new SelectionAdapter()
+        {
+            @Override
+            public void widgetSelected(SelectionEvent event)
+            {
+                // little hack; by convience, we assume that preference page ID will be:
+                // com._1c.g5.v8.dt.platform.services.ui.runtimeTypePreferences.RuntimeTypeLastSegment
+                // otherwise - nothing will be opened
+                PreferenceDialog preferences = PreferencesUtil.createPreferenceDialogOn(getShell(),
+                    PlatformServicesUiPlugin.ID + ".runtimeTypePreferences" //$NON-NLS-1$
+                        + type.getId().substring(type.getId().lastIndexOf('.')),
+                    null, null);
+
+                if (preferences != null)
+                {
+                    preferences.open();
+                }
+            }
+        });
+
+        CheckboxTableViewer viewer = CheckboxTableViewer.newCheckList(parent,
+            SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+        viewer.setContentProvider(ArrayContentProvider.getInstance());
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer.getTable());
+
+        viewer.setLabelProvider(new CheckedBoldColumnLabelProvider(viewer)
+        {
+            @Override
+            public String getText(Object element)
+            {
+                if (element instanceof RuntimeInstallation)
+                {
+                    RuntimeInstallation installation = (RuntimeInstallation)element;
+                    return installation.getName();
+                }
+                return super.getText(element);
+            }
+
+            @Override
+            public Image getImage(Object element)
+            {
+                if (element instanceof RuntimeInstallation)
+                {
+                    return PlatformServicesUiPlugin.getImage(PlatformServicesUiPlugin.IMG_RUNTIME);
+                }
+                return super.getImage(element);
+            }
+        });
+        viewer.setComparator(new ViewerComparator()
+        {
+            @Override
+            public int compare(Viewer viewer, Object first, Object second)
+            {
+                return RuntimeInstallations.orderByVersion().compare((RuntimeInstallation)second,
+                    (RuntimeInstallation)first);
+            }
+        });
+
+        CheckStateManager checkStateManager = new CheckStateManager(viewer, type.getId());
+        viewer.setCheckStateProvider(checkStateManager);
+        viewer.addCheckStateListener(checkStateManager);
+
+        return viewer;
+    }
+
+    /**
+     * Returns 1C:Enterprise Runtime installation manager of the given Runtime type.
+     *
+     * @param runtimeTypeId the 1C:Enterprise Runtime type identifier, cannot be <code>null</code>
+     * @return 1C:Enterprise Runtime installation manager, never <code>null</code>
+     */
+    protected IRuntimeInstallationManager getInstallationManager(String runtimeTypeId)
+    {
+        IRuntimeInstallationManager result =
+            ServiceAccess.get(IRuntimeInstallationManager.class, ServiceProperties.named(runtimeTypeId));
+
+        if (result == null)
+        {
+            throw new IllegalArgumentException(
+                String.format("Installation manager for %s runtime type not found", runtimeTypeId)); //$NON-NLS-1$
+        }
+        return result;
+    }
+
+    /**
+     * Returns selected execution environment. Can return <code>null</code> if none is
+     * selected.
+     *
+     * @return selected execution environment or <code>null</code> if none is selected
+     */
+    protected IExecutionEnvironment getSelectedEnvironment()
+    {
+        if (environments != null && !environments.getControl().isDisposed())
+        {
+            return (IExecutionEnvironment)environments.getStructuredSelection().getFirstElement();
+        }
+        return null;
+    }
+
+    /**
+     * Set the given viewer content with the 1C:Enterprise Runtime installations with the given
+     * Runtime id filtered with the given environment version mask.
+     *
+     * @param viewer the viewer to set content to, cannot be code>null</code>
+     * @param environment the execution enviornment, cannot be code>null</code>
+     * @param runtimeTypeId the 1C:Enterprise Runtime type id, cannot be code>null</code>
+     */
+    protected void setViewerContent(CheckboxTableViewer viewer, IExecutionEnvironment environment, String runtimeTypeId)
+    {
+        Collection<RuntimeInstallation> input = getInstallationManager(runtimeTypeId).getAll().stream().filter(
+            installation -> installation.getVersionWithBuild().startsWith(environment.getVersionMask())).collect(
+                Collectors.toList());
+        viewer.setInput(input);
+    }
+
+    /**
+     * Manager of the check state for the page viewer. Provides and listens check state.
+     *
+     * @author Peter Churbanov
+     */
+    protected class CheckStateManager
+        implements ICheckStateProvider, ICheckStateListener
+    {
+        private TableViewer viewer;
+        private String runtimeTypeId;
+
+        /**
+         * Constructor of {@link CheckStateManager}.
+         *
+         * @param viewer the parent table viewer, cannot be <code>null</code>
+         * @param runtimeTypeId the 1C:Enterprise Runtime type, cannot be <code>null</code>
+         */
+        public CheckStateManager(TableViewer viewer, String runtimeTypeId)
+        {
+            this.viewer = viewer;
+            this.runtimeTypeId = runtimeTypeId;
+        }
+
+        @Override
+        public boolean isChecked(Object element)
+        {
+            IExecutionEnvironment environment = getSelectedEnvironment();
+            if (environment != null)
+            {
+                Map<String, RuntimeInstallation> defaults = changes.get(environment);
+                if (defaults != null)
+                {
+                    return RuntimeInstallations.equals(defaults.get(runtimeTypeId), (RuntimeInstallation)element);
+                }
+                else
+                {
+                    return RuntimeInstallations.equals(getSelectedEnvironment().getDefault(runtimeTypeId),
+                        (RuntimeInstallation)element);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isGrayed(Object element)
+        {
+            return false;
+        }
+
+        @Override
+        public void checkStateChanged(CheckStateChangedEvent event)
+        {
+            IExecutionEnvironment environment = getSelectedEnvironment();
+            if (environment != null)
+            {
+                Map<String, RuntimeInstallation> defaults = changes.get(environment);
+                if (defaults == null)
+                {
+                    defaults = Maps.newHashMap();
+                    changes.put(environment, defaults);
+                }
+                defaults.put(runtimeTypeId, event.getChecked() ? (RuntimeInstallation)event.getElement() : null);
+                runtimeInstallations.get(runtimeTypeId).refresh();
+            }
+            viewer.refresh();
+        }
+    }
+}

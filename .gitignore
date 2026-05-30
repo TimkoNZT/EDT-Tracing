@@ -1,0 +1,15 @@
+# Build outputs
+target/
+tracing_plugin/target/
+tracing_plugin/dist/
+
+# IDE
+.idea/
+*.iml
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Binary class files in reference plugins
+*.class

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>504 &#8211; Невозможно подключиться к Информационной базе!</title>
+        <meta charset="UTF-8">
+        <style>
+            body{width:35em;margin:0 auto;font-family:Tahoma,Verdana,Arial,sans-serif}ol{counter-reset:li;margin-left:0;padding-left:0}ol>li{position:relative;margin:0 0 6px 2em;padding:4px 8px;list-style:none;border-top:2px solid #666;background:#f6f6f6}ol>li:before{content:counter(li);counter-increment:li;position:absolute;top:-2px;left:-2em;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;width:2em;margin-right:8px;padding:4px;border-top:2px solid #666;color:#fff;background:#666;font-weight:700;font-family:"Helvetica Neue",Arial,sans-serif;text-align:center}li ol,li ul{margin-top:6px}ol ol li:last-child{margin-bottom:0}
+            #tun-loading {text-align: center;padding-top: 100pt;}
+        </style>
+        <script type="text/javascript">
+            function preventSelection(e){function n(e,t,n){if(e.attachEvent)e.attachEvent("on"+t,n);else if(e.addEventListener)e.addEventListener(t,n,false)}function r(){if(window.getSelection){window.getSelection().removeAllRanges()}else if(document.selection&&document.selection.clear)document.selection.clear()}function i(e){var e=e||window.event;var t=e.target||e.srcElement;if(t.tagName.match(/INPUT|TEXTAREA/i))return;var n=e.keyCode||e.which;if(e.ctrlKey&&n=="A".charCodeAt(0)){r();if(e.preventDefault)e.preventDefault();else e.returnValue=false}}var t=false;n(e,"mousemove",function(){if(t)r()});n(e,"mousedown",function(e){var e=e||window.event;var n=e.target||e.srcElement;t=!n.tagName.match(/INPUT|TEXTAREA/i)});n(e,"mouseup",function(){if(t)r();t=false});n(e,"keydown",i);n(e,"keyup",i)}
+        </script>
+    </head>
+    <body onLoad="preventSelection(document);">
+                <div id="tun-closed" style="">
+                        <h1>Невозможно подключиться к&nbsp;Информационной базе!</h1>
+                        <p>Проверьте, что:
+                        <ol>
+                                <li>антивирус или&nbsp;брандмауэр не&nbsp;<a href="https://1c.link/faq#2/4/72">блокируют запуск</a> компонентов Агента.</li>
+								<li>в базе не выполняются длительные регламентные задания, которые устанавливают блокировку на файл ИБ;</li>
+                        </ol>
+                        </p>
+                        <p>Попробуйте перезагрузить компьютер с&nbsp;Агентом, временно отключите антивирус и&nbsp;брандмауэр,
+                        переустановите Агент согласно <a href="https://d.1c.link/get-link-manual">руководству пользователя</a>.</p>
+                        <p>Если ничего не&nbsp;помогает и&nbsp;вы все&nbsp;равно видите это&nbsp;сообщение,
+                        пришлите нам на&nbsp;адрес технической поддержки <a href="mailto:support@1c.link">support@1c.link</a> следующее:
+                        <ol>
+                                <li>файл <a href="https://1c.link/faq#2/6/52">agent-log.txt</a>;</li>
+                                <li>тип публикуемых информационных баз (файловый, клиент-серверный);</li>
+                                <li>диагностическую информацию программы &#8220;<a href="https://1c.link/faq#2/6/51">Сведения о&nbsp;системе</a>&#8221; о&nbsp;ПК с&nbsp;Агентом.</li>
+                        </ol>
+                        </p>
+                        <p><em>Команда &#8220;1С:&thinsp;Линк&#8221;</em></p>
+                </div>
+    </body>
+</html>
