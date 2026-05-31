@@ -105,7 +105,8 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     // key = dt.toString() + "|" + thread.toString() → "frameName:line"
     private final Map<String, String> lastPositions = new HashMap<>();
 
-    private int pollSerial;
+    private Thread tracingThread;
+    private final Object lock = new Object();
 
     private static void log(String msg) {
         TracingUIActivator.getDefault().getLog().log(
@@ -191,22 +192,18 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
         mgr.add(new org.eclipse.jface.action.Separator());
 
-        Action exportCsv = new Action("Экспорт CSV") {
+        Action exportCsv = new Action("CSV") {
             @Override
             public void run() { doExport("csv"); }
         };
         exportCsv.setToolTipText("Экспорт трассировки в CSV");
-        exportCsv.setImageDescriptor(
-            TracingUIActivator.getImageDescriptor("icons/export.png"));
         mgr.add(exportCsv);
 
-        Action exportJsonl = new Action("Экспорт JSONL") {
+        Action exportJsonl = new Action("JSONL") {
             @Override
             public void run() { doExport("jsonl"); }
         };
         exportJsonl.setToolTipText("Экспорт трассировки в JSON Lines");
-        exportJsonl.setImageDescriptor(
-            TracingUIActivator.getImageDescriptor("icons/export.png"));
         mgr.add(exportJsonl);
     }
 
@@ -231,7 +228,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     }
 
     private void startTracing() {
-        pollSerial++;
+        synchronized (lock) {
         traceRecords.clear();
         stepCount = 0;
         sourceLineCache.clear();
@@ -265,14 +262,18 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             }
         }
         log("async suspend on " + nSuspend + " targets");
-        schedulePoll();
+        startPollThread();
+        }
     }
 
     private void stopTracing() {
+        synchronized (lock) {
         tracingActive = false;
-        pollSerial++;
         DebugPlugin.getDefault().removeDebugEventListener(this);
-
+        if (tracingThread != null) {
+            tracingThread.interrupt();
+            tracingThread = null;
+        }
         log("stopTracing: " + stepCount + " steps recorded");
 
         for (IDebugTarget dt : suspendedByUs) {
@@ -292,76 +293,84 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         suspendedByUs.clear();
         stepOverMode.clear();
         lastPositions.clear();
+        }
     }
 
-    // ==================== Poll loop ====================
+    // ==================== Poll loop (background thread) ====================
 
-    private void schedulePoll() {
-        if (!tracingActive) return;
-        Display display = Display.getDefault();
-        if (display == null || display.isDisposed()) return;
-        display.timerExec(POLL_INTERVAL_MS, () -> {
-            if (!tracingActive) return;
-            stepLoop();
-        });
+    private void startPollThread() {
+        tracingThread = new Thread(() -> {
+            log("poll thread started");
+            while (tracingActive) {
+                try {
+                    stepLoopBg();
+                    Thread.sleep(POLL_INTERVAL_MS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    log("poll thread exception: " + e.getClass().getName()
+                        + " " + e.getMessage());
+                }
+            }
+            log("poll thread exited");
+        }, "tracing-poll");
+        tracingThread.setDaemon(true);
+        tracingThread.start();
     }
 
-    private void stepLoop() {
-        if (!tracingActive) { return; }
-        if (targets.isEmpty()) { schedulePoll(); return; }
+    private void stepLoopBg() {
+        if (targets.isEmpty()) return;
 
-        // 1. Scan all suspended targets — record any new position.
-        for (IDebugTarget dt : targets) {
-            try {
-                ISuspendResume sr = (ISuspendResume) dt;
-                if (!sr.isSuspended()) continue;
+        synchronized (lock) {
+            // 1. Scan all suspended targets — record any new position.
+            for (IDebugTarget dt : targets) {
+                try {
+                    ISuspendResume sr = (ISuspendResume) dt;
+                    if (!sr.isSuspended()) continue;
 
-                IThread[] threads = dt.getThreads();
-                if (threads == null) continue;
-                for (IThread t : threads) {
-                    if (!t.isSuspended()) continue;
-                    IStackFrame frame = getTopFrame(t);
-                    if (frame == null) continue;
+                    IThread[] threads = dt.getThreads();
+                    if (threads == null) continue;
+                    for (IThread t : threads) {
+                        if (!t.isSuspended()) continue;
+                        IStackFrame frame = getTopFrame(t);
+                        if (frame == null) continue;
 
-                    String key = dt.toString() + "|" + t.toString();
-                    String pos = safeFrameName(frame) + ":" + safeLineNumber(frame);
-                    String oldPos = lastPositions.get(key);
+                        String key = dt.toString() + "|" + t.toString();
+                        String pos = safeFrameName(frame) + ":" + safeLineNumber(frame);
+                        String oldPos = lastPositions.get(key);
 
-                    if (!pos.equals(oldPos)) {
-                        lastPositions.put(key, pos);
-                        String targetName = safeTargetName(dt);
-                        String threadName = safeThreadName(t);
-                        String frameName = safeFrameName(frame);
-                        int line = safeLineNumber(frame);
-                        String sourceUri = frame instanceof IBslStackFrame
-                            ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
-                        String sourceCode = resolveSourceLine(frame, line);
-                        addRecord(targetName, threadName, frameName, line, frame,
-                            sourceCode, sourceUri);
-                        log("step " + stepCount + " " + targetName + "/" + threadName
-                            + " " + frameName + ":" + line + " " + sourceCode);
+                        if (!pos.equals(oldPos)) {
+                            lastPositions.put(key, pos);
+                            String targetName = safeTargetName(dt);
+                            String threadName = safeThreadName(t);
+                            String frameName = safeFrameName(frame);
+                            int line = safeLineNumber(frame);
+                            String sourceUri = frame instanceof IBslStackFrame
+                                ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
+                            String sourceCode = resolveSourceLine(frame, line);
+                            addRecord(targetName, threadName, frameName, line, frame,
+                                sourceCode, sourceUri);
+                            log("step " + stepCount + " " + targetName + "/" + threadName
+                                + " " + frameName + ":" + line + " " + sourceCode);
 
-                        if (stepCount >= MAX_STEPS) {
-                            log("max steps reached");
-                            stopTracing();
-                            return;
+                            if (stepCount >= MAX_STEPS) {
+                                log("max steps reached");
+                                stopTracing();
+                                return;
+                            }
                         }
                     }
+                } catch (DebugException e) {
+                    // target became invalid — will be pruned next cycle
                 }
-            } catch (DebugException e) {
-                // target became invalid — will be pruned next cycle
             }
+
+            if (!tracingActive) return;
+
+            // 2. Step the next target (round-robin).
+            tryStepNext();
         }
-
-        if (!tracingActive) return;
-
-        // 2. Step the next target (round-robin).
-        if (tryStepNext()) { schedulePoll(); return; }
-
-        // 3. No steppable thread — all being stepped, wait for next cycle.
-        //    (Re-suspending would fire unwanted SUSPEND events opening source windows)
-
-        schedulePoll();
     }
 
     private boolean tryStepNext() {
@@ -413,7 +422,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         th.start();
     }
 
-    // ==================== Event listener (CREATE / TERMINATE only) ====================
+    // ==================== Event listener (CREATE / TERMINATE / SUSPEND log) ====================
 
     @Override
     public void handleDebugEvents(DebugEvent[] events) {
@@ -423,27 +432,46 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                 Object src = ev.getSource();
                 if (!(src instanceof IDebugTarget)) continue;
                 IDebugTarget dt = (IDebugTarget) src;
-                if (targets.contains(dt)) continue;
-                if (!(dt instanceof ISuspendResume)) continue;
-                targets.add(dt);
+                synchronized (lock) {
+                    if (targets.contains(dt)) continue;
+                    if (!(dt instanceof ISuspendResume)) continue;
+                    targets.add(dt);
+                }
                 ISuspendResume sr = (ISuspendResume) dt;
                 log("CREATE " + safeTargetName(dt) + " suspended=" + sr.isSuspended());
                 if (!sr.isSuspended() && sr.canSuspend()) {
                     asyncSuspendTarget(dt);
                 }
+            } else if (ev.getKind() == DebugEvent.SUSPEND) {
+                Object src = ev.getSource();
+                String srcInfo = src instanceof IDebugTarget ? safeTargetName((IDebugTarget) src)
+                    : src instanceof IThread ? safeThreadName((IThread) src)
+                    : src != null ? src.getClass().getSimpleName() : "null";
+                int details = ev.getDetail();
+                String detailStr;
+                switch (details) {
+                    case DebugEvent.STEP_INTO:    detailStr = "STEP_INTO"; break;
+                    case DebugEvent.STEP_OVER:     detailStr = "STEP_OVER"; break;
+                    case DebugEvent.BREAKPOINT:    detailStr = "BREAKPOINT"; break;
+                    case DebugEvent.CLIENT_REQUEST: detailStr = "CLIENT_REQUEST"; break;
+                    default: detailStr = "0x" + Integer.toHexString(details); break;
+                }
+                log("SUSPEND " + srcInfo + " details=" + detailStr);
             } else if (ev.getKind() == DebugEvent.TERMINATE) {
                 Object src = ev.getSource();
                 if (src instanceof IDebugTarget) {
                     IDebugTarget dt = (IDebugTarget) src;
-                    if (targets.remove(dt)) {
-                        suspendedByUs.remove(dt);
-                        stepOverMode.remove(dt);
-                        log("TERMINATE " + safeTargetName(dt));
-                    }
-                    if (targets.isEmpty()) {
-                        log("all targets terminated");
-                        stopTracing();
-                        return;
+                    synchronized (lock) {
+                        if (targets.remove(dt)) {
+                            suspendedByUs.remove(dt);
+                            stepOverMode.remove(dt);
+                            log("TERMINATE " + safeTargetName(dt));
+                        }
+                        if (targets.isEmpty()) {
+                            log("all targets terminated");
+                            stopTracing();
+                            return;
+                        }
                     }
                 }
             }

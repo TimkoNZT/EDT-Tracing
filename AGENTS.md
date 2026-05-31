@@ -78,6 +78,16 @@ D:\EDT\EDT_tracing/
 - **Per-call events не существуют** ни в RDBG-протоколе, ни в DBGUIExtCmds (15 типов, нет per-call)
 - Step-трассировка — единственный способ получить последовательность вызовов без модификации кода
 
+## Декомпиляция JAR (IntelliJ Fernflower)
+
+- Инструмент: `java-decompiler.jar` из IntelliJ IDEA (например, `C:\Program Files\JetBrains\IntelliJ IDEA 2026.1\plugins\java-decompiler\lib\java-decompiler.jar`)
+- Команда:
+  ```
+  & "c:\Program Files\BellSoft\LibericaJDK-21\bin\java.exe" -cp "c:\Program Files\JetBrains\IntelliJ IDEA 2026.1\plugins\java-decompiler\lib\java-decompiler.jar" org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler -dgs=true <input.jar> "<output_dir>"
+  ```
+- Результат: один `.java` файл на каждый `.class` (в той же структуре каталогов, что и JAR).
+- Декомпилированные классы EDT хранить в `profiling/_decompiled/<bundle>/`.
+
 ## Подводные камни OSGi (Require-Bundle vs Import-Package)
 
 - `com._1c.g5.v8.dt.debug.model` НЕ экспортирует свои внутренние пакеты (`base.data`, `measure`):
@@ -175,6 +185,24 @@ D:\EDT\EDT_tracing/
 - `TextEditorPositioner.positionEditor(editor, lineNo - 1)` — EDT-метод для позиционирования (0-based line).
 - **OpenHelper** — имеет публичный конструктор `OpenHelper(IWorkbenchPage)`. Не нужна DI — можно просто `new OpenHelper(page)`. Используем `openEditor(IFile, ISelection)` для открытия BslXtextEditor через EDT, или `openEditor(EObject, EStructuralFeature)` если доступен Module.
 - `IDE.openEditor(page, file, true)` открывает файл, но может открыть в обычном TextEditor, а не BslXtextEditor. Использовать `OpenHelper.openEditor(file, null)` для гарантированного открытия модульного редактора EDT.
+
+## Build 034 — SUSPEND diagnostics: все step-ы приходят как BREAKPOINT
+
+- **Наблюдение из лога**: все SUSPEND-события во время трассировки имеют `event.getDetail() == DebugEvent.BREAKPOINT`. Ни одного `STEP_INTO`, `STEP_OVER` или `CLIENT_REQUEST`.
+- **Причина**: EDT реализует stepInto/stepOver через установку временного breakpoint-а на следующую строку. RDBG-сервер ставит `setBreakpoints`, продолжает исполнение — при срабатывании приходит SUSPEND с `details=BREAKPOINT`.
+- **Следствие**: Debug View обрабатывает ЛЮБОЙ SUSPEND с `details=BREAKPOINT` через `BslSourceDisplay.displaySource()` → открывается BSL-редактор.
+
+### Почему build 019 не открывал окна, а build 033 открывает
+
+(Теория, не подтверждена экспериментально)
+
+- **019**: `stepInto()` вызывался **синхронно на event thread** (внутри `handleSuspend()`). После записи шага сразу отправлялся следующий stepInto, который переводил таргет в RUNNING. Debug View получал SUSPEND к моменту, когда таргет уже был RUNNING — `isSuspended()` возвращал `false`, Debug View не открывал окно.
+- **033/034**: `stepInto()` на **background thread** (daemon). Poll-цикл записывает шаг и запускает stepInto в отдельном треде. Между завершением step-а и отправкой следующего проходит 0-100ms. За это время Debug View успевает обработать SUSPEND, видит `isSuspended() == true` и открывает окно.
+
+### Варианты решения
+
+1. **A** — `DebugUITools.setShowSourceOnStep(false)` на время трассировки (API, не хак). Сохранить предыдущее значение, восстановить при остановке.
+2. **B** — Искать другой способ подавления отображения исходников (не через preferences).
 
 ## Иконки (toolbar)
 - `icons/export.png` — скопирован из `profiling/ui/icons/elcl16/profiling_16_export.png` (profiler).
