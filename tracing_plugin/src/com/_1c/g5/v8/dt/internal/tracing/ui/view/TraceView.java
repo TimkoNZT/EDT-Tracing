@@ -81,10 +81,11 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260531-020";
+    private static final String BUILD_TAG = "20260531-021";
     private static final int MAX_STEPS = 100000;
     private static final int FRAME_POLL_ATTEMPTS = 600;
     private static final int FRAME_POLL_DELAY_MS = 100;
+    private static final int STEP_TIMEOUT_MS = 5000;
 
     private static final String TRACE_COL_STEP  = Messages.TraceView_StepNo;
     private static final String TRACE_COL_TIME  = Messages.TraceView_Time;
@@ -107,6 +108,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private IThread steppedThread;
     private int stepCount;
     private int pendingSuspends;
+    private int expectedStepSuspend;
     private int currentTargetIndex;
     private final Set<IDebugTarget> stepOverMode = new HashSet<>();
     private final Map<String, String[]> sourceLineCache = new HashMap<>();
@@ -425,21 +427,25 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             return;
         }
 
-        // Ignore stale events from already-initialized targets (e.g. old breakpoint events)
-        if (steppedTarget != null && dt != steppedTarget) {
-            log("stale SUSPEND from " + targetName + ", waiting for "
-                + safeTargetName(steppedTarget));
+        // Ignore SUSPEND if we're not expecting one (stale/breakpoint events)
+        if (expectedStepSuspend <= 0) {
+            log("unexpected SUSPEND from " + targetName + " (not stepping)");
             return;
         }
+        expectedStepSuspend = 0;
 
-        // Use the thread we actually stepped, not the event source
-        // (EDT SUSPEND events come with source=IDebugTarget, not IThread)
-        IThread thread = steppedThread;
+        // Find the suspended thread.  For cross-target jumps the source
+        // target differs from steppedTarget — resolveThread handles that.
+        IThread thread = resolveThread(event);
+        if (thread == null) {
+            log("step SUSPEND: no thread found — trying steppedThread");
+            thread = steppedThread;
+        }
         steppedTarget = null;
         steppedThread = null;
 
         if (thread == null) {
-            log("step SUSPEND with no steppedThread — ignoring");
+            log("step SUSPEND with null thread — ignoring");
             return;
         }
 
@@ -521,6 +527,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     try {
                         steppedTarget = dt;
                         steppedThread = t;
+                        expectedStepSuspend = 1;
                         if (useStepOver) {
                             ((IStep) t).stepOver();
                             log("stepNextTarget: stepOver called on "
@@ -530,10 +537,31 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                             log("stepNextTarget: stepInto called on "
                                 + safeTargetName(dt) + "/" + safeThreadName(t));
                         }
+
+                        // Wait for SUSPEND from any target with timeout.
+                        // Cross-target jumps (client→server) deliver SUSPEND
+                        // on a different target — expectedStepSuspend accepts it.
+                        long deadline = System.currentTimeMillis() + STEP_TIMEOUT_MS;
+                        while (expectedStepSuspend > 0
+                            && System.currentTimeMillis() < deadline) {
+                            try { Thread.sleep(20); } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt(); break;
+                            }
+                        }
+
+                        if (expectedStepSuspend > 0) {
+                            // Timeout — no SUSPEND event received.
+                            // Poll all targets manually for any new suspension.
+                            expectedStepSuspend = 0;
+                            log("stepNextTarget: timeout, polling all targets");
+                            pollTargetsAfterTimeout(dt, t, useStepOver);
+                            return;
+                        }
                         return;
                     } catch (DebugException e) {
                         steppedTarget = null;
                         steppedThread = null;
+                        expectedStepSuspend = 0;
                         log((useStepOver ? "stepOver" : "stepInto")
                             + " failed: " + e.getMessage());
                     }
@@ -565,6 +593,47 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
         log("stepNextTarget: no suspendable target — stopping");
         stopTracing(true);
+    }
+
+    private void pollTargetsAfterTimeout(IDebugTarget origTarget,
+            IThread origThread, boolean wasStepOver) {
+        if (!tracingActive) return;
+        // Scan all targets for a newly-suspended thread
+        for (IDebugTarget dt : targets) {
+            IThread[] threads;
+            try {
+                threads = dt.getThreads();
+            } catch (DebugException e) { continue; }
+            for (IThread t : threads) {
+                if (!t.isSuspended()) continue;
+                IStackFrame frame;
+                try {
+                    frame = t.getTopStackFrame();
+                } catch (DebugException e) { continue; }
+                if (frame != null) {
+                    log("pollTargetsAfterTimeout: found suspended "
+                        + safeTargetName(dt) + "/" + safeThreadName(t)
+                        + " " + safeFrameName(frame));
+                    // Process this thread and its frame as a step result
+                    String threadName = safeThreadName(t);
+                    String frameName = safeFrameName(frame);
+                    int line = safeLineNumber(frame);
+                    String sourceCode = resolveSourceLine(frame, line);
+                    String sourceUri = frame instanceof IBslStackFrame
+                        ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
+                    addRecord(safeTargetName(dt), threadName, frameName,
+                        line, frame, sourceCode, sourceUri);
+                    checkNewTargets();
+                    if (stepCount < MAX_STEPS) stepNextTarget();
+                    else stopTracing(true);
+                    return;
+                }
+            }
+        }
+        // Nothing suspended — probable BSL-exit, mark stepOver and retry
+        log("pollTargetsAfterTimeout: no suspended target, stepOver");
+        stepOverMode.add(origTarget);
+        stepNextTarget();
     }
 
     private void checkNewTargets() {
