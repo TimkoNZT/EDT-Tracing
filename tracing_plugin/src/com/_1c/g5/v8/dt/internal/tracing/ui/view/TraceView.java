@@ -79,7 +79,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260601-030";
+    private static final String BUILD_TAG = "036b";
     private static final String PREF_COL_WIDTH_PREFIX = "colWidth_";
     private static final int[] DEFAULT_COL_WIDTHS = { 50, 120, 120, 100, 320, 60, 400 };
     private static final int MAX_STEPS = 100000;
@@ -381,8 +381,9 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                             String targetName = safeTargetName(dt);
                             String threadName = safeThreadName(t);
                             String frameName = safeFrameName(frame);
+                            String moduleName = safeModuleName(frame);
 
-                            if (!isFiltered(frameName)) {
+                            if (!isFiltered(moduleName)) {
                                 int line = safeLineNumber(frame);
                                 String sourceUri = frame instanceof IBslStackFrame
                                     ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
@@ -540,8 +541,9 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     String targetName = safeTargetName(dt);
                     String threadName = safeThreadName(t);
                     String frameName = safeFrameName(frame);
+                    String moduleName = safeModuleName(frame);
 
-                    if (!isFiltered(frameName)) {
+                    if (!isFiltered(moduleName)) {
                         int line = safeLineNumber(frame);
                         String sourceUri = frame instanceof IBslStackFrame
                             ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
@@ -659,6 +661,15 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         if (frame == null) return "?";
         try { return frame.getName(); }
         catch (DebugException e) { return "?"; }
+    }
+
+    private static String safeModuleName(IStackFrame frame) {
+        String name = safeFrameName(frame);
+        int paren = name.indexOf('(');
+        if (paren > 0) name = name.substring(0, paren).trim();
+        int dot = name.lastIndexOf('.');
+        if (dot > 0) name = name.substring(0, dot);
+        return name;
     }
 
     private static int safeLineNumber(IStackFrame frame) {

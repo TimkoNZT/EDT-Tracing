@@ -62,8 +62,12 @@ public class ModuleFilterDialog extends Dialog {
 
         Label hint = new Label(area, SWT.WRAP);
         hint.setText("Модули, попадающие под фильтр, не записываются в трассировку.\n"
-            + "Шаблон: * — любая последовательность, ? — один символ.\n"
-            + "Пример: СтандартныеПодсистемы*");
+            + "Фильтр применяется к типу.имени модуля без метода и аргументов:\n"
+            + "  ОбщийМодуль.Имя.Модуль\n\n"
+            + "Шаблон: * — любая последовательность, ? — один символ.\n\n"
+            + "Примеры:\n"
+            + "  ОбщийМодуль.ОбщегоНазначения*.*  — ОбщегоНазначенияКлиентСервер и др.\n"
+            + "  ОбщийМодуль.СтроковыеФункцииКлиентСервер.*");
         hint.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
         viewer = CheckboxTableViewer.newCheckList(area, SWT.FULL_SELECTION | SWT.BORDER);
