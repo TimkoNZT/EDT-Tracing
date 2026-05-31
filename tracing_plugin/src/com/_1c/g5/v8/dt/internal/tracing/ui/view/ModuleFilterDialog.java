@@ -9,13 +9,14 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -41,52 +42,57 @@ public class ModuleFilterDialog extends Dialog {
     }
 
     @Override
+    protected int getShellStyle() {
+        return super.getShellStyle() | SWT.RESIZE | SWT.MAX;
+    }
+
+    @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
         newShell.setText("Фильтры модулей");
-        newShell.setSize(500, 350);
+        newShell.setSize(550, 450);
+        newShell.setMinimumSize(400, 300);
     }
 
     @Override
     protected Control createDialogArea(Composite parent) {
-        Composite area = (Composite) super.createDialogArea(parent);
+        Composite area = new Composite(parent, SWT.NONE);
+        area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        area.setLayout(new GridLayout(1, false));
 
         Label hint = new Label(area, SWT.WRAP);
         hint.setText("Модули, попадающие под фильтр, не записываются в трассировку.\n"
             + "Шаблон: * — любая последовательность, ? — один символ.\n"
             + "Пример: СтандартныеПодсистемы*");
-        hint.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        hint.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
         viewer = CheckboxTableViewer.newCheckList(area, SWT.FULL_SELECTION | SWT.BORDER);
         Table table = viewer.getTable();
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
-        GridData tableGd = new GridData(GridData.FILL_BOTH);
-        tableGd.grabExcessVerticalSpace = true;
-        tableGd.grabExcessHorizontalSpace = true;
-        tableGd.minimumHeight = 250;
-        table.setLayoutData(tableGd);
+        table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        TableColumn colEnabled = new TableColumn(table, SWT.LEFT);
+        colEnabled.setText("Вкл");
+        colEnabled.setWidth(40);
+
+        TableColumn colPattern = new TableColumn(table, SWT.LEFT);
+        colPattern.setText("Шаблон модуля");
+        colPattern.setWidth(380);
 
         viewer.setContentProvider(ArrayContentProvider.getInstance());
-        viewer.setInput(filters.toArray());
-
-        TableViewerColumn colEnabled = new TableViewerColumn(viewer, SWT.LEFT);
-        colEnabled.getColumn().setText("Вкл");
-        colEnabled.getColumn().setWidth(40);
-        colEnabled.setLabelProvider(new ColumnLabelProvider() {
+        viewer.setLabelProvider(new ITableLabelProvider() {
             @Override
-            public String getText(Object element) { return ""; }
-        });
-
-        TableViewerColumn colPattern = new TableViewerColumn(viewer, SWT.LEFT);
-        colPattern.getColumn().setText("Шаблон модуля");
-        colPattern.getColumn().setWidth(380);
-        colPattern.setLabelProvider(new ColumnLabelProvider() {
-            @Override
-            public String getText(Object element) {
-                return ((ModuleFilterEntry) element).pattern;
+            public String getColumnText(Object element, int col) {
+                return col == 0 ? "" : ((ModuleFilterEntry) element).pattern;
             }
+            @Override public Image getColumnImage(Object e, int col) { return null; }
+            @Override public void addListener(ILabelProviderListener l) {}
+            @Override public void removeListener(ILabelProviderListener l) {}
+            @Override public void dispose() {}
+            @Override public boolean isLabelProperty(Object e, String p) { return false; }
         });
+        viewer.setInput(filters.toArray());
 
         for (ModuleFilterEntry e : filters) {
             viewer.setChecked(e, e.enabled);
@@ -101,8 +107,8 @@ public class ModuleFilterDialog extends Dialog {
         });
 
         Composite buttonBar = new Composite(area, SWT.NONE);
-        buttonBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        buttonBar.setLayout(new GridLayout(3, false));
+        buttonBar.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
+        buttonBar.setLayout(new GridLayout(3, true));
 
         Button addBtn = new Button(buttonBar, SWT.PUSH);
         addBtn.setText("Добавить");

@@ -48,6 +48,8 @@ import com._1c.g5.v8.dt.common.ui.editors.TextEditorPositioner;
 import com._1c.g5.v8.dt.debug.util.CrossReferenceFinder;
 import com._1c.g5.v8.dt.ui.util.OpenHelper;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 
@@ -78,6 +80,8 @@ import org.eclipse.ui.part.ViewPart;
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private static final String BUILD_TAG = "20260601-030";
+    private static final String PREF_COL_WIDTH_PREFIX = "colWidth_";
+    private static final int[] DEFAULT_COL_WIDTHS = { 50, 120, 120, 100, 320, 60, 400 };
     private static final int MAX_STEPS = 100000;
     private static final int POLL_INTERVAL_MS = 100;
 
@@ -159,7 +163,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             TRACE_COL_THREAD, TRACE_COL_FRAME, TRACE_COL_LINE,
             TRACE_COL_SOURCE
         };
-        int[] widths = { 50, 120, 120, 100, 320, 60, 400 };
+        IPreferenceStore prefs = TracingUIActivator.getDefault().getPreferenceStore();
 
         for (int i = 0; i < titles.length; i++) {
             final int colIndex = i;
@@ -172,9 +176,19 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             });
             TableColumn col = tvc.getColumn();
             col.setText(titles[i]);
-            col.setWidth(widths[i]);
+            int w = prefs.getInt(PREF_COL_WIDTH_PREFIX + i);
+            if (w <= 0) w = DEFAULT_COL_WIDTHS[i];
+            col.setWidth(w);
             col.setResizable(true);
             col.setMoveable(true);
+            final int ci = i;
+            col.addControlListener(new org.eclipse.swt.events.ControlAdapter() {
+                @Override
+                public void controlResized(org.eclipse.swt.events.ControlEvent e) {
+                    TableColumn c = (TableColumn) e.widget;
+                    prefs.setValue(PREF_COL_WIDTH_PREFIX + ci, c.getWidth());
+                }
+            });
         }
         tableViewer.getTable().getColumn(0).setAlignment(SWT.RIGHT);
         tableViewer.getTable().getColumn(5).setAlignment(SWT.RIGHT);
