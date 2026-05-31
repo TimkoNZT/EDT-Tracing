@@ -52,18 +52,15 @@ D:\EDT\EDT_tracing/
 - Activation: `Bundle-ActivationPolicy: lazy`
 - Java: compile with `--release 8` (target JavaSE-1.8)
 
-### Как работает (build 030+)
+### Как работает (build 036+)
 
 1. **Toggle ON**: собираем все `IDebugTarget` из `ILaunchManager.getDebugTargets()`, фильтр по `instanceof ISuspendResume`
 2. **Async-suspend** каждого не-suspended таргета в daemon Thread (не блокируем UI/event thread)
-3. Регистрируемся как `IDebugEventSetListener` **только на CREATE/TERMINATE** (НЕ на SUSPEND)
-4. **Poll loop** через `Display.timerExec` (100ms):
-   - Проверяем ВСЕ таргеты: если suspended и frame изменился → записываем
-   - Ищем steppable thread round-robin → `stepInto()`/`stepOver()` в daemon Thread
-   - Если ничего не steppable → async-suspend running targets
-   - Продолжаем poll из следующего timerExec
-5. **CREATE/TERMINATE** события обрабатываем отдельно (не через poll) для мгновенной реакции на появление/удаление таргетов
-6. **Toggle OFF**: `tracingActive=false` → resume всех через daemon Thread → clean state
+3. Регистрируемся как `IDebugEventSetListener` на CREATE/TERMINATE/SUSPEND
+4. **На SUSPEND** (event thread): запись → stepInto() синхронно. `steppingInProgress` guard от рекурсии, `lastPositions` dedup
+5. **Poll loop** на background-daemon thread (100ms): safety net — запись новых позиций + step на background thread
+6. **CREATE/TERMINATE** — мгновенная реакция на появление/удаление таргетов
+7. **Toggle OFF**: `tracingActive=false` → resume всех через daemon Thread → clean state
 
 ### Ключевые классы (Eclipse Debug API)
 
@@ -201,8 +198,17 @@ D:\EDT\EDT_tracing/
 
 ### Варианты решения
 
-1. **A** — `DebugUITools.setShowSourceOnStep(false)` на время трассировки (API, не хак). Сохранить предыдущее значение, восстановить при остановке.
-2. **B** — Искать другой способ подавления отображения исходников (не через preferences).
+1. **A** — `DebugUITools.setShowSourceOnStep(false)` на время трассировки (недоступно в EDT 2026.1)
+2. **B** — `IDebugEventFilter` (build 035): ломает `isSuspended()` — 1 шаг
+3. **C (build 036, работает!)**: stepInto на event thread в SUSPEND handler. StepInto переводит таргет в RUNNING до того, как Debug View обработает SUSPEND → `isSuspended()` → false → окно не открывается
+
+## Build 036 — record+step на event thread (работает!)
+
+**Решение**: В `handleDebugEvents` на SUSPEND: запись → stepInto() синхронно на event thread.
+- `steppingInProgress` guard — рекурсия от spurious SUSPEND
+- `lastPositions` dedup — второй уровень защиты от дубликатов
+- Poll loop: safety net (запись + step на background thread на случай пропущенных событий)
+- **Почему работает**: stepInto() переводит таргет в RUNNING синхронно, до того как Debug View обработает SUSPEND → `isSuspended()` возвращает false → `BslSourceDisplay.displaySource()` не вызывается → окна не открываются
 
 ## Иконки (toolbar)
 - `icons/export.png` — скопирован из `profiling/ui/icons/elcl16/profiling_16_export.png` (profiler).

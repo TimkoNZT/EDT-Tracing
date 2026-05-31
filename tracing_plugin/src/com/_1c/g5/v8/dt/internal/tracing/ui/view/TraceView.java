@@ -230,7 +230,6 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private void startTracing() {
         synchronized (lock) {
-        traceRecords.clear();
         stepCount = 0;
         sourceLineCache.clear();
         lastPositions.clear();
