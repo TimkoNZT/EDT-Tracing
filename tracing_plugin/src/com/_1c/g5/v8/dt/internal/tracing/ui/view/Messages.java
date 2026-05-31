@@ -11,6 +11,7 @@ public class Messages extends NLS {
     public static String TraceView_Frame;
     public static String TraceView_LineNumber;
     public static String TraceView_Time;
+    public static String TraceView_Source;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

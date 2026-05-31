@@ -11,10 +11,11 @@ public class TraceStepRecord {
     public final int lineNumber;
     public final long timestampMillis;
     public final IStackFrame frame;
+    public final String sourceCode;
 
     public TraceStepRecord(int stepIndex, String targetName, String threadName,
                            String frameName, int lineNumber, long timestampMillis,
-                           IStackFrame frame) {
+                           IStackFrame frame, String sourceCode) {
         this.stepIndex = stepIndex;
         this.targetName = targetName;
         this.threadName = threadName;
@@ -22,5 +23,6 @@ public class TraceStepRecord {
         this.lineNumber = lineNumber;
         this.timestampMillis = timestampMillis;
         this.frame = frame;
+        this.sourceCode = sourceCode;
     }
 }

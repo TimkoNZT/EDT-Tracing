@@ -2,15 +2,20 @@ package com._1c.g5.v8.dt.internal.tracing.ui.view;
 
 import com._1c.g5.v8.dt.internal.tracing.ui.TracingUIActivator;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IStatus;
@@ -28,6 +33,17 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.sourcelookup.ISourceLookupResult;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IStorageEditorInput;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
+
+import com._1c.g5.v8.dt.debug.core.model.IBslStackFrame;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
@@ -52,7 +68,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260530-014";
+    private static final String BUILD_TAG = "20260531-015";
     private static final int MAX_STEPS = 100000;
     private static final int FRAME_POLL_ATTEMPTS = 600;
     private static final int FRAME_POLL_DELAY_MS = 100;
@@ -63,6 +79,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private static final String TRACE_COL_THREAD = Messages.TraceView_Thread;
     private static final String TRACE_COL_FRAME = Messages.TraceView_Frame;
     private static final String TRACE_COL_LINE  = Messages.TraceView_LineNumber;
+    private static final String TRACE_COL_SOURCE = Messages.TraceView_Source;
 
     public static final String ID = "com._1c.g5.v8.dt.tracing.ui.TraceView";
 
@@ -79,6 +96,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private int pendingSuspends;
     private int currentTargetIndex;
     private final Set<IDebugTarget> stepOverMode = new HashSet<>();
+    private final Map<String, String[]> sourceLineCache = new HashMap<>();
 
     private void log(String msg) {
         TracingUIActivator.getDefault().getLog().log(
@@ -127,9 +145,10 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private void createColumns() {
         String[] titles = {
             TRACE_COL_STEP, TRACE_COL_TIME, TRACE_COL_TARGET,
-            TRACE_COL_THREAD, TRACE_COL_FRAME, TRACE_COL_LINE
+            TRACE_COL_THREAD, TRACE_COL_FRAME, TRACE_COL_LINE,
+            TRACE_COL_SOURCE
         };
-        int[] widths = { 50, 120, 120, 100, 320, 60 };
+        int[] widths = { 50, 120, 120, 100, 320, 60, 400 };
 
         for (int i = 0; i < titles.length; i++) {
             final int colIndex = i;
@@ -148,6 +167,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         }
         tableViewer.getTable().getColumn(0).setAlignment(SWT.RIGHT);
         tableViewer.getTable().getColumn(5).setAlignment(SWT.RIGHT);
+        tableViewer.getTable().getColumn(6).setAlignment(SWT.LEFT);
     }
 
     private void createToolbarActions() {
@@ -363,11 +383,13 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         String threadName = safeThreadName(thread);
         String frameName = safeFrameName(frame);
         int line = safeLineNumber(frame);
+        String sourceCode = resolveSourceLine(frame, line);
 
         log("step SUSPEND from " + targetName + "/" + threadName
-            + " " + frameName + ":" + line + " step=" + stepCount);
+            + " " + frameName + ":" + line + " step=" + stepCount
+            + " src=" + sourceCode);
 
-        addRecord(targetName, threadName, frameName, line, frame);
+        addRecord(targetName, threadName, frameName, line, frame, sourceCode);
         checkNewTargets();
 
         if (stepCount >= MAX_STEPS) {
@@ -380,10 +402,10 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private void addRecord(String targetName, String threadName,
                            String frameName, int lineNumber,
-                           IStackFrame frame) {
+                           IStackFrame frame, String sourceCode) {
         TraceStepRecord rec = new TraceStepRecord(
             ++stepCount, targetName, threadName,
-            frameName, lineNumber, System.currentTimeMillis(), frame);
+            frameName, lineNumber, System.currentTimeMillis(), frame, sourceCode);
         traceRecords.add(0, rec);
 
         Display.getDefault().asyncExec(() -> {
@@ -579,7 +601,101 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         catch (DebugException e) { return -1; }
     }
 
-    // ==================== Source lookup ====================
+    // ==================== Source code line resolution ====================
+
+    private String resolveSourceLine(IStackFrame frame, int lineNumber) {
+        if (frame == null || lineNumber <= 0) return "";
+        try {
+            if (frame instanceof IBslStackFrame) {
+                URI sourceUri = ((IBslStackFrame) frame).getSource();
+                if (sourceUri != null) {
+                    String[] lines = sourceLineCache.get(sourceUri.toString());
+                    if (lines == null) {
+                        lines = readSourceLines(sourceUri);
+                        if (lines != null) {
+                            sourceLineCache.put(sourceUri.toString(), lines);
+                        }
+                    }
+                    if (lines != null && lineNumber <= lines.length) {
+                        return lines[lineNumber - 1].trim();
+                    }
+                }
+            }
+
+            // Fallback via DebugUITools.lookupSource
+            ISourceLookupResult result = DebugUITools.lookupSource(frame, null);
+            if (result != null) {
+                IEditorInput editorInput = result.getEditorInput();
+                if (editorInput != null) {
+                    String[] lines = readSourceLines(editorInput);
+                    if (lines != null && lineNumber <= lines.length) {
+                        return lines[lineNumber - 1].trim();
+                    }
+                }
+            }
+        } catch (Exception e) { /* ignore */ }
+        return "";
+    }
+
+    private String[] readSourceLines(URI sourceUri) {
+        try {
+            java.net.URI uri = new java.net.URI(sourceUri.toString());
+            if ("file".equals(uri.getScheme())) {
+                List<String> allLines = Files.readAllLines(Paths.get(uri),
+                    StandardCharsets.UTF_8);
+                return allLines.toArray(new String[0]);
+            }
+            // platform:/resource/ URI → resolve via workspace
+            if ("platform".equals(uri.getScheme())) {
+                String path = uri.getPath();
+                IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
+                    new org.eclipse.core.runtime.Path(path));
+                if (file != null && file.exists()) {
+                    try (InputStream in = file.getContents();
+                         BufferedReader br = new BufferedReader(
+                             new InputStreamReader(in, "UTF-8"))) {
+                        List<String> lines = new ArrayList<>();
+                        String l;
+                        while ((l = br.readLine()) != null) {
+                            lines.add(l);
+                        }
+                        return lines.toArray(new String[0]);
+                    }
+                }
+            }
+        } catch (Exception e) { /* try fallback */ }
+        return null;
+    }
+
+    private String[] readSourceLines(IEditorInput editorInput) {
+        try {
+            IStorage storage = null;
+            if (editorInput instanceof IStorageEditorInput) {
+                storage = ((IStorageEditorInput) editorInput).getStorage();
+            } else if (editorInput instanceof IFileEditorInput) {
+                storage = ((IFileEditorInput) editorInput).getFile();
+            }
+            if (storage == null) return null;
+            String key = storage.getName();
+            String[] cached = sourceLineCache.get(key);
+            if (cached != null) return cached;
+            try (InputStream in = storage.getContents();
+                 BufferedReader br = new BufferedReader(
+                     new InputStreamReader(in, "UTF-8"))) {
+                List<String> lines = new ArrayList<>();
+                String l;
+                while ((l = br.readLine()) != null) {
+                    lines.add(l);
+                }
+                String[] result = lines.toArray(new String[0]);
+                sourceLineCache.put(key, result);
+                return result;
+            }
+        } catch (Exception e) { /* ignore */ }
+        return null;
+    }
+
+    // ==================== Source display ====================
 
     private void openFrameInEditor(IStackFrame frame) {
         try {
@@ -608,6 +724,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             case 3: return r.threadName;
             case 4: return r.frameName;
             case 5: return r.lineNumber >= 0 ? String.valueOf(r.lineNumber) : "";
+            case 6: return r.sourceCode != null ? r.sourceCode : "";
             default: return "";
         }
     }
@@ -650,14 +767,15 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private void writeCsv(BufferedWriter w) throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        w.write("step,time,target,thread,frame,line"); w.newLine();
+        w.write("step,time,target,thread,frame,line,source"); w.newLine();
         for (TraceStepRecord r : traceRecords) {
             w.write(String.valueOf(r.stepIndex)); w.write(',');
             w.write(sdf.format(new Date(r.timestampMillis))); w.write(',');
             w.write(csvEscape(r.targetName)); w.write(',');
             w.write(csvEscape(r.threadName)); w.write(',');
             w.write(csvEscape(r.frameName)); w.write(',');
-            w.write(r.lineNumber >= 0 ? String.valueOf(r.lineNumber) : "");
+            w.write(r.lineNumber >= 0 ? String.valueOf(r.lineNumber) : ""); w.write(',');
+            w.write(csvEscape(r.sourceCode));
             w.newLine();
         }
     }
@@ -671,6 +789,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             sb.append(",\"thr\":").append(jsonEscape(r.threadName));
             sb.append(",\"frm\":").append(jsonEscape(r.frameName));
             sb.append(",\"l\":").append(r.lineNumber >= 0 ? r.lineNumber : "null");
+            sb.append(",\"src\":").append(jsonEscape(r.sourceCode != null ? r.sourceCode : ""));
             sb.append(",\"ts\":\"").append(sdf.format(new Date(r.timestampMillis))).append('"');
             sb.append('}');
             w.write(sb.toString()); w.newLine();

@@ -13,6 +13,7 @@ D:\EDT\EDT_tracing/
 │   ├── core/               - декомпилированные классы profiling.core (НЕ ИСПОЛЬЗУЕТСЯ)
 │   ├── ui/                 - декомпилированные классы profiling.ui (НЕ ИСПОЛЬЗУЕТСЯ)
 │   ├── perfinfo_extract/   - debug.model (EMF) + .xcore модели (НЕ ИСПОЛЬЗУЕТСЯ)
+│   ├── _decompiled/        - декомпилированные классы EDT для справки (IBslStackFrame, BslSourceDisplay и др.)
 │   └── _extracted/         - бинарные артефакты из JAR (НЕ ИСПОЛЬЗУЕТСЯ)
 ├── dist/                   - P2 репозиторий
 ├── AGENTS.md
@@ -129,11 +130,12 @@ D:\EDT\EDT_tracing/
 - **Две Guava**: В EDT есть `com.google.guava_15.0.0` (Eclipse) и `32.1.3.jre` (1C). Использовать `.jre`.
 - **DebugEvent.getDetail() в EDT**: EDT **НЕ** выставляет стандартные Eclipse-флаги в detail (`CLIENT_REQUEST`, `STEP_END`). Все SUSPEND-события приходят с `detail=16` (`BREAKPOINT`) независимо от причины (step или breakpoint). **Решение**: не проверять detail вообще.
 - **RDBG step**: `RuntimeDebugHttpClient` шлёт POST `cmd=step` с `RDBGStepRequest(action=DebugStepAction.STEP_IN|STEP|STEP_OUT, targetID)`. Разница между stepInto и stepOver — только enum, вся логика в 1С runtime.
-- **getTopStackFrame() после stepInto**: EDT может не успеть заполнить фрейм к моменту обработки SUSPEND. Используем `resolveFrame()` с retry-циклом (до 5с = 20 × 250ms).
+- **getTopStackFrame() после stepInto**: EDT может не успеть заполнить фрейм к моменту обработки SUSPEND. Используем `resolveFrame()` с retry-циклом (до 10мин = 600 × 100ms).
 - **Null frame после stepInto**: stepInto может выйти из BSL (нативный вызов, конец функции). Фрейм null. Поток RUNNING. Решение: `stepNextTarget()` ре-суспендит таргет, следующий SUSPEND → снова stepInto. Никакого чёрного списка или счётчика — проверяем только жив ли таргет (TERMINATE удаляет из списка).
 - **Stale SUSPEND-события**: если таргет уже был suspended в момент старта трассировки (например, на breakpoint), его SUSPEND-событие может прийти с задержкой во время фазы степпинга. Отфильтровываем через `steppedTarget && dt != steppedTarget`.
 - **stepInto после programmatic suspend**: первый stepInto работает (заходит в BSL-метод), второй stepInto из тела метода вызывает нативную функцию → поток выходит из BSL. После step SUSPEND поток RUNNING (не suspended), фрейма нет. Re-suspend ловит поток в непредсказуемой позиции (BSL или platform).
 - **ToggleState**: `RegistryToggleState` сохраняет состояние между сессиями Eclipse → кнопка отображается нажатой при старте. `org.eclipse.core.commands.ToggleState` без initial value даёт NPE в `HandlerProxy.updateElement()`. Решение: использовать `RegistryToggleState:false` и сбрасывать `state.setValue(false)` в `createPartControl()` при старте вьюхи.
+- **Декомпилированные классы EDT**: сохранять внутри `profiling/_decompiled/<bundle>/<package>/<class>.java` для быстрого доступа без повторной декомпиляции.
 - **Git**: первый коммит (build 005) — `git log` для истории.
 
 ---
