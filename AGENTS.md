@@ -1,6 +1,7 @@
 **AGENTS.md** — Накапливай новые знания здесь, стирай устаревшее.
 
 - **AGENTS.md rule**: В процессе работы собирай все важные находки (архитектура, баги, команды, подводные камни) в этот файл. Стирай устаревшее. Этот пункт — тоже правило.
+- **Logs rule**: Никогда не спрашивать у пользователя «где логи» или «покажи логи». Всегда смотреть `D:\EDT\Workspace\.metadata\.log` самостоятельно.
 
 ---
 
@@ -133,10 +134,70 @@ D:\EDT\EDT_tracing/
 - **getTopStackFrame() после stepInto**: EDT может не успеть заполнить фрейм к моменту обработки SUSPEND. Используем `resolveFrame()` с retry-циклом (до 10мин = 600 × 100ms).
 - **Null frame после stepInto**: stepInto может выйти из BSL (нативный вызов, конец функции). Фрейм null. Поток RUNNING. Решение: `stepNextTarget()` ре-суспендит таргет, следующий SUSPEND → снова stepInto. Никакого чёрного списка или счётчика — проверяем только жив ли таргет (TERMINATE удаляет из списка).
 - **Stale SUSPEND-события**: если таргет уже был suspended в момент старта трассировки (например, на breakpoint), его SUSPEND-событие может прийти с задержкой во время фазы степпинга. Отфильтровываем через `steppedTarget && dt != steppedTarget`.
+
+- **Эфемерный ROOT-таргет в 1С**: при старте отладки 1С сначала создаёт корневой (ROOT) debug-таргет с нитью `?` (без BSL-стека), который сразу же TERMINATE-ится. Затем создаётся настоящий серверный/клиентский таргет. TERMINATE ROOT-таргета НЕ ДОЛЖЕН вызывать `stopTracing()`, иначе второй таргет будет проигнорирован. Решение: в TERMINATE-обработчике, если `targets.isEmpty()`, вызывать `checkNewTargets()` — если настоящие таргеты уже появились, не останавливаться.
+
+- **CREATE-события для серверных/клиентских таргетов**: 1С НЕ всегда шлёт CREATE для дочерних таргетов (сервер, клиент). Они появляются в `ILaunchManager.getDebugTargets()` без события. `checkNewTargets()` должен вызываться из `handleSuspend()` перед проверкой `targets.contains(dt)`, чтобы подхватывать такие таргеты. Иначе SUSPEND от них игнорируется.
+
+- **Init-условие в handleSuspend**: таргет может быть не в `initializedTargets` как из-за асинхронного suspend (pendingSuspends > 0), так и из-за обнаружения через `checkNewTargets()` уже SUSPENDED-таргета (pendingSuspends == 0). Условие должно быть просто `!initializedTargets.contains(dt)`, а не `pendingSuspends > 0 && ...`.
+
+- **Гонка asyncSuspendTarget**: фоновый поток может дёрнуть `sr.suspend()` на уже SUSPENDED-таргете (таргет успел приостановиться между проверкой `isSuspended()` в caller-е и выполнением потока). SUSPEND-событие не придёт → `pendingSuspends` зависнет. Решение: проверять `sr.isSuspended()` внутри потока перед `sr.suspend()` и самому декрементить счётчик.
+
+- **resetToggleState race**: `asyncExec` может выполниться ПОСЛЕ того, как handler framework обновил `RegistryToggleState` при повторном нажатии кнопки, перетирая состояние. Решение: `syncExec` вместо `asyncExec`.
 - **stepInto после programmatic suspend**: первый stepInto работает (заходит в BSL-метод), второй stepInto из тела метода вызывает нативную функцию → поток выходит из BSL. После step SUSPEND поток RUNNING (не suspended), фрейма нет. Re-suspend ловит поток в непредсказуемой позиции (BSL или platform).
 - **ToggleState**: `RegistryToggleState` сохраняет состояние между сессиями Eclipse → кнопка отображается нажатой при старте. `org.eclipse.core.commands.ToggleState` без initial value даёт NPE в `HandlerProxy.updateElement()`. Решение: использовать `RegistryToggleState:false` и сбрасывать `state.setValue(false)` в `createPartControl()` при старте вьюхи.
 - **Декомпилированные классы EDT**: сохранять внутри `profiling/_decompiled/<bundle>/<package>/<class>.java` для быстрого доступа без повторной декомпиляции.
 - **Git**: первый коммит (build 005) — `git log` для истории.
+
+## Non-blocking step timeout (build 023)
+
+- **Проблема**: `synchronized handleSuspend()` вызывал `stepNextTarget()`, который внутри делал `while (expectedStepSuspend > 0) { Thread.sleep(20); }` на **5 секунд**. За это время SUSPEND-событие от шага приходило, но `handleSuspend()` не могло его обработать (монитор занят). Каждый шаг занимал 5 секунд. UI зависал при клике toggle во время ожидания.
+- **Решение**: убрать блокирующий wait loop. После `stepInto()`/`stepOver()` schedule-ится неблокирующий таймаут через `Display.timerExec()`. SUSPEND-событие обрабатывается нормально (монитор свободен), таймаут — только safety net для BSL-exit.
+- `pollTargetsAfterTimeout()` заменён на `scheduleStepTimeout()` с `Display.timerExec`.
+- **SWTException fix**: `Display.timerExec()` можно вызывать только с UI thread. Обёрнуто в `Display.asyncExec(() -> display.timerExec(...))`.
+- **Stale timer detection**: добавлен `stepTimeoutSerial` — каждый новый шаг инкрементит serial, таймеры предыдущих шагов определяют себя как stale и не срабатывают.
+- **Re-suspend logging**: добавлены логи `re-suspend <target> — calling suspend...` и `re-suspend <target> — OK/FAILED` для диагностики зависаний при переключении между потоками.
+- **Build tag**: возвращён в `startTracing` лог (был удалён в build 022).
+- Build tag: `20260531-023`, затем `20260531-024`.
+
+## Non-blocking re-suspend (build 024)
+
+- **Проблема**: `sr.suspend()` на клиентском таргете (тонкий клиент 1С) — HTTP-запрос к dbgs.exe, который может висеть **30+ секунд**. Вызов внутри `synchronized handleSuspend()` → debug event тред блокируется, UI тред не может войти в `synchronized toggleTracing()`, `Display.timerExec` не может войти в `synchronized (TraceView.this)` — safety timeout не срабатывает. Подвисание UI до ~65 секунд.
+- **Решение**: все `sr.suspend()` вызовы вынесены на фоновые daemon-потоки через `asyncSuspendTarget()`. Метод стартует поток, возвращается немедленно. При ошибке (`DebugException`) поток захватывает монитор, декрементит `pendingSuspends` и удаляет таргет из `targets`.
+- Заменены 4 места: `startTracing()` (начальный suspend), `stepNextTarget()` (re-suspend), `checkNewTargets()`, `handleCreate()`.
+- `stepNextTarget()` больше не вызывает `stopTracing(true)` при отсутствии suspendable таргетов — просто ждёт следующего SUSPEND/CREATE события.
+- `stopTracing()` теперь сбрасывает `RegistryToggleState` через `resetToggleState()`, чтобы кнопка визуально отжималась при останове.
+- `handleCreate()` сделан `synchronized` для предотвращения гонки с `startTracing()` (UI тред vs debug event тред).
+
+## First frame — unexpected SUSPEND (build 027)
+
+- **Проблема**: Когда серверный BSL-тред впервые появляется на уже известном таргете (который уже в `targets` + `initializedTargets`), его SUSPEND попадает в ветку "unexpected SUSPEND" (`expectedStepSuspend <= 0`). Там сразу вызывается `stepNextTarget()` без записи текущего фрейма — первая строка теряется.
+- **Пример из лога**: ROOT-таргет получил "initial suspend", но у него нет BSL-стека. Следующий SUSPEND от того же таргета (уже появился серверный тред) → `unexpected SUSPEND` → `stepNextTarget()` находит серверный тред и степпит. Позиция серверного треда до шага не записана.
+- **Решение**: в `unexpected SUSPEND` ветке (до `stepNextTarget()`) резолвим thread и frame из события и записываем через `addRecord()`.
+- **Важно**: эта ветка также срабатывает на breakpoint-ы и user resume — лишняя запись не помешает (каждый SUSPEND = новая позиция).
+
+## Подводные камни re-suspend
+
+- `sr.suspend()` на 1С-клиенте блокирует поток на время HTTP-таймаута dbgs.exe (до 30 сек). Никогда не вызывать внутри `synchronized` блока.
+- `asyncSuspendTarget()` срабатывает на daemon-потоке. При ошибке поток сам уменьшает `pendingSuspends` под монитором.
+- После async re-suspend SUSPEND-событие приходит как обычно через `handleSuspend()` → секция `pendingSuspends > 0` → `stepNextTarget()` при `pendingSuspends == 0`.
+
+## Logging cleanup (build 022)
+
+- Убраны все debug-логи из `resolveSourceLine()`, `readSourceLines()`, `positionToLine()` — source resolution работает стабильно.
+- Убраны debug-логи из `openFrameInEditor()` — открытие редактора работает корректно, оставлен только лог ошибки при исключении.
+- Убраны startup-логи (`createPartControl started/finished`, `TracingUIActivator started`, `ToggleTracingHandler.execute called`).
+- Убраны internal step-flow логи (`stepNextTarget: start search`, `...suspended=...`, `stepOver called on`, `stepInto called on`, `re-suspended`, `checkNewTargets: added`, `handleCreate: added`).
+- **Оставлены**: per-step SUSPEND логи (основной вывод трассировки), ошибки (suspend/resume/step failed), статусные сообщения (start/stop, timeout, BSL-exit, max steps).
+- Убраны `getProfilingService()` логи (перестали быть нужны, т.к. profiling не используется).
+- Убраны неиспользуемые импорты `IStatus`/`Status` из `TracingUIActivator.java`.
+
+## Cross-target stepping (client → server)
+
+- **Проблема**: stepInto на клиенте вызывает серверный метод. Клиент становится RUNNING, сервер SUSPENDED. Ожидание SUSPEND от клиента зависает.
+- **Решение**: `expectedStepSuspend` — счётчик ожидаемых SUSPEND-событий (0/1). Вместо фильтра по `steppedTarget` (который отбрасывал SUSPEND от сервера), `handleSuspend` принимает SUSPEND **с любого таргета** если `expectedStepSuspend > 0`.
+- После stepInto/stepOver цикл ожидания с таймаутом (5c). Если SUSPEND не пришёл — poll всех таргетов (`pollTargetsAfterTimeout`). Если ни один не SUSPENDed — stepOver mode + retry.
+- Кросс-таргетные SUSPEND автоматически принимаются т.к. фильтрация по источнику убрана. Тред получаем через `resolveThread(event)` вместо `steppedThread`.
 
 ## Stale frame при открытии модуля по двойному клику
 

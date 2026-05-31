@@ -17,9 +17,6 @@ public class ToggleTracingHandler extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        TracingUIActivator.getDefault().getLog().log(
-            new Status(IStatus.INFO, TracingUIActivator.PLUGIN_ID,
-                "ToggleTracingHandler.execute called"));
         IWorkbenchPage page = PlatformUI.getWorkbench()
             .getActiveWorkbenchWindow().getActivePage();
         if (page == null) return null;

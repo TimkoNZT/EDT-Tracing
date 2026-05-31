@@ -1,8 +1,6 @@
 package com._1c.g5.v8.dt.internal.tracing.ui;
 
 import com._1c.g5.v8.dt.profiling.core.IProfilingService;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -19,7 +17,6 @@ public class TracingUIActivator extends AbstractUIPlugin {
         super.start(context);
         plugin = this;
         bundleContext = context;
-        getLog().log(new Status(IStatus.INFO, PLUGIN_ID, "TracingUIActivator started"));
     }
 
     @Override
@@ -44,17 +41,9 @@ public class TracingUIActivator extends AbstractUIPlugin {
 
     public static IProfilingService getProfilingService() {
         BundleContext ctx = getBundleContext();
-        if (ctx == null) {
-            getDefault().getLog().log(new Status(IStatus.WARNING, PLUGIN_ID, "getProfilingService: bundleContext is null"));
-            return null;
-        }
+        if (ctx == null) return null;
         ServiceReference<IProfilingService> ref = ctx.getServiceReference(IProfilingService.class);
-        if (ref == null) {
-            getDefault().getLog().log(new Status(IStatus.WARNING, PLUGIN_ID, "getProfilingService: IProfilingService not available"));
-            return null;
-        }
-        IProfilingService svc = ctx.getService(ref);
-        getDefault().getLog().log(new Status(IStatus.INFO, PLUGIN_ID, "getProfilingService: OK"));
-        return svc;
+        if (ref == null) return null;
+        return ctx.getService(ref);
     }
 }
