@@ -107,6 +107,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private Thread tracingThread;
     private final Object lock = new Object();
+    private volatile boolean steppingInProgress;
 
     private static void log(String msg) {
         TracingUIActivator.getDefault().getLog().log(
@@ -422,7 +423,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         th.start();
     }
 
-    // ==================== Event listener (CREATE / TERMINATE / SUSPEND log) ====================
+    // ==================== Event listener (CREATE / TERMINATE / SUSPEND) ====================
 
     @Override
     public void handleDebugEvents(DebugEvent[] events) {
@@ -443,20 +444,15 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     asyncSuspendTarget(dt);
                 }
             } else if (ev.getKind() == DebugEvent.SUSPEND) {
-                Object src = ev.getSource();
-                String srcInfo = src instanceof IDebugTarget ? safeTargetName((IDebugTarget) src)
-                    : src instanceof IThread ? safeThreadName((IThread) src)
-                    : src != null ? src.getClass().getSimpleName() : "null";
-                int details = ev.getDetail();
-                String detailStr;
-                switch (details) {
-                    case DebugEvent.STEP_INTO:    detailStr = "STEP_INTO"; break;
-                    case DebugEvent.STEP_OVER:     detailStr = "STEP_OVER"; break;
-                    case DebugEvent.BREAKPOINT:    detailStr = "BREAKPOINT"; break;
-                    case DebugEvent.CLIENT_REQUEST: detailStr = "CLIENT_REQUEST"; break;
-                    default: detailStr = "0x" + Integer.toHexString(details); break;
+                if (steppingInProgress) continue;
+                steppingInProgress = true;
+                try {
+                    IDebugTarget dt = resolveTarget(ev);
+                    if (dt == null || !targets.contains(dt)) continue;
+                    handleSuspendAndStep(dt);
+                } finally {
+                    steppingInProgress = false;
                 }
-                log("SUSPEND " + srcInfo + " details=" + detailStr);
             } else if (ev.getKind() == DebugEvent.TERMINATE) {
                 Object src = ev.getSource();
                 if (src instanceof IDebugTarget) {
@@ -475,6 +471,68 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     }
                 }
             }
+        }
+    }
+
+    private IDebugTarget resolveTarget(DebugEvent ev) {
+        Object src = ev.getSource();
+        if (src instanceof IDebugTarget) return (IDebugTarget) src;
+        if (src instanceof IThread) return ((IThread) src).getDebugTarget();
+        return null;
+    }
+
+    private void handleSuspendAndStep(IDebugTarget dt) {
+        ISuspendResume sr = (ISuspendResume) dt;
+        if (!sr.isSuspended()) return;
+        try {
+            IThread[] threads = dt.getThreads();
+            if (threads == null) return;
+            IThread stepped = null;
+            for (IThread t : threads) {
+                if (!t.isSuspended()) continue;
+                IStackFrame frame = getTopFrame(t);
+                if (frame == null) continue;
+
+                String key = dt.toString() + "|" + t.toString();
+                String pos = safeFrameName(frame) + ":" + safeLineNumber(frame);
+                String oldPos = lastPositions.get(key);
+
+                if (!pos.equals(oldPos)) {
+                    lastPositions.put(key, pos);
+                    String targetName = safeTargetName(dt);
+                    String threadName = safeThreadName(t);
+                    String frameName = safeFrameName(frame);
+                    int line = safeLineNumber(frame);
+                    String sourceUri = frame instanceof IBslStackFrame
+                        ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
+                    String sourceCode = resolveSourceLine(frame, line);
+                    addRecord(targetName, threadName, frameName, line, frame,
+                        sourceCode, sourceUri);
+
+                    if (stepCount >= MAX_STEPS) {
+                        stopTracing();
+                        return;
+                    }
+                }
+
+                if (stepped == null && (t instanceof IStep)) {
+                    IStep step = (IStep) t;
+                    boolean useStepOver = stepOverMode.contains(dt);
+                    if (useStepOver ? step.canStepOver() : step.canStepInto()) {
+                        stepped = t;
+                    }
+                }
+            }
+            if (stepped != null) {
+                int idx = currentTargetIndex;
+                // rotate index so poll loop continues from next target
+                currentTargetIndex = targets.indexOf(dt);
+                boolean useStepOver = stepOverMode.contains(dt);
+                if (useStepOver) ((IStep) stepped).stepOver();
+                else ((IStep) stepped).stepInto();
+            }
+        } catch (DebugException e) {
+            log("handleSuspendAndStep error: " + e.getMessage());
         }
     }
 
