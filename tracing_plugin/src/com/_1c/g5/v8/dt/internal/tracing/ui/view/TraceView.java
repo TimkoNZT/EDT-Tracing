@@ -52,6 +52,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -63,11 +64,14 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.RegistryToggleState;
@@ -77,7 +81,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260531-019";
+    private static final String BUILD_TAG = "20260531-020";
     private static final int MAX_STEPS = 100000;
     private static final int FRAME_POLL_ATTEMPTS = 600;
     private static final int FRAME_POLL_DELAY_MS = 100;
@@ -212,23 +216,37 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
         mgr.add(new org.eclipse.jface.action.Separator());
 
-        Action exportCsv = new Action("Экспорт CSV") {
-            @Override
-            public void run() { doExport("csv"); }
-        };
-        exportCsv.setToolTipText("Экспорт трассировки в CSV");
-        exportCsv.setImageDescriptor(
-            TracingUIActivator.getImageDescriptor("icons/export.png"));
-        mgr.add(exportCsv);
+        addToolbarButton(mgr, "Экспорт CSV",
+            "Экспорт трассировки в CSV",
+            TracingUIActivator.getImageDescriptor("icons/export.png"),
+            () -> doExport("csv"));
+        addToolbarButton(mgr, "Экспорт JSON",
+            "Экспорт трассировки в JSON",
+            TracingUIActivator.getImageDescriptor("icons/export.png"),
+            () -> doExport("jsonl"));
+    }
 
-        Action exportJsonl = new Action("Экспорт JSONL") {
+    private static void addToolbarButton(IToolBarManager mgr,
+            String text, String tooltip,
+            org.eclipse.jface.resource.ImageDescriptor icon,
+            Runnable action) {
+        mgr.add(new ContributionItem() {
             @Override
-            public void run() { doExport("jsonl"); }
-        };
-        exportJsonl.setToolTipText("Экспорт трассировки в JSON Lines");
-        exportJsonl.setImageDescriptor(
-            TracingUIActivator.getImageDescriptor("icons/export.png"));
-        mgr.add(exportJsonl);
+            public void fill(ToolBar parent, int index) {
+                ToolItem item = new ToolItem(parent, SWT.PUSH, index);
+                item.setText(text);
+                item.setToolTipText(tooltip);
+                if (icon != null) {
+                    Image img = icon.createImage();
+                    item.setImage(img);
+                    item.addDisposeListener(e -> {
+                        if (img != null && !img.isDisposed()) img.dispose();
+                    });
+                }
+                item.addListener(SWT.Selection,
+                    e -> action.run());
+            }
+        });
     }
 
     private synchronized void clearTrace() {
@@ -996,7 +1014,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
         FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
         dialog.setFilterNames(new String[]{
-            "csv".equals(format) ? "CSV files (*.csv)" : "JSON Lines (*.jsonl)"
+            "csv".equals(format) ? "CSV files (*.csv)" : "JSON (*.jsonl)"
         });
         dialog.setFilterExtensions(new String[]{
             "csv".equals(format) ? "*.csv" : "*.jsonl"

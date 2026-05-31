@@ -145,6 +145,8 @@ D:\EDT\EDT_tracing/
 - `resolveFile(URI)` конвертирует `platform:/resource/...` → `IFile`. `IDE.openEditor(page, file, true)` открывает редактор BSL (BslXtextEditor).
 - `openHelper` (EDT-редактор через `OpenHelper.openEditor(EObject owner, EReference crossRef)`) — план Б, если сессия ещё жива и фрейм нестарый. Получаем через `IEclipseContext` (view site или workbench).
 - `TextEditorPositioner.positionEditor(editor, lineNo - 1)` — EDT-метод для позиционирования (0-based line).
+- **OpenHelper** — имеет публичный конструктор `OpenHelper(IWorkbenchPage)`. Не нужна DI — можно просто `new OpenHelper(page)`. Используем `openEditor(IFile, ISelection)` для открытия BslXtextEditor через EDT, или `openEditor(EObject, EStructuralFeature)` если доступен Module.
+- `IDE.openEditor(page, file, true)` открывает файл, но может открыть в обычном TextEditor, а не BslXtextEditor. Использовать `OpenHelper.openEditor(file, null)` для гарантированного открытия модульного редактора EDT.
 
 ## Иконки (toolbar)
 - `icons/export.png` — скопирован из `profiling/ui/icons/elcl16/profiling_16_export.png` (profiler).
