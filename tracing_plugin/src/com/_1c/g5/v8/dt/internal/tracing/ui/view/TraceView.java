@@ -64,10 +64,14 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.RegistryToggleState;
@@ -109,6 +113,8 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private final Object lock = new Object();
     private volatile boolean steppingInProgress;
 
+    private volatile List<ModuleFilterEntry> moduleFilters = new ArrayList<>();
+
     private static void log(String msg) {
         TracingUIActivator.getDefault().getLog().log(
             new Status(IStatus.INFO, TracingUIActivator.PLUGIN_ID, msg));
@@ -117,16 +123,50 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     @Override
     public void createPartControl(Composite parent) {
         log("createPartControl (build " + BUILD_TAG + ")");
-        parent.setLayout(new FillLayout());
+        moduleFilters = ModuleFilterDialog.loadFromPrefs();
+
+        GridLayout gl = new GridLayout(1, false);
+        gl.marginWidth = gl.marginHeight = 0;
+        gl.verticalSpacing = 0;
+        parent.setLayout(gl);
+
+        ToolBar toolbar = new ToolBar(parent, SWT.FLAT | SWT.RIGHT);
+        toolbar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+        ToolItem clearItem = new ToolItem(toolbar, SWT.PUSH);
+        clearItem.setImage(PlatformUI.getWorkbench().getSharedImages()
+            .getImageDescriptor(org.eclipse.ui.ISharedImages.IMG_ELCL_REMOVE).createImage());
+        clearItem.setToolTipText("Очистить список");
+        clearItem.addListener(SWT.Selection, e -> clearTrace());
+
+        new ToolItem(toolbar, SWT.SEPARATOR);
+
+        ToolItem filterItem = new ToolItem(toolbar, SWT.PUSH);
+        filterItem.setImage(PlatformUI.getWorkbench().getSharedImages()
+            .getImageDescriptor(org.eclipse.ui.ISharedImages.IMG_OBJS_INFO_TSK).createImage());
+        filterItem.setToolTipText("Фильтры исключения модулей");
+        filterItem.addListener(SWT.Selection, e -> openFilterDialog());
+
+        new ToolItem(toolbar, SWT.SEPARATOR);
+
+        ToolItem csvItem = new ToolItem(toolbar, SWT.PUSH);
+        csvItem.setText("CSV");
+        csvItem.setToolTipText("Экспорт трассировки в CSV");
+        csvItem.addListener(SWT.Selection, e -> doExport("csv"));
+
+        ToolItem jsonItem = new ToolItem(toolbar, SWT.PUSH);
+        jsonItem.setText("JSON");
+        jsonItem.setToolTipText("Экспорт трассировки в JSON");
+        jsonItem.addListener(SWT.Selection, e -> doExport("jsonl"));
 
         tableViewer = new TableViewer(parent,
             SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
+        tableViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         tableViewer.setContentProvider(new TraceViewContentProvider());
         tableViewer.getTable().setLinesVisible(true);
         tableViewer.getTable().setHeaderVisible(true);
 
         createColumns();
-        createToolbarActions();
 
         ICommandService cs = (ICommandService)
             getSite().getService(ICommandService.class);
@@ -178,36 +218,6 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         tableViewer.getTable().getColumn(6).setAlignment(SWT.LEFT);
     }
 
-    private void createToolbarActions() {
-        IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
-
-        Action clearAction = new Action("Clear") {
-            @Override
-            public void run() { clearTrace(); }
-        };
-        clearAction.setToolTipText("Clear trace list");
-        clearAction.setImageDescriptor(PlatformUI.getWorkbench()
-            .getSharedImages().getImageDescriptor(
-                org.eclipse.ui.ISharedImages.IMG_ELCL_REMOVE));
-        mgr.add(clearAction);
-
-        mgr.add(new org.eclipse.jface.action.Separator());
-
-        Action exportCsv = new Action("CSV") {
-            @Override
-            public void run() { doExport("csv"); }
-        };
-        exportCsv.setToolTipText("Экспорт трассировки в CSV");
-        mgr.add(exportCsv);
-
-        Action exportJsonl = new Action("JSONL") {
-            @Override
-            public void run() { doExport("jsonl"); }
-        };
-        exportJsonl.setToolTipText("Экспорт трассировки в JSON Lines");
-        mgr.add(exportJsonl);
-    }
-
     private void clearTrace() {
         traceRecords.clear();
         stepCount = 0;
@@ -219,6 +229,16 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                 tableViewer.refresh();
             }
         });
+    }
+
+    private void openFilterDialog() {
+        ModuleFilterDialog dlg = new ModuleFilterDialog(
+            getSite().getShell(), moduleFilters);
+        if (dlg.open() == org.eclipse.jface.dialogs.IDialogConstants.OK_ID) {
+            moduleFilters = dlg.getFilters();
+            ModuleFilterDialog.saveToPrefs(moduleFilters);
+            log("module filters updated: " + moduleFilters.size() + " entries");
+        }
     }
 
     // ==================== Tracing logic ====================
@@ -345,19 +365,22 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                             String targetName = safeTargetName(dt);
                             String threadName = safeThreadName(t);
                             String frameName = safeFrameName(frame);
-                            int line = safeLineNumber(frame);
-                            String sourceUri = frame instanceof IBslStackFrame
-                                ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
-                            String sourceCode = resolveSourceLine(frame, line);
-                            addRecord(targetName, threadName, frameName, line, frame,
-                                sourceCode, sourceUri);
-                            log("step " + stepCount + " " + targetName + "/" + threadName
-                                + " " + frameName + ":" + line + " " + sourceCode);
 
-                            if (stepCount >= MAX_STEPS) {
-                                log("max steps reached");
-                                stopTracing();
-                                return;
+                            if (!isFiltered(frameName)) {
+                                int line = safeLineNumber(frame);
+                                String sourceUri = frame instanceof IBslStackFrame
+                                    ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
+                                String sourceCode = resolveSourceLine(frame, line);
+                                addRecord(targetName, threadName, frameName, line, frame,
+                                    sourceCode, sourceUri);
+                                log("step " + stepCount + " " + targetName + "/" + threadName
+                                    + " " + frameName + ":" + line + " " + sourceCode);
+
+                                if (stepCount >= MAX_STEPS) {
+                                    log("max steps reached");
+                                    stopTracing();
+                                    return;
+                                }
                             }
                         }
                     }
@@ -501,16 +524,19 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     String targetName = safeTargetName(dt);
                     String threadName = safeThreadName(t);
                     String frameName = safeFrameName(frame);
-                    int line = safeLineNumber(frame);
-                    String sourceUri = frame instanceof IBslStackFrame
-                        ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
-                    String sourceCode = resolveSourceLine(frame, line);
-                    addRecord(targetName, threadName, frameName, line, frame,
-                        sourceCode, sourceUri);
 
-                    if (stepCount >= MAX_STEPS) {
-                        stopTracing();
-                        return;
+                    if (!isFiltered(frameName)) {
+                        int line = safeLineNumber(frame);
+                        String sourceUri = frame instanceof IBslStackFrame
+                            ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
+                        String sourceCode = resolveSourceLine(frame, line);
+                        addRecord(targetName, threadName, frameName, line, frame,
+                            sourceCode, sourceUri);
+
+                        if (stepCount >= MAX_STEPS) {
+                            stopTracing();
+                            return;
+                        }
                     }
                 }
 
@@ -565,6 +591,38 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             if (frames != null && frames.length > 0) return frames[0];
         } catch (DebugException e) { /* ignore */ }
         return null;
+    }
+
+    private boolean isFiltered(String frameName) {
+        if (frameName == null || frameName.isEmpty()) return false;
+        for (ModuleFilterEntry f : moduleFilters) {
+            if (!f.enabled) continue;
+            if (globMatch(frameName, f.pattern)) return true;
+        }
+        return false;
+    }
+
+    private static boolean globMatch(String name, String pattern) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < pattern.length(); i++) {
+            char c = pattern.charAt(i);
+            switch (c) {
+                case '*': sb.append(".*"); break;
+                case '?': sb.append('.'); break;
+                case '.': sb.append("\\."); break;
+                case '\\': sb.append("\\\\"); break;
+                case '(': sb.append("\\("); break;
+                case ')': sb.append("\\)"); break;
+                case '[': sb.append("\\["); break;
+                case ']': sb.append("\\]"); break;
+                case '+': sb.append("\\+"); break;
+                case '^': sb.append("\\^"); break;
+                case '$': sb.append("\\$"); break;
+                case '|': sb.append("\\|"); break;
+                default: sb.append(c);
+            }
+        }
+        return name.matches(sb.toString());
     }
 
     // ==================== Safe accessors ====================
