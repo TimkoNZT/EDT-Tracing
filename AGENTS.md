@@ -43,7 +43,7 @@ D:\EDT\EDT_tracing/
 
 ## Плагин EDT Tracing (step-tracing approach)
 
-- **Цель**: позапросный трейсинг через RDBG-степпинг. Вместо агрегированного профилировщика 1С (который возвращает только частоты/длительности, а не последовательность вызовов) — пошаговая трассировка через suspend + stepOver всех debug-таргетов.
+- **Цель**: позапросный трейсинг через RDBG-степпинг. Вместо агрегированного профилировщика 1С — пошаговая трассировка через suspend + stepOver всех debug-таргетов.
 - Plugin ID: `com._1c.g5.v8.dt.tracing.ui`
 - View ID: `com._1c.g5.v8.dt.tracing.ui.TraceView`
 - View class: `com._1c.g5.v8.dt.internal.tracing.ui.view.TraceView` (extends ViewPart)
@@ -54,13 +54,23 @@ D:\EDT\EDT_tracing/
 
 ### Как работает (build 036+)
 
-1. **Toggle ON**: собираем все `IDebugTarget` из `ILaunchManager.getDebugTargets()`, фильтр по `instanceof ISuspendResume`
-2. **Async-suspend** каждого не-suspended таргета в daemon Thread (не блокируем UI/event thread)
-3. Регистрируемся как `IDebugEventSetListener` на CREATE/TERMINATE/SUSPEND
+1. **Toggle ON**: собираем `IDebugTarget` из `ILaunchManager.getDebugTargets()`, фильтр `instanceof ISuspendResume`
+2. **Async-suspend** каждого не-suspended таргета в daemon Thread
+3. Регистрируем `IDebugEventSetListener` на CREATE/TERMINATE/SUSPEND
 4. **На SUSPEND** (event thread): запись → stepInto() синхронно. `steppingInProgress` guard от рекурсии, `lastPositions` dedup
-5. **Poll loop** на background-daemon thread (100ms): safety net — запись новых позиций + step на background thread
-6. **CREATE/TERMINATE** — мгновенная реакция на появление/удаление таргетов
-7. **Toggle OFF**: `tracingActive=false` → resume всех через daemon Thread → clean state
+5. **Poll loop** (background daemon, 100ms): safety net — запись + step для таргетов, не пойманных обработчиком SUSPEND
+6. **CREATE/TERMINATE** — мгновенное добавление/удаление таргетов
+7. **Toggle OFF**: `tracingActive=false` → resume всех → clean state
+
+### Ключевое наблюдение (build 034)
+
+Все SUSPEND-события имеют `event.getDetail() == DebugEvent.BREAKPOINT` — EDT реализует stepInto через временный breakpoint. Ни одного `STEP_INTO`/`STEP_OVER`. Debug View обрабатывает ЛЮБОЙ SUSPEND с BREAKPOINT через `BslSourceDisplay.displaySource()`.
+
+**Почему окна не открываются (build 036)**: stepInto() на event thread переводит таргет в RUNNING до того, как Debug View обработает SUSPEND → `isSuspended()` возвращает false → `displaySource()` не вызывается.
+
+**Варианты, которые не сработали**:
+- Poll-only (build 033): окна открываются, т.к. stepInto асинхронный, Debug View видит SUSPEND вовремя
+- `IDebugEventFilter` (build 035): ломает `isSuspended()` — только 1 шаг
 
 ### Ключевые классы (Eclipse Debug API)
 
@@ -140,75 +150,17 @@ D:\EDT\EDT_tracing/
 - **ToggleState**: `RegistryToggleState` сохраняет состояние между сессиями Eclipse → кнопка отображается нажатой при старте. `org.eclipse.core.commands.ToggleState` без initial value даёт NPE в `HandlerProxy.updateElement()`. Решение: использовать `RegistryToggleState:false` и сбрасывать `state.setValue(false)` в `createPartControl()` при старте вьюхи.
 - **Декомпилированные классы EDT**: сохранять внутри `profiling/_decompiled/<bundle>/<package>/<class>.java` для быстрого доступа без повторной декомпиляции.
 - **Git**: первый коммит (build 005) — `git log` для истории.
+- **Не очищать traceRecords на старте**: при `startTracing()` список записей не чистится (`traceRecords.clear()` убран). Предыдущие сессии трассировки остаются в таблице для сравнения.
 
-## Build 030 — poll-only stepping + lifecycle events
 
-**Проблема builds 021-029**: `handleSuspend()` был event-driven — мы ловили SUSPEND от stepInto и реагировали. Но EDT стреляет spurious SUSPEND синхронно изнутри `stepInto()` с pre-step позицией. Это вызывало:
-- Бесконечный цикл записи дубликатов (record → stepNextTarget → stepInto → spurious SUSPEND → record)
-- Окна исходников на каждый такой SUSPEND
-- Гонку между `stopTracing()` и фоновыми тредами (delayed stop)
+## Stale frame & opening editors
 
-**Решение (build 030)**: перестать слушать SUSPEND вообще. Вся трассировка — через poll каждые 100ms:
-1. `stepLoop()` на UI thread через `Display.timerExec`
-2. Каждый poll: проверить все таргеты → записать новые позиции (frame:line) → stepNext в daemon Thread
-3. `handleDebugEvents()` обрабатывает только CREATE и TERMINATE (не SUSPEND)
-4. Spurious SUSPEND от `stepInto()` — игнорируется, потому что мы не слушаем SUSPEND
-
-**Ключевые изменения относительно build 019**:
-- Убран `synchronized` (нет блокировок → нет зависания UI)
-- Убран `pendingSuspends`, `initializedTargets`, `steppedTarget`, `steppedThread`
-- `sr.suspend()` и `stepInto()` — всегда в daemon Thread
-- Запись по изменению позиции (`lastPositions` map) — естественный dedup
-
-## Подводные камни build 030
-
-- **DebugUITools.setActiveDebugContext() отсутствует** в Eclipse 4.30. Пока не нашли способ глушить "show source on step" Debug view-а. Spurious SUSPEND всё ещё обрабатывается Debug view (не нами) и может открывать окна.
-- **Периодический poll 100ms**: `isSuspended()` и `getTopStackFrame()` вызываются часто. Это локальные вызовы (не HTTP), но потенциальный overhead есть.
-- **CREATE-события не всегда приходят для дочерних таргетов** — poll проверяет `ILaunchManager.getDebugTargets()` каждый цикл, так что новые таргеты всё равно подхватятся.
-
-## Stale frame при открытии модуля по двойному клику
-
-- **Проблема**: `TraceStepRecord.frame` — это `IStackFrame`, захваченный на шаге отладки. При двойном клике (позже, возможно после завершения сессии) `frame.getModule()` и `frame.getSource()` возвращают данные **другого** (обычно первого открытого) модуля — фрейм stale.
-- **Решение**: Стереть `IBslStackFrame.getSource()` в `String sourceUri` на этапе захвата (`addRecord`) и хранить в `TraceStepRecord.sourceUri`. При открытии использовать сохранённый URI, а не переспрашивать фрейм.
-
-## Re-suspend → unwanted source windows (build 031)
-
-- **Проблема**: В `stepLoop()` после `tryStepNext()` был re-suspend running-таргетов. `sr.suspend()` стреляет SUSPEND-событием, которое Debug View обрабатывает через EDT-шный `BslSourceDisplay.displaySource()` → `openModuleEditor()` → открывается BSL-редактор.
-- **Корень**: stepInto в EDT неблокирующий — отправляет RDBG-команду и сразу возвращается, таргет становится RUNNING. Следующий poll (100ms) видит running-таргет и re-suspend'ит его, порождая лишний SUSPEND.
-- **Решение**: Убрать re-suspend целиком. Таргеты сами финишируют step и приходят в SUSPENDED. Никогда не звать `sr.suspend()` во время трассировки — только `stepInto()`/`stepOver()`.
-- **Класс**: `TraceView.stepLoop()` в `tracing_plugin/src/.../view/TraceView.java`
-- `resolveFile(URI)` конвертирует `platform:/resource/...` → `IFile`. `IDE.openEditor(page, file, true)` открывает редактор BSL (BslXtextEditor).
-- `openHelper` (EDT-редактор через `OpenHelper.openEditor(EObject owner, EReference crossRef)`) — план Б, если сессия ещё жива и фрейм нестарый. Получаем через `IEclipseContext` (view site или workbench).
-- `TextEditorPositioner.positionEditor(editor, lineNo - 1)` — EDT-метод для позиционирования (0-based line).
-- **OpenHelper** — имеет публичный конструктор `OpenHelper(IWorkbenchPage)`. Не нужна DI — можно просто `new OpenHelper(page)`. Используем `openEditor(IFile, ISelection)` для открытия BslXtextEditor через EDT, или `openEditor(EObject, EStructuralFeature)` если доступен Module.
-- `IDE.openEditor(page, file, true)` открывает файл, но может открыть в обычном TextEditor, а не BslXtextEditor. Использовать `OpenHelper.openEditor(file, null)` для гарантированного открытия модульного редактора EDT.
-
-## Build 034 — SUSPEND diagnostics: все step-ы приходят как BREAKPOINT
-
-- **Наблюдение из лога**: все SUSPEND-события во время трассировки имеют `event.getDetail() == DebugEvent.BREAKPOINT`. Ни одного `STEP_INTO`, `STEP_OVER` или `CLIENT_REQUEST`.
-- **Причина**: EDT реализует stepInto/stepOver через установку временного breakpoint-а на следующую строку. RDBG-сервер ставит `setBreakpoints`, продолжает исполнение — при срабатывании приходит SUSPEND с `details=BREAKPOINT`.
-- **Следствие**: Debug View обрабатывает ЛЮБОЙ SUSPEND с `details=BREAKPOINT` через `BslSourceDisplay.displaySource()` → открывается BSL-редактор.
-
-### Почему build 019 не открывал окна, а build 033 открывает
-
-(Теория, не подтверждена экспериментально)
-
-- **019**: `stepInto()` вызывался **синхронно на event thread** (внутри `handleSuspend()`). После записи шага сразу отправлялся следующий stepInto, который переводил таргет в RUNNING. Debug View получал SUSPEND к моменту, когда таргет уже был RUNNING — `isSuspended()` возвращал `false`, Debug View не открывал окно.
-- **033/034**: `stepInto()` на **background thread** (daemon). Poll-цикл записывает шаг и запускает stepInto в отдельном треде. Между завершением step-а и отправкой следующего проходит 0-100ms. За это время Debug View успевает обработать SUSPEND, видит `isSuspended() == true` и открывает окно.
-
-### Варианты решения
-
-1. **A** — `DebugUITools.setShowSourceOnStep(false)` на время трассировки (недоступно в EDT 2026.1)
-2. **B** — `IDebugEventFilter` (build 035): ломает `isSuspended()` — 1 шаг
-3. **C (build 036, работает!)**: stepInto на event thread в SUSPEND handler. StepInto переводит таргет в RUNNING до того, как Debug View обработает SUSPEND → `isSuspended()` → false → окно не открывается
-
-## Build 036 — record+step на event thread (работает!)
-
-**Решение**: В `handleDebugEvents` на SUSPEND: запись → stepInto() синхронно на event thread.
-- `steppingInProgress` guard — рекурсия от spurious SUSPEND
-- `lastPositions` dedup — второй уровень защиты от дубликатов
-- Poll loop: safety net (запись + step на background thread на случай пропущенных событий)
-- **Почему работает**: stepInto() переводит таргет в RUNNING синхронно, до того как Debug View обработает SUSPEND → `isSuspended()` возвращает false → `BslSourceDisplay.displaySource()` не вызывается → окна не открываются
+- **Stale frame**: `IStackFrame` при двойном клике (после завершения сессии) возвращает данные **другого** модуля — фрейм stale.
+- **Решение**: хранить `sourceUri` как строку на этапе записи; при открытии использовать `resolveFile(URI)` → `IFile` → `OpenHelper.openEditor(file, null)` для BslXtextEditor, или `IDE.openEditor()` как fallback.
+- **OpenHelper** — публичный конструктор `new OpenHelper(page)`, не нужна DI.
+- `resolveFile(URI)` конвертирует `platform:/resource/...` → `IFile`.
+- `TextEditorPositioner.positionEditor(editor, lineNo - 1)` — 0-based line.
+- `IDE.openEditor(page, file, true)` может открыть TextEditor вместо BslXtextEditor. `OpenHelper.openEditor(file, null)` гарантирует EDT-редактор.
 
 ## Иконки (toolbar)
 - `icons/export.png` — скопирован из `profiling/ui/icons/elcl16/profiling_16_export.png` (profiler).
@@ -253,7 +205,7 @@ D:\EDT\EDT_tracing/
 | `setBreakpoints` | `RDBGSetBreakpointsRequest` | void | Установить точки останова |
 | `getDbgTargetState` | `RDBGGetDbgTargetStateRequest` (targetId) | `RDBGGetDbgTargetStateResponse.state` | Состояние цели |
 
-(Полный список команд — 22 — в `docs/rdbg-protocol.md`)
+(Полный список команд — 22 — смотри в RDBG-протоколе, декомпилированные классы EDT)
 
 ### Что мы знаем о dbgs.exe (из дизассемблера ASM)
 
