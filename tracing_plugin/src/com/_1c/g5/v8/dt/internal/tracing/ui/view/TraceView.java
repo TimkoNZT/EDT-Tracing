@@ -64,14 +64,10 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.RegistryToggleState;
@@ -124,49 +120,16 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     public void createPartControl(Composite parent) {
         log("createPartControl (build " + BUILD_TAG + ")");
         moduleFilters = ModuleFilterDialog.loadFromPrefs();
-
-        GridLayout gl = new GridLayout(1, false);
-        gl.marginWidth = gl.marginHeight = 0;
-        gl.verticalSpacing = 0;
-        parent.setLayout(gl);
-
-        ToolBar toolbar = new ToolBar(parent, SWT.FLAT | SWT.RIGHT);
-        toolbar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-
-        ToolItem clearItem = new ToolItem(toolbar, SWT.PUSH);
-        clearItem.setImage(PlatformUI.getWorkbench().getSharedImages()
-            .getImageDescriptor(org.eclipse.ui.ISharedImages.IMG_ELCL_REMOVE).createImage());
-        clearItem.setToolTipText("Очистить список");
-        clearItem.addListener(SWT.Selection, e -> clearTrace());
-
-        new ToolItem(toolbar, SWT.SEPARATOR);
-
-        ToolItem filterItem = new ToolItem(toolbar, SWT.PUSH);
-        filterItem.setImage(PlatformUI.getWorkbench().getSharedImages()
-            .getImageDescriptor(org.eclipse.ui.ISharedImages.IMG_OBJS_INFO_TSK).createImage());
-        filterItem.setToolTipText("Фильтры исключения модулей");
-        filterItem.addListener(SWT.Selection, e -> openFilterDialog());
-
-        new ToolItem(toolbar, SWT.SEPARATOR);
-
-        ToolItem csvItem = new ToolItem(toolbar, SWT.PUSH);
-        csvItem.setText("CSV");
-        csvItem.setToolTipText("Экспорт трассировки в CSV");
-        csvItem.addListener(SWT.Selection, e -> doExport("csv"));
-
-        ToolItem jsonItem = new ToolItem(toolbar, SWT.PUSH);
-        jsonItem.setText("JSON");
-        jsonItem.setToolTipText("Экспорт трассировки в JSON");
-        jsonItem.addListener(SWT.Selection, e -> doExport("jsonl"));
+        parent.setLayout(new FillLayout());
 
         tableViewer = new TableViewer(parent,
             SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
-        tableViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         tableViewer.setContentProvider(new TraceViewContentProvider());
         tableViewer.getTable().setLinesVisible(true);
         tableViewer.getTable().setHeaderVisible(true);
 
         createColumns();
+        createToolbarActions();
 
         ICommandService cs = (ICommandService)
             getSite().getService(ICommandService.class);
@@ -216,6 +179,46 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         tableViewer.getTable().getColumn(0).setAlignment(SWT.RIGHT);
         tableViewer.getTable().getColumn(5).setAlignment(SWT.RIGHT);
         tableViewer.getTable().getColumn(6).setAlignment(SWT.LEFT);
+    }
+
+    private void createToolbarActions() {
+        IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
+
+        Action clearAction = new Action("Clear") {
+            @Override
+            public void run() { clearTrace(); }
+        };
+        clearAction.setToolTipText("Очистить список");
+        clearAction.setImageDescriptor(PlatformUI.getWorkbench()
+            .getSharedImages().getImageDescriptor(
+                org.eclipse.ui.ISharedImages.IMG_ELCL_REMOVE));
+        mgr.add(clearAction);
+
+        Action filterAction = new Action("Filters") {
+            @Override
+            public void run() { openFilterDialog(); }
+        };
+        filterAction.setToolTipText("Фильтры исключения модулей");
+        filterAction.setImageDescriptor(PlatformUI.getWorkbench()
+            .getSharedImages().getImageDescriptor(
+                org.eclipse.ui.ISharedImages.IMG_OBJS_INFO_TSK));
+        mgr.add(filterAction);
+
+        mgr.add(new org.eclipse.jface.action.Separator());
+
+        Action exportCsv = new Action("CSV") {
+            @Override
+            public void run() { doExport("csv"); }
+        };
+        exportCsv.setToolTipText("Экспорт трассировки в CSV");
+        mgr.add(exportCsv);
+
+        Action exportJson = new Action("JSON") {
+            @Override
+            public void run() { doExport("jsonl"); }
+        };
+        exportJson.setToolTipText("Экспорт трассировки в JSON");
+        mgr.add(exportJson);
     }
 
     private void clearTrace() {

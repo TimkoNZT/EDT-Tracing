@@ -10,7 +10,7 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ICheckListener;
+import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -63,7 +63,9 @@ public class ModuleFilterDialog extends Dialog {
         Table table = viewer.getTable();
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
-        table.setLayoutData(new GridData(GridData.FILL_BOTH));
+        GridData tableGd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        tableGd.minimumHeight = 250;
+        table.setLayoutData(tableGd);
 
         TableColumn colEnabled = new TableColumn(table, SWT.LEFT);
         colEnabled.setText("Вкл");
@@ -86,7 +88,7 @@ public class ModuleFilterDialog extends Dialog {
             viewer.setChecked(e, e.enabled);
         }
 
-        viewer.addCheckListener(new ICheckListener() {
+        viewer.addCheckStateListener(new ICheckStateListener() {
             @Override
             public void checkStateChanged(CheckStateChangedEvent event) {
                 ModuleFilterEntry e = (ModuleFilterEntry) event.getElement();
