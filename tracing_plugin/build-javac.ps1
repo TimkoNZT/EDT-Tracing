@@ -66,6 +66,7 @@ $requiredPatterns = @(
     "org.eclipse.osgi.services_*.jar",
     "com._1c.g5.v8.dt.bsl.model_*.jar",
     "com._1c.g5.v8.dt.common.ui_*.jar",
+    "com._1c.g5.v8.dt.mcore_*.jar",
     "com._1c.g5.v8.dt.debug.core_*.jar",
     "com._1c.g5.v8.dt.debug.model_*.jar",
     "com._1c.g5.v8.dt.ui_*.jar",
