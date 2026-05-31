@@ -48,7 +48,6 @@ import com._1c.g5.v8.dt.common.ui.editors.TextEditorPositioner;
 import com._1c.g5.v8.dt.debug.util.CrossReferenceFinder;
 import com._1c.g5.v8.dt.ui.util.OpenHelper;
 
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 
@@ -78,7 +77,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260531-018";
+    private static final String BUILD_TAG = "20260531-019";
     private static final int MAX_STEPS = 100000;
     private static final int FRAME_POLL_ATTEMPTS = 600;
     private static final int FRAME_POLL_DELAY_MS = 100;
@@ -150,39 +149,22 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             }
         });
 
-        // Try to get OpenHelper from Eclipse context (for EDT module editor)
-        openHelper = findOpenHelper();
-        if (openHelper != null) {
-            log("openHelper obtained: " + openHelper.getClass().getName());
-        } else {
-            log("openHelper is null — will fallback to file-based opening");
-        }
+        // OpenHelper has public constructor OpenHelper(IWorkbenchPage)
+        // — no DI needed, we create it on-demand per click in openFrameInEditor
+        openHelper = null;
 
         log("TraceView.createPartControl finished");
     }
 
-    private OpenHelper findOpenHelper() {
-        // Try 1: getSite().getService(IEclipseContext.class)
+    private static OpenHelper createOpenHelper() {
         try {
-            IEclipseContext ctx = (IEclipseContext)
-                getSite().getService(IEclipseContext.class);
-            if (ctx != null) {
-                OpenHelper oh = ctx.get(OpenHelper.class);
-                if (oh != null) return oh;
+            IWorkbenchPage page = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getActivePage();
+            if (page != null) {
+                return new OpenHelper(page);
             }
         } catch (Exception e) {
-            log("findOpenHelper: getSite context failed: " + e.getMessage());
-        }
-        // Try 2: PlatformUI.getWorkbench().getService(IEclipseContext.class)
-        try {
-            IEclipseContext ctx = (IEclipseContext)
-                PlatformUI.getWorkbench().getService(IEclipseContext.class);
-            if (ctx != null) {
-                OpenHelper oh = ctx.get(OpenHelper.class);
-                if (oh != null) return oh;
-            }
-        } catch (Exception e) {
-            log("findOpenHelper: workbench context failed: " + e.getMessage());
+            log("createOpenHelper failed: " + e.getMessage());
         }
         return null;
     }
@@ -815,8 +797,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         log("openFrameInEditor: step=" + rec.stepIndex
             + " line=" + recLine + " frameName=" + rec.frameName
             + " target=" + rec.targetName
-            + " storedUri=" + rec.sourceUri
-            + " openHelper=" + (openHelper != null ? "available" : "null"));
+            + " storedUri=" + rec.sourceUri);
 
         try {
             IWorkbenchPage page = PlatformUI.getWorkbench()
@@ -826,32 +807,26 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                 return;
             }
 
-            // --- Primary: resolve from stored URI (captured at step time, not stale) ---
+            // --- Primary: resolve from stored URI → OpenHelper.openEditor(IFile) ---
+            IFile file = null;
             if (rec.sourceUri != null && !rec.sourceUri.isEmpty()
                 && !"null".equals(rec.sourceUri)) {
                 try {
                     URI emfUri = URI.createURI(rec.sourceUri);
-                    log("openFrameInEditor: trying storedUri=" + rec.sourceUri
-                        + " emfUri.scheme=" + emfUri.scheme());
-                    IFile file = resolveFile(emfUri);
+                    log("openFrameInEditor: storedUri=" + rec.sourceUri
+                        + " scheme=" + emfUri.scheme());
+                    file = resolveFile(emfUri);
                     if (file != null) {
                         log("openFrameInEditor: resolved file="
-                            + file.getFullPath() + " exists=" + file.exists());
-                    }
-                    if (file != null && file.exists()) {
-                        // Try IDE.openEditor first — should open BslXtextEditor
-                        IEditorPart editor = IDE.openEditor(page, file, true);
-                        if (editor != null) {
-                            log("openFrameInEditor: editor class="
-                                + editor.getClass().getName()
-                                + " for file=" + file.getFullPath()
-                                + " line=" + recLine);
-                            positionToLine(editor, recLine);
-                            return;
-                        }
+                            + file.getFullPath()
+                            + " ext=" + file.getFileExtension()
+                            + " exists=" + file.exists());
+                    } else {
+                        log("openFrameInEditor: resolveFile returned null"
+                            + " for URI=" + rec.sourceUri);
                     }
                 } catch (Exception e) {
-                    log("openFrameInEditor: storedUri approach failed: "
+                    log("openFrameInEditor: resolveFile failed: "
                         + e.getClass().getName() + ": " + e.getMessage());
                 }
             } else {
@@ -859,44 +834,80 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     + (rec.frame != null ? rec.frame.getClass().getName() : "null"));
             }
 
-            // --- Try openHelper (EDT module editor) if available ---
-            if (rec.frame instanceof IBslStackFrame && openHelper != null) {
+            if (file != null && file.exists()) {
+                // Use OpenHelper.openEditor(IFile, ISelection) — opens BslXtextEditor
+                OpenHelper oh = new OpenHelper(page);
+                IEditorPart editor = oh.openEditor(file, null);
+                if (editor != null) {
+                    log("openFrameInEditor: OpenHelper editor="
+                        + editor.getClass().getName()
+                        + " for file=" + file.getFullPath()
+                        + " line=" + recLine);
+                    if (recLine > 0) {
+                        try {
+                            TextEditorPositioner.positionEditor(editor, recLine - 1);
+                            log("openFrameInEditor: positioned to line " + recLine);
+                        } catch (Exception e) {
+                            log("openFrameInEditor: TextEditorPositioner failed: "
+                                + e.getMessage());
+                            positionToLine(editor, recLine);
+                        }
+                    }
+                    return;
+                } else {
+                    log("openFrameInEditor: OpenHelper.openEditor returned null");
+                }
+
+                // Fallback: IDE.openEditor
+                try {
+                    IEditorPart ed2 = IDE.openEditor(page, file, true);
+                    if (ed2 != null) {
+                        log("openFrameInEditor: IDE.openEditor editor="
+                            + ed2.getClass().getName()
+                            + " line=" + recLine);
+                        positionToLine(ed2, recLine);
+                        return;
+                    }
+                } catch (Exception e) {
+                    log("openFrameInEditor: IDE.openEditor failed: "
+                        + e.getMessage());
+                }
+            }
+
+            // --- Fallback: openHelper.getModule() → openEditor(owner, crossRef) ---
+            if (rec.frame instanceof IBslStackFrame) {
                 IBslStackFrame bslFrame = (IBslStackFrame) rec.frame;
                 try {
                     Module module = bslFrame.getModule();
-                    log("openFrameInEditor: openHelper path, module="
-                        + (module != null ? "non-null" : "null"));
                     if (module != null) {
                         EObject owner = module.getOwner();
-                        log("openFrameInEditor: openHelper, owner="
-                            + (owner != null ? "non-null" : "null"));
                         if (owner != null) {
                             EReference crossRef;
                             synchronized (owner.eResource().getResourceSet()) {
                                 crossRef = CrossReferenceFinder
                                     .findCrossReference(owner, module);
                             }
-                            IEditorPart editor = openHelper
-                                .openEditor(owner, crossRef);
-                            log("openFrameInEditor: openHelper result="
-                                + (editor != null ? editor.getClass().getName()
+                            OpenHelper oh = new OpenHelper(page);
+                            IEditorPart ed3 = oh.openEditor(owner, crossRef);
+                            log("openFrameInEditor: openEditor(owner,crossRef)="
+                                + (ed3 != null ? ed3.getClass().getName()
                                     : "null"));
-                            if (editor != null) {
+                            if (ed3 != null) {
                                 if (recLine > 0) {
                                     TextEditorPositioner
-                                        .positionEditor(editor, recLine - 1);
+                                        .positionEditor(ed3, recLine - 1);
                                 }
                                 return;
                             }
                         }
                     }
                 } catch (Exception e) {
-                    log("openFrameInEditor: openHelper failed: "
+                    log("openFrameInEditor: module path failed: "
                         + e.getClass().getName() + ": " + e.getMessage());
                 }
             }
 
-            // --- Fallback: DebugUITools.displaySource ---
+            // --- Last resort: DebugUITools.displaySource ---
             if (rec.frame != null) {
                 ISourceLookupResult result = DebugUITools
                     .lookupSource(rec.frame, null);
@@ -919,12 +930,10 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     if (editorInput != null && editorId != null) {
                         IEditorPart editor = page.openEditor(
                             editorInput, editorId);
-                        log("openFrameInEditor: page.openEditor fallback, editor="
+                        log("openFrameInEditor: page.openEditor, editor="
                             + (editor != null ? editor.getClass().getName()
                                 : "null"));
-                        if (editor != null) {
-                            positionToLine(editor, recLine);
-                        }
+                        if (editor != null) positionToLine(editor, recLine);
                         return;
                     }
                 }

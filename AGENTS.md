@@ -138,6 +138,21 @@ D:\EDT\EDT_tracing/
 - **Декомпилированные классы EDT**: сохранять внутри `profiling/_decompiled/<bundle>/<package>/<class>.java` для быстрого доступа без повторной декомпиляции.
 - **Git**: первый коммит (build 005) — `git log` для истории.
 
+## Stale frame при открытии модуля по двойному клику
+
+- **Проблема**: `TraceStepRecord.frame` — это `IStackFrame`, захваченный на шаге отладки. При двойном клике (позже, возможно после завершения сессии) `frame.getModule()` и `frame.getSource()` возвращают данные **другого** (обычно первого открытого) модуля — фрейм stale.
+- **Решение**: Стереть `IBslStackFrame.getSource()` в `String sourceUri` на этапе захвата (`addRecord`) и хранить в `TraceStepRecord.sourceUri`. При открытии использовать сохранённый URI, а не переспрашивать фрейм.
+- `resolveFile(URI)` конвертирует `platform:/resource/...` → `IFile`. `IDE.openEditor(page, file, true)` открывает редактор BSL (BslXtextEditor).
+- `openHelper` (EDT-редактор через `OpenHelper.openEditor(EObject owner, EReference crossRef)`) — план Б, если сессия ещё жива и фрейм нестарый. Получаем через `IEclipseContext` (view site или workbench).
+- `TextEditorPositioner.positionEditor(editor, lineNo - 1)` — EDT-метод для позиционирования (0-based line).
+
+## Иконки (toolbar)
+- `icons/export.png` — скопирован из `profiling/ui/icons/elcl16/profiling_16_export.png` (profiler).
+
+## Export (toolbar кнопки)
+- `Export CSV` / `Export JSONL` → `Экспорт CSV` / `Экспорт JSONL`.
+- Каждая кнопка: `setImageDescriptor(TracingUIActivator.getImageDescriptor("icons/export.png"))`.
+
 ---
 
 ## Протокол RDBG — связь EDT с dbgs.exe (для справки, напрямую не используется)
