@@ -46,12 +46,14 @@ $requiredPatterns = @(
     "org.eclipse.ui.workbench_*.jar",
     "org.eclipse.jface_*.jar",
     "org.eclipse.jface.text_*.jar",
+    "org.eclipse.text_*.jar",
     "org.eclipse.swt.win32.win32.x86_64_*.jar",
     "org.eclipse.core.runtime_*.jar",
     "org.eclipse.core.commands_*.jar",
     "org.eclipse.core.expressions_*.jar",
     "org.eclipse.debug.ui_*.jar",
     "org.eclipse.debug.core_*.jar",
+    "org.eclipse.e4.core.contexts_*.jar",
     "org.eclipse.e4.core.di_*.jar",
     "org.eclipse.e4.core.services_*.jar",
     "org.eclipse.core.jobs_*.jar",
@@ -62,10 +64,14 @@ $requiredPatterns = @(
     "org.eclipse.equinox.common_*.jar",
     "org.eclipse.equinox.registry_*.jar",
     "org.eclipse.osgi.services_*.jar",
+    "com._1c.g5.v8.dt.bsl.model_*.jar",
+    "com._1c.g5.v8.dt.common.ui_*.jar",
     "com._1c.g5.v8.dt.debug.core_*.jar",
     "com._1c.g5.v8.dt.debug.model_*.jar",
+    "com._1c.g5.v8.dt.ui_*.jar",
     "org.eclipse.emf.common_*.jar",
-    "org.eclipse.emf.ecore_*.jar"
+    "org.eclipse.emf.ecore_*.jar",
+    "org.eclipse.ui.workbench.texteditor_*.jar"
 )
 
 $classpathJars = @()

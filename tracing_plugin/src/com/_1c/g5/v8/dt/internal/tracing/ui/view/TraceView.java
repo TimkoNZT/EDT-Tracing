@@ -41,14 +41,24 @@ import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.FileLocator;
 
 import com._1c.g5.v8.dt.debug.core.model.IBslStackFrame;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
+import com._1c.g5.v8.dt.bsl.model.Module;
+import com._1c.g5.v8.dt.common.ui.editors.TextEditorPositioner;
+import com._1c.g5.v8.dt.debug.util.CrossReferenceFinder;
+import com._1c.g5.v8.dt.ui.util.OpenHelper;
+
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
@@ -68,7 +78,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260531-015";
+    private static final String BUILD_TAG = "20260531-016";
     private static final int MAX_STEPS = 100000;
     private static final int FRAME_POLL_ATTEMPTS = 600;
     private static final int FRAME_POLL_DELAY_MS = 100;
@@ -97,6 +107,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private int currentTargetIndex;
     private final Set<IDebugTarget> stepOverMode = new HashSet<>();
     private final Map<String, String[]> sourceLineCache = new HashMap<>();
+    private OpenHelper openHelper;
 
     private void log(String msg) {
         TracingUIActivator.getDefault().getLog().log(
@@ -135,9 +146,22 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             IStructuredSelection sel = (IStructuredSelection) event.getSelection();
             TraceStepRecord rec = (TraceStepRecord) sel.getFirstElement();
             if (rec != null && rec.frame != null) {
-                openFrameInEditor(rec.frame);
+                openFrameInEditor(rec);
             }
         });
+
+        // Try to get OpenHelper from Eclipse context (for EDT module editor)
+        try {
+            IEclipseContext ctx = (IEclipseContext) getSite().getService(IEclipseContext.class);
+            if (ctx != null) {
+                openHelper = ctx.get(OpenHelper.class);
+                if (openHelper != null) {
+                    log("openHelper obtained from Eclipse context");
+                }
+            }
+        } catch (Exception e) {
+            log("openHelper not available: " + e.getMessage());
+        }
 
         log("TraceView.createPartControl finished");
     }
@@ -173,6 +197,18 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private void createToolbarActions() {
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
 
+        Action clearAction = new Action("Clear") {
+            @Override
+            public void run() { clearTrace(); }
+        };
+        clearAction.setToolTipText("Clear trace list");
+        clearAction.setImageDescriptor(PlatformUI.getWorkbench()
+            .getSharedImages().getImageDescriptor(
+                org.eclipse.ui.ISharedImages.IMG_ELCL_REMOVE));
+        mgr.add(clearAction);
+
+        mgr.add(new org.eclipse.jface.action.Separator());
+
         Action exportCsv = new Action("Export CSV") {
             @Override
             public void run() { doExport("csv"); }
@@ -188,20 +224,31 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         mgr.add(exportJsonl);
     }
 
+    private synchronized void clearTrace() {
+        traceRecords.clear();
+        stepCount = 0;
+        sourceLineCache.clear();
+        Display.getDefault().asyncExec(() -> {
+            if (!tableViewer.getTable().isDisposed()) {
+                tableViewer.setInput(new TraceStepRecord[0]);
+                tableViewer.refresh();
+            }
+        });
+        log("clearTrace: list cleared");
+    }
+
     // ==================== Tracing logic ====================
 
     public boolean toggleTracing() {
         if (!tracingActive) { startTracing(); return tracingActive; }
-        else { stopTracing(); return false; }
+        else { stopTracing(false); return false; } // pause, keep targets suspended
     }
 
     private synchronized void startTracing() {
         ILaunchManager lm = DebugPlugin.getDefault().getLaunchManager();
         targets.clear();
         initializedTargets.clear();
-        traceRecords.clear();
         steppedTarget = null;
-        stepCount = 0;
         pendingSuspends = 0;
         currentTargetIndex = -1;
         suspendedByUs.clear();
@@ -274,25 +321,26 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         }
     }
 
-    private synchronized void stopTracing() {
+    private synchronized void stopTracing(boolean resumeTargets) {
         if (!tracingActive) return;
         tracingActive = false;
         DebugPlugin.getDefault().removeDebugEventListener(this);
 
-        // Only resume targets that WE suspended (leave pre-suspended ones alone)
-        for (IDebugTarget dt : suspendedByUs) {
-            ISuspendResume sr = (ISuspendResume) dt;
-            if (sr.isSuspended() && sr.canResume()) {
-                try {
-                    sr.resume();
-                } catch (DebugException e) {
-                    log("resume failed: " + safeTargetName(dt) + " — " + e.getMessage());
+        if (resumeTargets) {
+            for (IDebugTarget dt : suspendedByUs) {
+                ISuspendResume sr = (ISuspendResume) dt;
+                if (sr.isSuspended() && sr.canResume()) {
+                    try {
+                        sr.resume();
+                    } catch (DebugException e) {
+                        log("resume failed: " + safeTargetName(dt) + " — " + e.getMessage());
+                    }
                 }
             }
+            targets.clear();
+            suspendedByUs.clear();
+            stepOverMode.clear();
         }
-        targets.clear();
-        suspendedByUs.clear();
-        stepOverMode.clear();
         log("stopTracing: " + stepCount + " steps recorded");
     }
 
@@ -315,7 +363,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     }
                     if (targets.isEmpty()) {
                         log("all targets terminated — stopping");
-                        stopTracing();
+                        stopTracing(true);
                     }
                 }
             }
@@ -394,7 +442,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
         if (stepCount >= MAX_STEPS) {
             log("max steps reached, stopping");
-            stopTracing();
+            stopTracing(true);
             return;
         }
         stepNextTarget();
@@ -487,7 +535,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         if (anyReSuspended) return; // wait for new SUSPEND events
 
         log("stepNextTarget: no suspendable target — stopping");
-        stopTracing();
+        stopTracing(true);
     }
 
     private void checkNewTargets() {
@@ -559,7 +607,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         return null;
     }
 
-    private static IStackFrame resolveFrame(IThread thread) {
+    private IStackFrame resolveFrame(IThread thread) {
         if (thread == null) return null;
         for (int attempt = 0; attempt < FRAME_POLL_ATTEMPTS; attempt++) {
             try {
@@ -570,6 +618,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                 IStackFrame[] frames = thread.getStackFrames();
                 if (frames != null && frames.length > 0) return frames[0];
             } catch (DebugException e) { /* ignore */ }
+            if (!tracingActive) break;
             try { Thread.sleep(FRAME_POLL_DELAY_MS); } catch (InterruptedException e) { break; }
         }
         return null;
@@ -609,61 +658,89 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             if (frame instanceof IBslStackFrame) {
                 URI sourceUri = ((IBslStackFrame) frame).getSource();
                 if (sourceUri != null) {
-                    String[] lines = sourceLineCache.get(sourceUri.toString());
+                    log("resolveSourceLine: URI=" + sourceUri.toString()
+                        + " line=" + lineNumber);
+                    String key = sourceUri.toString();
+                    String[] lines = sourceLineCache.get(key);
                     if (lines == null) {
                         lines = readSourceLines(sourceUri);
                         if (lines != null) {
-                            sourceLineCache.put(sourceUri.toString(), lines);
+                            sourceLineCache.put(key, lines);
                         }
                     }
                     if (lines != null && lineNumber <= lines.length) {
                         return lines[lineNumber - 1].trim();
                     }
+                    log("resolveSourceLine: no lines for key=" + key
+                        + " lines=" + (lines != null ? "" + lines.length : "null"));
+                } else {
+                    log("resolveSourceLine: URI is null");
                 }
+            } else {
+                log("resolveSourceLine: not IBslStackFrame: "
+                    + frame.getClass().getName());
             }
 
-            // Fallback via DebugUITools.lookupSource
             ISourceLookupResult result = DebugUITools.lookupSource(frame, null);
             if (result != null) {
                 IEditorInput editorInput = result.getEditorInput();
+                log("resolveSourceLine fallback: editorInput="
+                    + (editorInput != null ? editorInput.getClass().getName() : "null"));
                 if (editorInput != null) {
                     String[] lines = readSourceLines(editorInput);
                     if (lines != null && lineNumber <= lines.length) {
                         return lines[lineNumber - 1].trim();
                     }
                 }
+            } else {
+                log("resolveSourceLine fallback: result is null");
+            }
+        } catch (Exception e) {
+            log("resolveSourceLine: exception " + e.getClass().getName()
+                + ": " + e.getMessage());
+        }
+        return "";
+    }
+
+    private static IFile resolveFile(URI sourceUri) {
+        try {
+            java.net.URI uri = new java.net.URI(sourceUri.toString());
+            if ("platform".equals(uri.getScheme())) {
+                String path = uri.getPath();
+                String wsPath = path.startsWith("/resource/")
+                    ? path.substring("/resource/".length())
+                    : path;
+                return ResourcesPlugin.getWorkspace().getRoot().getFile(
+                    new org.eclipse.core.runtime.Path(wsPath));
+            }
+            if ("file".equals(uri.getScheme())) {
+                java.nio.file.Path filePath = java.nio.file.Paths.get(uri);
+                return ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(
+                    new org.eclipse.core.runtime.Path(filePath.toString()));
             }
         } catch (Exception e) { /* ignore */ }
-        return "";
+        return null;
     }
 
     private String[] readSourceLines(URI sourceUri) {
         try {
-            java.net.URI uri = new java.net.URI(sourceUri.toString());
-            if ("file".equals(uri.getScheme())) {
-                List<String> allLines = Files.readAllLines(Paths.get(uri),
-                    StandardCharsets.UTF_8);
-                return allLines.toArray(new String[0]);
-            }
-            // platform:/resource/ URI → resolve via workspace
-            if ("platform".equals(uri.getScheme())) {
-                String path = uri.getPath();
-                IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
-                    new org.eclipse.core.runtime.Path(path));
-                if (file != null && file.exists()) {
-                    try (InputStream in = file.getContents();
-                         BufferedReader br = new BufferedReader(
-                             new InputStreamReader(in, "UTF-8"))) {
-                        List<String> lines = new ArrayList<>();
-                        String l;
-                        while ((l = br.readLine()) != null) {
-                            lines.add(l);
-                        }
-                        return lines.toArray(new String[0]);
+            IFile file = resolveFile(sourceUri);
+            if (file != null && file.exists()) {
+                try (InputStream in = file.getContents();
+                     BufferedReader br = new BufferedReader(
+                         new InputStreamReader(in, "UTF-8"))) {
+                    List<String> lines = new ArrayList<>();
+                    String l;
+                    while ((l = br.readLine()) != null) {
+                        lines.add(l);
                     }
+                    return lines.toArray(new String[0]);
                 }
             }
-        } catch (Exception e) { /* try fallback */ }
+            log("readSourceLines(URI): file not found: " + sourceUri);
+        } catch (Exception e) {
+            log("readSourceLines(URI): exception " + e.getMessage());
+        }
         return null;
     }
 
@@ -675,8 +752,15 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             } else if (editorInput instanceof IFileEditorInput) {
                 storage = ((IFileEditorInput) editorInput).getFile();
             }
-            if (storage == null) return null;
-            String key = storage.getName();
+            if (storage == null) {
+                log("readSourceLines(IEditorInput): storage is null");
+                return null;
+            }
+            String key = storage instanceof IFile
+                ? ((IFile) storage).getFullPath().toString()
+                : storage.getName();
+            log("readSourceLines(IEditorInput): key=" + key
+                + " class=" + storage.getClass().getName());
             String[] cached = sourceLineCache.get(key);
             if (cached != null) return cached;
             try (InputStream in = storage.getContents();
@@ -697,16 +781,94 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     // ==================== Source display ====================
 
-    private void openFrameInEditor(IStackFrame frame) {
+    private void openFrameInEditor(TraceStepRecord rec) {
+        IStackFrame frame = rec.frame;
+        int recLine = rec.lineNumber;
         try {
             IWorkbenchPage page = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();
             if (page == null) return;
 
-            // Use DebugUITools source lookup — delegates to EDT's
-            // BslSourceDisplay for IBslStackFrame (Module → editor)
-            DebugUITools.displaySource(
-                DebugUITools.lookupSource(frame, null), page);
+            // Primary: EDT module editor (like profiling)
+            if (frame instanceof IBslStackFrame) {
+                IBslStackFrame bslFrame = (IBslStackFrame) frame;
+                try {
+                    Module module = bslFrame.getModule();
+                    if (module != null) {
+                        EObject owner = module.getOwner();
+                        if (owner != null && openHelper != null) {
+                            EReference crossRef;
+                            synchronized (owner.eResource().getResourceSet()) {
+                                crossRef = CrossReferenceFinder
+                                    .findCrossReference(owner, module);
+                            }
+                            IEditorPart editor = openHelper
+                                .openEditor(owner, crossRef);
+                            if (editor != null) {
+                                log("openFrameInEditor: EDT editor opened, line="
+                                    + recLine);
+                                if (recLine > 0) {
+                                    TextEditorPositioner
+                                        .positionEditor(editor, recLine - 1);
+                                }
+                                return;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log("openFrameInEditor: EDT editor approach failed: "
+                        + e.getMessage());
+                }
+
+                // Fallback: resolve file from URI
+                try {
+                    URI sourceUri = bslFrame.getSource();
+                    if (sourceUri != null) {
+                        IFile file = resolveFile(sourceUri);
+                        if (file != null && file.exists()) {
+                            log("openFrameInEditor: file=" + file.getFullPath()
+                                + " line=" + recLine);
+                            IEditorPart editor = IDE.openEditor(page, file, true);
+                            if (recLine > 0 && editor instanceof ITextEditor) {
+                                ITextEditor textEditor = (ITextEditor) editor;
+                                IDocumentProvider provider
+                                    = textEditor.getDocumentProvider();
+                                IDocument doc = provider.getDocument(
+                                    editor.getEditorInput());
+                                if (doc != null) {
+                                    int offset = doc.getLineOffset(recLine - 1);
+                                    textEditor.selectAndReveal(offset, 0);
+                                }
+                            }
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    log("openFrameInEditor: file fallback failed: "
+                        + e.getMessage());
+                }
+            }
+
+            // Last resort: DebugUITools.displaySource
+            ISourceLookupResult result = DebugUITools.lookupSource(frame, null);
+            if (result != null) {
+                try {
+                    DebugUITools.displaySource(result, page);
+                    log("openFrameInEditor: displaySource fallback OK");
+                    return;
+                } catch (Exception e1) {
+                    log("openFrameInEditor: displaySource fallback failed: "
+                        + e1.getMessage());
+                }
+                IEditorInput editorInput = result.getEditorInput();
+                String editorId = result.getEditorId();
+                if (editorInput != null && editorId != null) {
+                    page.openEditor(editorInput, editorId);
+                    log("openFrameInEditor: page.openEditor fallback");
+                    return;
+                }
+            }
+            log("openFrameInEditor: all methods failed");
         } catch (Exception e) {
             TracingUIActivator.getDefault().getLog().log(
                 new Status(IStatus.ERROR, TracingUIActivator.PLUGIN_ID,
@@ -830,7 +992,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     @Override
     public synchronized void dispose() {
-        if (tracingActive) stopTracing();
+        if (tracingActive) stopTracing(true);
         super.dispose();
     }
 }

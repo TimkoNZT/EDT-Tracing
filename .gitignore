@@ -2,6 +2,7 @@
 target/
 tracing_plugin/target/
 tracing_plugin/dist/
+build.log
 
 # IDE
 .idea/
@@ -15,16 +16,16 @@ Thumbs.db
 *.class
 
 # Build artifacts extracted from Eclipse/EDT JARs at repo root
-org/
-META-INF/
-css/
-icons/
-about.html
-plugin.xml
-plugin.properties
-fragment.xml
-.api_description
-.options
+/org/
+/META-INF/
+/css/
+/icons/
+/about.html
+/plugin.xml
+/plugin.properties
+/fragment.xml
+/.api_description
+/.options
 
 # Binary reverse-engineering artifacts
 dbgs/dbgs.exe

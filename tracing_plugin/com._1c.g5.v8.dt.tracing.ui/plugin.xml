@@ -42,7 +42,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:org.eclipse.ui.run?after=breakpointGroup">
+            locationURI="menu:org.eclipse.ui.run?after=com._1c.g5.v8.dt.profiling.ui.view.commands.profiling">
          <command
                commandId="com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing"
                label="%command.toggleTracing.name"
