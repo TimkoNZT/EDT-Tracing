@@ -52,15 +52,17 @@ D:\EDT\EDT_tracing/
 - Activation: `Bundle-ActivationPolicy: lazy`
 - Java: compile with `--release 8` (target JavaSE-1.8)
 
+### Как работает (build 036b)
+
+1-7 — as build 036.
+8. **Фильтр модулей**: сравнивается только `Тип.Имя.Модуль` (без метода и аргументов). `safeModuleName()` парсит `frame.getName()`: отрезает `(...)` и последний сегмент после `.`.
+9. **Примеры фильтров**: `ОбщийМодуль.ОбщегоНазначения*.*` и `ОбщийМодуль.СтроковыеФункцииКлиентСервер.*`
+
 ### Как работает (build 036+)
 
-1. **Toggle ON**: собираем `IDebugTarget` из `ILaunchManager.getDebugTargets()`, фильтр `instanceof ISuspendResume`
-2. **Async-suspend** каждого не-suspended таргета в daemon Thread
-3. Регистрируем `IDebugEventSetListener` на CREATE/TERMINATE/SUSPEND
-4. **На SUSPEND** (event thread): запись → stepInto() синхронно. `steppingInProgress` guard от рекурсии, `lastPositions` dedup
-5. **Poll loop** (background daemon, 100ms): safety net — запись + step для таргетов, не пойманных обработчиком SUSPEND
-6. **CREATE/TERMINATE** — мгновенное добавление/удаление таргетов
-7. **Toggle OFF**: `tracingActive=false` → resume всех → clean state
+1-7 — as build 036.
+8. **Фильтр модулей**: сравнивается только `Тип.Имя.Модуль` (без метода и аргументов). `safeModuleName()` парсит `frame.getName()`: отрезает `(...)` и последний сегмент после `.`.
+9. **Примеры фильтров**: `ОбщийМодуль.ОбщегоНазначения*.*` и `ОбщийМодуль.СтроковыеФункцииКлиентСервер.*`
 
 ### Ключевое наблюдение (build 034)
 
