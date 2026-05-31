@@ -199,9 +199,8 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             public void run() { openFilterDialog(); }
         };
         filterAction.setToolTipText("Фильтры исключения модулей");
-        filterAction.setImageDescriptor(PlatformUI.getWorkbench()
-            .getSharedImages().getImageDescriptor(
-                org.eclipse.ui.ISharedImages.IMG_OBJS_INFO_TSK));
+        filterAction.setImageDescriptor(
+            TracingUIActivator.getImageDescriptor("icons/filter.png"));
         mgr.add(filterAction);
 
         mgr.add(new org.eclipse.jface.action.Separator());

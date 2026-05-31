@@ -61,7 +61,9 @@ public class ModuleFilterDialog extends Dialog {
         Table table = viewer.getTable();
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
-        GridData tableGd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        GridData tableGd = new GridData(GridData.FILL_BOTH);
+        tableGd.grabExcessVerticalSpace = true;
+        tableGd.grabExcessHorizontalSpace = true;
         tableGd.minimumHeight = 250;
         table.setLayoutData(tableGd);
 
