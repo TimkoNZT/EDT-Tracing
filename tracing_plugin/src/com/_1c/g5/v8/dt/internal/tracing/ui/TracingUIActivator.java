@@ -3,6 +3,7 @@ package com._1c.g5.v8.dt.internal.tracing.ui;
 import com._1c.g5.v8.dt.profiling.core.IProfilingService;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -34,6 +35,11 @@ public class TracingUIActivator extends AbstractUIPlugin {
 
     public static BundleContext getBundleContext() {
         return plugin != null ? plugin.bundleContext : null;
+    }
+
+    public static ImageDescriptor getImageDescriptor(String path) {
+        if (plugin == null) return ImageDescriptor.getMissingImageDescriptor();
+        return imageDescriptorFromPlugin(PLUGIN_ID, path);
     }
 
     public static IProfilingService getProfilingService() {

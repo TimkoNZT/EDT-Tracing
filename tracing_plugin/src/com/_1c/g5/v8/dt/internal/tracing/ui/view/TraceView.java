@@ -78,7 +78,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class TraceView extends ViewPart implements IDebugEventSetListener {
 
-    private static final String BUILD_TAG = "20260531-016";
+    private static final String BUILD_TAG = "20260531-018";
     private static final int MAX_STEPS = 100000;
     private static final int FRAME_POLL_ATTEMPTS = 600;
     private static final int FRAME_POLL_DELAY_MS = 100;
@@ -109,7 +109,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private final Map<String, String[]> sourceLineCache = new HashMap<>();
     private OpenHelper openHelper;
 
-    private void log(String msg) {
+    private static void log(String msg) {
         TracingUIActivator.getDefault().getLog().log(
             new Status(IStatus.INFO, TracingUIActivator.PLUGIN_ID, msg));
     }
@@ -151,19 +151,40 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         });
 
         // Try to get OpenHelper from Eclipse context (for EDT module editor)
-        try {
-            IEclipseContext ctx = (IEclipseContext) getSite().getService(IEclipseContext.class);
-            if (ctx != null) {
-                openHelper = ctx.get(OpenHelper.class);
-                if (openHelper != null) {
-                    log("openHelper obtained from Eclipse context");
-                }
-            }
-        } catch (Exception e) {
-            log("openHelper not available: " + e.getMessage());
+        openHelper = findOpenHelper();
+        if (openHelper != null) {
+            log("openHelper obtained: " + openHelper.getClass().getName());
+        } else {
+            log("openHelper is null — will fallback to file-based opening");
         }
 
         log("TraceView.createPartControl finished");
+    }
+
+    private OpenHelper findOpenHelper() {
+        // Try 1: getSite().getService(IEclipseContext.class)
+        try {
+            IEclipseContext ctx = (IEclipseContext)
+                getSite().getService(IEclipseContext.class);
+            if (ctx != null) {
+                OpenHelper oh = ctx.get(OpenHelper.class);
+                if (oh != null) return oh;
+            }
+        } catch (Exception e) {
+            log("findOpenHelper: getSite context failed: " + e.getMessage());
+        }
+        // Try 2: PlatformUI.getWorkbench().getService(IEclipseContext.class)
+        try {
+            IEclipseContext ctx = (IEclipseContext)
+                PlatformUI.getWorkbench().getService(IEclipseContext.class);
+            if (ctx != null) {
+                OpenHelper oh = ctx.get(OpenHelper.class);
+                if (oh != null) return oh;
+            }
+        } catch (Exception e) {
+            log("findOpenHelper: workbench context failed: " + e.getMessage());
+        }
+        return null;
     }
 
     private void createColumns() {
@@ -209,18 +230,22 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
         mgr.add(new org.eclipse.jface.action.Separator());
 
-        Action exportCsv = new Action("Export CSV") {
+        Action exportCsv = new Action("Экспорт CSV") {
             @Override
             public void run() { doExport("csv"); }
         };
-        exportCsv.setToolTipText("Export trace as CSV");
+        exportCsv.setToolTipText("Экспорт трассировки в CSV");
+        exportCsv.setImageDescriptor(
+            TracingUIActivator.getImageDescriptor("icons/export.png"));
         mgr.add(exportCsv);
 
-        Action exportJsonl = new Action("Export JSONL") {
+        Action exportJsonl = new Action("Экспорт JSONL") {
             @Override
             public void run() { doExport("jsonl"); }
         };
-        exportJsonl.setToolTipText("Export trace as JSON Lines");
+        exportJsonl.setToolTipText("Экспорт трассировки в JSON Lines");
+        exportJsonl.setImageDescriptor(
+            TracingUIActivator.getImageDescriptor("icons/export.png"));
         mgr.add(exportJsonl);
     }
 
@@ -437,7 +462,9 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             + " " + frameName + ":" + line + " step=" + stepCount
             + " src=" + sourceCode);
 
-        addRecord(targetName, threadName, frameName, line, frame, sourceCode);
+        String sourceUri = frame instanceof IBslStackFrame
+            ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
+        addRecord(targetName, threadName, frameName, line, frame, sourceCode, sourceUri);
         checkNewTargets();
 
         if (stepCount >= MAX_STEPS) {
@@ -450,10 +477,12 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private void addRecord(String targetName, String threadName,
                            String frameName, int lineNumber,
-                           IStackFrame frame, String sourceCode) {
+                           IStackFrame frame, String sourceCode,
+                           String sourceUri) {
         TraceStepRecord rec = new TraceStepRecord(
             ++stepCount, targetName, threadName,
-            frameName, lineNumber, System.currentTimeMillis(), frame, sourceCode);
+            frameName, lineNumber, System.currentTimeMillis(), frame, sourceCode,
+            sourceUri);
         traceRecords.add(0, rec);
 
         Display.getDefault().asyncExec(() -> {
@@ -782,21 +811,66 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     // ==================== Source display ====================
 
     private void openFrameInEditor(TraceStepRecord rec) {
-        IStackFrame frame = rec.frame;
         int recLine = rec.lineNumber;
+        log("openFrameInEditor: step=" + rec.stepIndex
+            + " line=" + recLine + " frameName=" + rec.frameName
+            + " target=" + rec.targetName
+            + " storedUri=" + rec.sourceUri
+            + " openHelper=" + (openHelper != null ? "available" : "null"));
+
         try {
             IWorkbenchPage page = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();
-            if (page == null) return;
+            if (page == null) {
+                log("openFrameInEditor: no active page");
+                return;
+            }
 
-            // Primary: EDT module editor (like profiling)
-            if (frame instanceof IBslStackFrame) {
-                IBslStackFrame bslFrame = (IBslStackFrame) frame;
+            // --- Primary: resolve from stored URI (captured at step time, not stale) ---
+            if (rec.sourceUri != null && !rec.sourceUri.isEmpty()
+                && !"null".equals(rec.sourceUri)) {
+                try {
+                    URI emfUri = URI.createURI(rec.sourceUri);
+                    log("openFrameInEditor: trying storedUri=" + rec.sourceUri
+                        + " emfUri.scheme=" + emfUri.scheme());
+                    IFile file = resolveFile(emfUri);
+                    if (file != null) {
+                        log("openFrameInEditor: resolved file="
+                            + file.getFullPath() + " exists=" + file.exists());
+                    }
+                    if (file != null && file.exists()) {
+                        // Try IDE.openEditor first — should open BslXtextEditor
+                        IEditorPart editor = IDE.openEditor(page, file, true);
+                        if (editor != null) {
+                            log("openFrameInEditor: editor class="
+                                + editor.getClass().getName()
+                                + " for file=" + file.getFullPath()
+                                + " line=" + recLine);
+                            positionToLine(editor, recLine);
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    log("openFrameInEditor: storedUri approach failed: "
+                        + e.getClass().getName() + ": " + e.getMessage());
+                }
+            } else {
+                log("openFrameInEditor: sourceUri empty, frame="
+                    + (rec.frame != null ? rec.frame.getClass().getName() : "null"));
+            }
+
+            // --- Try openHelper (EDT module editor) if available ---
+            if (rec.frame instanceof IBslStackFrame && openHelper != null) {
+                IBslStackFrame bslFrame = (IBslStackFrame) rec.frame;
                 try {
                     Module module = bslFrame.getModule();
+                    log("openFrameInEditor: openHelper path, module="
+                        + (module != null ? "non-null" : "null"));
                     if (module != null) {
                         EObject owner = module.getOwner();
-                        if (owner != null && openHelper != null) {
+                        log("openFrameInEditor: openHelper, owner="
+                            + (owner != null ? "non-null" : "null"));
+                        if (owner != null) {
                             EReference crossRef;
                             synchronized (owner.eResource().getResourceSet()) {
                                 crossRef = CrossReferenceFinder
@@ -804,9 +878,10 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                             }
                             IEditorPart editor = openHelper
                                 .openEditor(owner, crossRef);
+                            log("openFrameInEditor: openHelper result="
+                                + (editor != null ? editor.getClass().getName()
+                                    : "null"));
                             if (editor != null) {
-                                log("openFrameInEditor: EDT editor opened, line="
-                                    + recLine);
                                 if (recLine > 0) {
                                     TextEditorPositioner
                                         .positionEditor(editor, recLine - 1);
@@ -816,56 +891,42 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                         }
                     }
                 } catch (Exception e) {
-                    log("openFrameInEditor: EDT editor approach failed: "
-                        + e.getMessage());
-                }
-
-                // Fallback: resolve file from URI
-                try {
-                    URI sourceUri = bslFrame.getSource();
-                    if (sourceUri != null) {
-                        IFile file = resolveFile(sourceUri);
-                        if (file != null && file.exists()) {
-                            log("openFrameInEditor: file=" + file.getFullPath()
-                                + " line=" + recLine);
-                            IEditorPart editor = IDE.openEditor(page, file, true);
-                            if (recLine > 0 && editor instanceof ITextEditor) {
-                                ITextEditor textEditor = (ITextEditor) editor;
-                                IDocumentProvider provider
-                                    = textEditor.getDocumentProvider();
-                                IDocument doc = provider.getDocument(
-                                    editor.getEditorInput());
-                                if (doc != null) {
-                                    int offset = doc.getLineOffset(recLine - 1);
-                                    textEditor.selectAndReveal(offset, 0);
-                                }
-                            }
-                            return;
-                        }
-                    }
-                } catch (Exception e) {
-                    log("openFrameInEditor: file fallback failed: "
-                        + e.getMessage());
+                    log("openFrameInEditor: openHelper failed: "
+                        + e.getClass().getName() + ": " + e.getMessage());
                 }
             }
 
-            // Last resort: DebugUITools.displaySource
-            ISourceLookupResult result = DebugUITools.lookupSource(frame, null);
-            if (result != null) {
-                try {
-                    DebugUITools.displaySource(result, page);
-                    log("openFrameInEditor: displaySource fallback OK");
-                    return;
-                } catch (Exception e1) {
-                    log("openFrameInEditor: displaySource fallback failed: "
-                        + e1.getMessage());
-                }
-                IEditorInput editorInput = result.getEditorInput();
-                String editorId = result.getEditorId();
-                if (editorInput != null && editorId != null) {
-                    page.openEditor(editorInput, editorId);
-                    log("openFrameInEditor: page.openEditor fallback");
-                    return;
+            // --- Fallback: DebugUITools.displaySource ---
+            if (rec.frame != null) {
+                ISourceLookupResult result = DebugUITools
+                    .lookupSource(rec.frame, null);
+                if (result != null) {
+                    log("openFrameInEditor: lookupSource result="
+                        + (result.getEditorInput() != null
+                            ? result.getEditorInput().getClass().getName()
+                            : "null")
+                        + " editorId=" + result.getEditorId());
+                    try {
+                        DebugUITools.displaySource(result, page);
+                        log("openFrameInEditor: displaySource OK");
+                        return;
+                    } catch (Exception e1) {
+                        log("openFrameInEditor: displaySource failed: "
+                            + e1.getMessage());
+                    }
+                    IEditorInput editorInput = result.getEditorInput();
+                    String editorId = result.getEditorId();
+                    if (editorInput != null && editorId != null) {
+                        IEditorPart editor = page.openEditor(
+                            editorInput, editorId);
+                        log("openFrameInEditor: page.openEditor fallback, editor="
+                            + (editor != null ? editor.getClass().getName()
+                                : "null"));
+                        if (editor != null) {
+                            positionToLine(editor, recLine);
+                        }
+                        return;
+                    }
                 }
             }
             log("openFrameInEditor: all methods failed");
@@ -873,6 +934,30 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             TracingUIActivator.getDefault().getLog().log(
                 new Status(IStatus.ERROR, TracingUIActivator.PLUGIN_ID,
                     "open editor failed", e));
+        }
+    }
+
+    private static void positionToLine(IEditorPart editor, int line) {
+        if (line <= 0) return;
+        if (!(editor instanceof ITextEditor)) {
+            log("positionToLine: editor not ITextEditor, class="
+                + editor.getClass().getName());
+            return;
+        }
+        ITextEditor textEditor = (ITextEditor) editor;
+        try {
+            IDocumentProvider provider = textEditor.getDocumentProvider();
+            IDocument doc = provider.getDocument(editor.getEditorInput());
+            if (doc != null) {
+                int offset = doc.getLineOffset(line - 1);
+                textEditor.selectAndReveal(offset, 0);
+                log("positionToLine: positioned to line " + line
+                    + " offset=" + offset);
+            } else {
+                log("positionToLine: document is null");
+            }
+        } catch (Exception e) {
+            log("positionToLine: failed: " + e.getMessage());
         }
     }
 
