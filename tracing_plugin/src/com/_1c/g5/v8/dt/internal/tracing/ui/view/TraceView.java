@@ -24,6 +24,7 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
+import org.eclipse.debug.core.IDebugEventFilter;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStep;
@@ -107,6 +108,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private Thread tracingThread;
     private final Object lock = new Object();
+    private IDebugEventFilter suspendFilter;
 
     private static void log(String msg) {
         TracingUIActivator.getDefault().getLog().log(
@@ -229,9 +231,6 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private void startTracing() {
         synchronized (lock) {
-        traceRecords.clear();
-        stepCount = 0;
-        sourceLineCache.clear();
         lastPositions.clear();
         targets.clear();
         suspendedByUs.clear();
@@ -251,6 +250,17 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         }
 
         tracingActive = true;
+        suspendFilter = events -> {
+            if (!tracingActive) return events;
+            List<DebugEvent> list = new ArrayList<>();
+            for (DebugEvent ev : events) {
+                if (ev.getKind() != DebugEvent.SUSPEND) {
+                    list.add(ev);
+                }
+            }
+            return list.toArray(new DebugEvent[0]);
+        };
+        DebugPlugin.getDefault().addDebugEventFilter(suspendFilter);
         DebugPlugin.getDefault().addDebugEventListener(this);
 
         int nSuspend = 0;
@@ -269,6 +279,10 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
     private void stopTracing() {
         synchronized (lock) {
         tracingActive = false;
+        if (suspendFilter != null) {
+            DebugPlugin.getDefault().removeDebugEventFilter(suspendFilter);
+            suspendFilter = null;
+        }
         DebugPlugin.getDefault().removeDebugEventListener(this);
         if (tracingThread != null) {
             tracingThread.interrupt();
@@ -323,7 +337,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         if (targets.isEmpty()) return;
 
         synchronized (lock) {
-            // 1. Scan all suspended targets — record any new position.
+            // Scan all suspended targets — record any new position.
             for (IDebugTarget dt : targets) {
                 try {
                     ISuspendResume sr = (ISuspendResume) dt;
@@ -365,11 +379,6 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
                     // target became invalid — will be pruned next cycle
                 }
             }
-
-            if (!tracingActive) return;
-
-            // 2. Step the next target (round-robin).
-            tryStepNext();
         }
     }
 

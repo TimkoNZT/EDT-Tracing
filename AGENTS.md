@@ -52,18 +52,17 @@ D:\EDT\EDT_tracing/
 - Activation: `Bundle-ActivationPolicy: lazy`
 - Java: compile with `--release 8` (target JavaSE-1.8)
 
-### Как работает (build 030+)
+### Как работает (build 035+)
 
 1. **Toggle ON**: собираем все `IDebugTarget` из `ILaunchManager.getDebugTargets()`, фильтр по `instanceof ISuspendResume`
 2. **Async-suspend** каждого не-suspended таргета в daemon Thread (не блокируем UI/event thread)
 3. Регистрируемся как `IDebugEventSetListener` **только на CREATE/TERMINATE** (НЕ на SUSPEND)
-4. **Poll loop** через `Display.timerExec` (100ms):
+4. Устанавливаем `IDebugEventFilter`, выкидывающий SUSPEND-события (чтобы Debug View не открывал окна)
+5. **Poll loop** на background-daemon thread (100ms):
    - Проверяем ВСЕ таргеты: если suspended и frame изменился → записываем
    - Ищем steppable thread round-robin → `stepInto()`/`stepOver()` в daemon Thread
-   - Если ничего не steppable → async-suspend running targets
-   - Продолжаем poll из следующего timerExec
-5. **CREATE/TERMINATE** события обрабатываем отдельно (не через poll) для мгновенной реакции на появление/удаление таргетов
-6. **Toggle OFF**: `tracingActive=false` → resume всех через daemon Thread → clean state
+6. **CREATE/TERMINATE** события обрабатываем отдельно (не через poll) для мгновенной реакции на появление/удаление таргетов
+7. **Toggle OFF**: `tracingActive=false` → resume всех через daemon Thread → clean state (удаляем фильтр)
 
 ### Ключевые классы (Eclipse Debug API)
 
@@ -199,13 +198,25 @@ D:\EDT\EDT_tracing/
 - **019**: `stepInto()` вызывался **синхронно на event thread** (внутри `handleSuspend()`). После записи шага сразу отправлялся следующий stepInto, который переводил таргет в RUNNING. Debug View получал SUSPEND к моменту, когда таргет уже был RUNNING — `isSuspended()` возвращал `false`, Debug View не открывал окно.
 - **033/034**: `stepInto()` на **background thread** (daemon). Poll-цикл записывает шаг и запускает stepInto в отдельном треде. Между завершением step-а и отправкой следующего проходит 0-100ms. За это время Debug View успевает обработать SUSPEND, видит `isSuspended() == true` и открывает окно.
 
-### Варианты решения
+### Решение (build 035)
 
-1. **A** — `DebugUITools.setShowSourceOnStep(false)` на время трассировки (API, не хак). Сохранить предыдущее значение, восстановить при остановке.
-2. **B** — Искать другой способ подавления отображения исходников (не через preferences).
+`IDebugEventFilter` в `DebugPlugin` — выкидываем SUSPEND-события на уровне фильтра (до всех listener-ов). Debug View не получает SUSPEND → `debugContextChanged()` не вызывается → окна не открываются.
 
 ## Иконки (toolbar)
 - `icons/export.png` — скопирован из `profiling/ui/icons/elcl16/profiling_16_export.png` (profiler).
+
+## Build 035 — SUSPEND event filter (подавление окон)
+
+**Проблема**: Build 034 открывает окна BSL-редактора на каждый шаг из-за `BslSourceDisplay.displaySource()` в Debug View.
+
+**Решение**: Установка `IDebugEventFilter`, выкидывающего SUSPEND-события (CREATE/TERMINATE проходят). Poll-цикл и listener работают как в 033.
+
+- `suspendFilter` — добавлен/удалён в `startTracing()`/`stopTracing()`
+- Debug View не видит SUSPEND → `SourceLookupService.debugContextChanged()` не вызывается → окна не открываются
+- `IDebugEventFilter` работает на уровне `DebugPlugin`, до всех listener-ов (включая Debug View)
+- Listener: только логирование SUSPEND деталей (диагностика)
+
+---
 
 ## Export (toolbar кнопки)
 - `Export CSV` / `Export JSONL` → `Экспорт CSV` / `Экспорт JSONL`.
