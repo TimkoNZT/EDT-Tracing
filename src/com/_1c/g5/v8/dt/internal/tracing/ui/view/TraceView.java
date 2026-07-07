@@ -69,6 +69,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableColumn;
 
 import org.eclipse.ui.commands.ICommandService;
@@ -238,6 +239,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         traceRecords.clear();
         stepCount = 0;
         sourceLineCache.clear();
+        sourceLineCache.clear();
         lastPositions.clear();
         Display.getDefault().asyncExec(() -> {
             if (!tableViewer.getTable().isDisposed()) {
@@ -266,8 +268,6 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     private void startTracing() {
         synchronized (lock) {
-        stepCount = 0;
-        sourceLineCache.clear();
         lastPositions.clear();
         targets.clear();
         suspendedByUs.clear();
@@ -1039,6 +1039,7 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
     @Override
     public void dispose() {
+        sourceLineCache.clear();
         if (tracingActive) stopTracing();
         DebugPlugin.getDefault().removeDebugEventListener(this);
         super.dispose();

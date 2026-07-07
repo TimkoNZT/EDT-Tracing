@@ -9,7 +9,9 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -62,13 +64,13 @@ public class ModuleFilterDialog extends Dialog {
 
         Label hint = new Label(area, SWT.WRAP);
         hint.setText("Модули, попадающие под фильтр, не записываются в трассировку.\n"
-            + "Фильтр применяется к типу.имени.модуля.методу (без аргументов):\n"
-            + "  ОбщийМодуль.Имя.Модуль.Метод\n\n"
+            + "Фильтр проверяется по образцу Тип.ИмяМодуля.Модуль.ИмяМетода (без аргументов):\n"
+            + "  ОбщийМодуль.Имя.Модуль.ИмяМетода\n\n"
             + "Шаблон: * — любая последовательность, ? — один символ.\n\n"
             + "Примеры:\n"
-            + "  ОбщийМодуль.СтандартныеПодсистемыСервер.Модуль.Установка*\n"
-            + "  ОбщийМодуль.Пользователи.*\n"
-            + "  ОбщийМодуль.СтроковыеФункцииКлиентСервер.*");
+            + "  ОбщийМодуль.Пользователи.Модуль.АвторизованныйПользователь  — точное совпадение\n"
+            + "  ОбщийМодуль.Пользователи.*                                   — любой метод модуля\n"
+            + "  ОбщийМодуль.СтандартныеПодсистемыСервер.Модуль.Установка*   — префикс метода");
         hint.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
         viewer = CheckboxTableViewer.newCheckList(area, SWT.FULL_SELECTION | SWT.BORDER);
@@ -83,7 +85,7 @@ public class ModuleFilterDialog extends Dialog {
 
         TableColumn colPattern = new TableColumn(table, SWT.LEFT);
         colPattern.setText("Шаблон модуля");
-        colPattern.setWidth(380);
+        colPattern.setWidth(460);
 
         viewer.setContentProvider(ArrayContentProvider.getInstance());
         viewer.setLabelProvider(new ITableLabelProvider() {
@@ -108,6 +110,13 @@ public class ModuleFilterDialog extends Dialog {
             public void checkStateChanged(CheckStateChangedEvent event) {
                 ModuleFilterEntry e = (ModuleFilterEntry) event.getElement();
                 e.enabled = event.getChecked();
+            }
+        });
+
+        viewer.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                editSelectedFilter();
             }
         });
 
@@ -139,19 +148,7 @@ public class ModuleFilterDialog extends Dialog {
         editBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                IStructuredSelection sel = (IStructuredSelection) viewer.getSelection();
-                if (sel.isEmpty()) return;
-                ModuleFilterEntry entry = (ModuleFilterEntry) sel.getFirstElement();
-                InputDialog dlg = new InputDialog(getShell(),
-                    "Изменить фильтр", "Шаблон (модуль.метод):", entry.pattern, null);
-                if (dlg.open() == IDialogConstants.OK_ID) {
-                    String pattern = dlg.getValue().trim();
-                    if (!pattern.isEmpty()) {
-                        entry.pattern = pattern;
-                        viewer.setInput(filters.toArray());
-                        viewer.setChecked(entry, entry.enabled);
-                    }
-                }
+                editSelectedFilter();
             }
         });
 
@@ -178,6 +175,22 @@ public class ModuleFilterDialog extends Dialog {
 
     public List<ModuleFilterEntry> getFilters() {
         return new ArrayList<>(filters);
+    }
+
+    private void editSelectedFilter() {
+        IStructuredSelection sel = (IStructuredSelection) viewer.getSelection();
+        if (sel.isEmpty()) return;
+        ModuleFilterEntry entry = (ModuleFilterEntry) sel.getFirstElement();
+        InputDialog dlg = new InputDialog(getShell(),
+            "Изменить фильтр", "Шаблон (модуль.метод):", entry.pattern, null);
+        if (dlg.open() == IDialogConstants.OK_ID) {
+            String pattern = dlg.getValue().trim();
+            if (!pattern.isEmpty()) {
+                entry.pattern = pattern;
+                viewer.setInput(filters.toArray());
+                viewer.setChecked(entry, entry.enabled);
+            }
+        }
     }
 
     public static void saveToPrefs(List<ModuleFilterEntry> list) {
