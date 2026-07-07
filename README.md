@@ -10,7 +10,7 @@
 
 ## Установка
 
-- **Из P2-репозитория (GitHub Pages):** Help → Install New Software → Add → `https://timkonzt.github.io/EDT-Tracing/p2repo/`
+- **Через GitHub:** Help → Install New Software → Add → `https://timkonzt.github.io/EDT-Tracing/p2repo/`
 - **Из ZIP-архива:** Help → Install New Software → Add → Archive → указать `edt-tracing-plugin_<версия>.zip` из [релизов](https://github.com/TimkoNZT/EDT-Tracing/releases)
 
 
