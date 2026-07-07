@@ -2,8 +2,7 @@ name: Build & Publish
 
 on:
   push:
-    branches: [master]
-    tags: ['*']
+    tags: ['v*']
   workflow_dispatch:
 
 jobs:
@@ -18,38 +17,19 @@ jobs:
           distribution: liberica
           java-version: 21
 
-      - name: Download EDT
+      - name: Download EDT headless
         shell: pwsh
         run: |
-          $url = "https://releases.1c.ru/edt/1c-edt-2025.2.6+4-win64.zip"
+          $url = "https://releases.1c.ru/edt/1c-edt-headless-2025.2.6+4-win64.zip"
           $zip = "$env:TEMP\edt.zip"
-          $dest = "$env:ProgramFiles\1C\1CE\components"
-          mkdir $dest -Force
           Invoke-WebRequest -Uri $url -OutFile $zip
-          Expand-Archive -Path $zip -DestinationPath $dest
-          Get-ChildItem $dest
-
-      - name: Set EDT_HOME
-        shell: pwsh
-        run: |
-          $edtHome = Get-ChildItem "$env:ProgramFiles\1C\1CE\components" -Directory | Where-Object { $_.Name -match "1c-edt" } | Select-Object -First 1
-          "EDT_HOME=$($edtHome.FullName)" >> $env:GITHUB_ENV
-          echo "EDT_HOME=$($edtHome.FullName)"
+          Expand-Archive -Path $zip -DestinationPath "$env:ProgramFiles\1C\1CE\components" -Force
 
       - name: Build
         shell: pwsh
-        run: ./build-javac.ps1 -Version 1.0.0.qualifier
-
-      - name: Deploy to Pages
-        if: github.ref == 'refs/heads/master'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist/p2repo
-          destination_dir: p2repo
+        run: ./build-javac.ps1
 
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: ./dist/*.zip
