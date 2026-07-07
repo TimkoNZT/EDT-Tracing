@@ -387,11 +387,23 @@ metadata.repository.factory.order= content.jar,content.xml.xz!
 artifact.repository.factory.order= artifacts.jar,artifacts.xml.xz!
 "@ | Set-Content (Join-Path $p2repoDir "p2.index") -Encoding Ascii
 
-# ---------- 10. Create ZIP ----------
+# ---------- 10. Create ZIP (forward slashes for p2 compatibility) ----------
 $zipFile = Join-Path $OutDir "edt-tracing-plugin_$PluginVersion.zip"
 if (Test-Path $zipFile) { Remove-Item $zipFile -Force }
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::CreateFromDirectory($p2repoDir, $zipFile)
+Add-Type -AssemblyName System.IO.Compression
+$zipStream = [System.IO.File]::Create($zipFile)
+$zipArchive = [System.IO.Compression.ZipArchive]::new($zipStream, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+    Get-ChildItem -Recurse -File $p2repoDir | ForEach-Object {
+        $entryName = $_.FullName.Substring($p2repoDir.Length + 1) -replace '\\', '/'
+        $entry = $zipArchive.CreateEntry($entryName, [System.IO.Compression.CompressionLevel]::Optimal)
+        $entryStream = $entry.Open()
+        try {
+            $fileBytes = [System.IO.File]::ReadAllBytes($_.FullName)
+            $entryStream.Write($fileBytes, 0, $fileBytes.Length)
+        } finally { $entryStream.Dispose() }
+    }
+} finally { $zipArchive.Dispose(); $zipStream.Dispose() }
 Write-Output "ZIP: $zipFile"
 
 Write-Output "`n=== BUILD COMPLETE ==="
