@@ -1,6 +1,6 @@
 # Build outputs
 target/
-dist/
+dist/*.zip
 build.log
 
 # IDE
