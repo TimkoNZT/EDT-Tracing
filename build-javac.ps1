@@ -229,7 +229,7 @@ Bundle-Vendor: 1C
 
 @"
 <?xml version="1.0" encoding="UTF-8"?>
-<feature id="com._1c.g5.v8.dt.tracing.ui.feature" label="EDT Tracing Plugin" version="$FeatureVersion" provider-name="1C">
+<feature id="com._1c.g5.v8.dt.tracing.ui.feature" label="EDT Tracing" version="$FeatureVersion" provider-name="1C">
 <description>EDT Tracing UI - просмотр и экспорт трейсинга (CSV/JSONL)</description>
 <license url="https://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</license>
 <plugin id="com._1c.g5.v8.dt.tracing.ui" download-size="18" install-size="36" version="$PluginVersion" unpack="false"/>

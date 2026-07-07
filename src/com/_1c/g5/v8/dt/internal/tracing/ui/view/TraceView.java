@@ -679,8 +679,6 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         String name = safeFrameName(frame);
         int paren = name.indexOf('(');
         if (paren > 0) name = name.substring(0, paren).trim();
-        int dot = name.lastIndexOf('.');
-        if (dot > 0) name = name.substring(0, dot);
         return name;
     }
 

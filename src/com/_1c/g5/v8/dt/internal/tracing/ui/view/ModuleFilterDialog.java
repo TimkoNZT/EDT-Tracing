@@ -62,11 +62,12 @@ public class ModuleFilterDialog extends Dialog {
 
         Label hint = new Label(area, SWT.WRAP);
         hint.setText("Модули, попадающие под фильтр, не записываются в трассировку.\n"
-            + "Фильтр применяется к типу.имени модуля без метода и аргументов:\n"
-            + "  ОбщийМодуль.Имя.Модуль\n\n"
+            + "Фильтр применяется к типу.имени.модуля.методу (без аргументов):\n"
+            + "  ОбщийМодуль.Имя.Модуль.Метод\n\n"
             + "Шаблон: * — любая последовательность, ? — один символ.\n\n"
             + "Примеры:\n"
-            + "  ОбщийМодуль.ОбщегоНазначения*.*  — ОбщегоНазначенияКлиентСервер и др.\n"
+            + "  ОбщийМодуль.СтандартныеПодсистемыСервер.Модуль.Установка*\n"
+            + "  ОбщийМодуль.Пользователи.*\n"
             + "  ОбщийМодуль.СтроковыеФункцииКлиентСервер.*");
         hint.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 
@@ -120,7 +121,7 @@ public class ModuleFilterDialog extends Dialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 InputDialog dlg = new InputDialog(getShell(),
-                    "Новый фильтр", "Введите шаблон имени модуля:", "", null);
+                    "Новый фильтр", "Введите шаблон (модуль.метод):", "", null);
                 if (dlg.open() == IDialogConstants.OK_ID) {
                     String pattern = dlg.getValue().trim();
                     if (!pattern.isEmpty()) {
@@ -142,7 +143,7 @@ public class ModuleFilterDialog extends Dialog {
                 if (sel.isEmpty()) return;
                 ModuleFilterEntry entry = (ModuleFilterEntry) sel.getFirstElement();
                 InputDialog dlg = new InputDialog(getShell(),
-                    "Изменить фильтр", "Шаблон имени модуля:", entry.pattern, null);
+                    "Изменить фильтр", "Шаблон (модуль.метод):", entry.pattern, null);
                 if (dlg.open() == IDialogConstants.OK_ID) {
                     String pattern = dlg.getValue().trim();
                     if (!pattern.isEmpty()) {
