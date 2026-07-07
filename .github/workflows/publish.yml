@@ -2,7 +2,7 @@ name: Build & Publish
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     tags: ['*']
   workflow_dispatch:
 
@@ -41,7 +41,7 @@ jobs:
         run: ./build-javac.ps1 -Version 1.0.0.qualifier
 
       - name: Deploy to Pages
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
