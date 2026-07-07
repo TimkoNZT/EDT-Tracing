@@ -1,0 +1,511 @@
+Signature-Version: 1.0
+Created-By: 25.0.1 (Oracle Corporation)
+SHA-384-Digest-Manifest: v1XvKLk5g2PAfCb2Wsy3VEYojs3g3kQYEZk5dsQ+qbc9PKY
+ 4f/UzowKYC9EyDR8P
+SHA-384-Digest-Manifest-Main-Attributes: qcP1AYKDbIGSvl0kqd51TrPViEhxpcP
+ MtV7/MMWu0z18/keEAQ+NmxFknwtkqJBi
+
+Name: com/e1c/edt/ai/context/tools/IMethodListProvider.class
+SHA-384-Digest: V/+DrlWhARnTfwo/XoGPvHG4FKN0XNGG+dY220enbQoxYW8UY4mVQTEn
+ DH/M2/wq
+
+Name: com/e1c/edt/ai/context/DTO/AttributeEntity.class
+SHA-384-Digest: +UzbIV620g8sdFO05AbAUf4juhEtQLlsW4fzA5OXeAIG0zG+SUiWGwEp
+ fHXLHFoL
+
+Name: com/e1c/edt/ai/context/ConfigurationParametersProvider.class
+SHA-384-Digest: Spmo5X7PzFzIeLPnNC4M0VMBrpPa53lJy2p2T8GST65u4vlk68DEauFj
+ 0y7etqvv
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool$TextSearchModelElement.cl
+ ass
+SHA-384-Digest: muKWke6VsvPOK/BMIK4kx49Z/MHvO7LwJpya4mNpk1Flsh/00ARHTYnG
+ TtcyFAEX
+
+Name: com/e1c/edt/ai/context/tools/GetObjectMcpTool$Request.class
+SHA-384-Digest: i8vtoiwDIgJlf4ZFNieiBPiTNTK4k4akCSbt3fq61vmOyA71A7BkxpND
+ kAYLi7ja
+
+Name: com/e1c/edt/ai/context/IModuleProvider.class
+SHA-384-Digest: /bCDTBOZmRjxktY8LGpO47RGxK0fwAfiK7JNok9SRKxg/Y3RMFWWxU0F
+ ZE3zQki6
+
+Name: com/e1c/edt/ai/context/DTO/EntityInfoResponse.class
+SHA-384-Digest: PIW5Sz0NTWPeFVlIcsHoMYxH/1xTn1GRE/cB7qhEuBeJVX29DIPd8EeD
+ wPFQMbgz
+
+Name: com/e1c/edt/ai/context/DTO/RegisterRecordEntity.class
+SHA-384-Digest: NUJt78xRvR7dCPWjJKkTErAfxmuVcBW0iyUR1e/4ZJK5fzcRpsG5d31r
+ h5ZCh1oJ
+
+Name: com/e1c/edt/ai/context/DTO/Parameter.class
+SHA-384-Digest: FUB8+BAzRie7jJfWC7vRGO06LWHIGwDaSWqAeKjausDOOK4xFyGXISwF
+ J62EB1AP
+
+Name: com/e1c/edt/ai/context/EntityInfo$1.class
+SHA-384-Digest: MqnfwoZYNocQQsF8r0g2PGnOMBrYGXUoCymYjuBBryR92GX5Oexi0Zmt
+ 1hGBF10U
+
+Name: com/e1c/edt/ai/context/DTO/TemplateEntity.class
+SHA-384-Digest: Eq9c5uJpCb/OHgnjGlmqHS7r9ehzLruinTgSdRIcVYp+5XcMxCNP/kJm
+ /z4PuWb4
+
+Name: com/e1c/edt/ai/context/IEntitiesWalker.class
+SHA-384-Digest: PYZkdEODKYWMVo0Ks1Vs2UuvbkebgPqqwEXXfdXDVr6NHMqcQu59MXI5
+ dxQLaafy
+
+Name: com/e1c/edt/ai/context/DTO/ObjectEntityField.class
+SHA-384-Digest: VoEo8HXxpwux6pDxx7ziwpSJWoH54aU8P6Fb21V0qlrr4hVlNx3+B7YN
+ 7KGCPikY
+
+Name: com/e1c/edt/ai/context/tools/MarkersProvider.class
+SHA-384-Digest: hVUgKzUpZvPM1kg9v56Q29/lNm2HzpFQNDH0df2kIymCTbvipd0tF9Dy
+ 6b0n+TRB
+
+Name: com/e1c/edt/ai/context/IDispatcher.class
+SHA-384-Digest: tR6Fzc2VU3yxBnb6qq2mc8+WcNqT3g3s93XpD8pd0XP5LrmqVHZtxSFA
+ Ir5NIFpY
+
+Name: com/e1c/edt/ai/context/ContextModuleFactory.class
+SHA-384-Digest: eG+DOtEzeprjm8h1Fad3mCVwtkqQrwdLahECsjF4HdvrrZfIAsl0TVui
+ 3KusCnl6
+
+Name: com/e1c/edt/ai/context/IFormWalker.class
+SHA-384-Digest: IehPXejs5aVvGdBQXWoLWqKsXTlU7KF5j0H417ljAsRdxBO76VT6KR7k
+ BzQC6pyq
+
+Name: com/e1c/edt/ai/context/ModuleProvider.class
+SHA-384-Digest: fI0ArNfMUUAFayzyenUNdUYo+aRAG5kjV96U0GF6peRXbY2mnYpdZD1K
+ Yi3Td0YA
+
+Name: com/e1c/edt/ai/context/EntityVisitor.class
+SHA-384-Digest: 8mz+ltiTfoVybnL1R9ag7fH1csvoRCDytR6ab2qn8/qOrjw72vs82S+S
+ SG2WErCB
+
+Name: com/e1c/edt/ai/context/CodePartsProvider$CodeMarker.class
+SHA-384-Digest: Cdq3y8fJ8GjZwyv+dPBk/RtM+WlyOwuQgGXazquM45/Tb6BWORS49QMQ
+ vEJK1tgG
+
+Name: com/e1c/edt/ai/context/DTO/EnumValueEntity.class
+SHA-384-Digest: 2OtgmHFCvoy2Dr+/RAOKL4obGRt/nEU23HIrvPkjG6z3Mnw4TLdvs1Nl
+ kVJHX0WA
+
+Name: com/e1c/edt/ai/context/DTO/CommentTypeDefinition.class
+SHA-384-Digest: Q1Wa2cYHLXyu1m2wG2WrYTCmpPSXiIHuhQpbWmUrxenM6s1Tg20RJdfc
+ elzCM1DA
+
+Name: com/e1c/edt/ai/context/EntityFactory$1.class
+SHA-384-Digest: lGDtXR4KdDZTh0d3jxAy2uLoEny/e6AhJN1EwktI3XfQpsjn1GSUMcFv
+ yI3AE/Na
+
+Name: com/e1c/edt/ai/context/DTO/ChildEntity.class
+SHA-384-Digest: FePl/1UnVbbw5jmS9qQJp2zRoFf8JFAJv1DT+FpgEyFY4vLQbO7Vm4T5
+ gwwsn1YP
+
+Name: com/e1c/edt/ai/context/DTO/FieldEntity.class
+SHA-384-Digest: XFGnz5T8i8JFAE8ttmGOeU2tzRRHdJ+FYzak8dAAqMU1e/GCPooeONw7
+ zTFAs0Zg
+
+Name: com/e1c/edt/ai/context/RelatedEntities$2.class
+SHA-384-Digest: cCHsPDYWYhZMi5ujjdEdsuhg4CnOmrZrhCEHkMjKI4nK/Qfn+eiCkoqP
+ YlTfK2uZ
+
+Name: com/e1c/edt/ai/context/DTO/FormTableEntity.class
+SHA-384-Digest: 0r9SJdlkNr7IW0OZM5Q19RsWAlH2SL28OxDQc1lyEGNubI8hpB5cZqW7
+ /LE3YQy8
+
+Name: com/e1c/edt/ai/context/DTO/Comment.class
+SHA-384-Digest: srChrCdb4yf/2Wh+ZjjKfwlJbixKStRIsrwFOAvng7No4VF6hAGkxZ82
+ PvcIm19O
+
+Name: com/e1c/edt/ai/context/IV8Model.class
+SHA-384-Digest: DAxD1lxcs2CukkN23n0c+thQD32CcHkHWIYLUiJJzc+XOpRVGrjugznz
+ e8cV9wu7
+
+Name: com/e1c/edt/ai/context/DTO/ValueType.class
+SHA-384-Digest: rBYvwVJmK5z2lCiueUnW/ncpjCO8byGi/qYL7y6hoW8yciHbPXX3/u2g
+ yV1tB4RO
+
+Name: com/e1c/edt/ai/context/DTO/ObjectEntity.class
+SHA-384-Digest: erko0dvCoqVtt2Nw0l5CvTdhmjmdfgBV8dM1XdTgqraUi8lqddMQuwhN
+ x2moN2Ct
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool$Request.class
+SHA-384-Digest: Mcdh//NID0il9x4xnHAoonsp09z0n1pScwpmYUduU6lNS4/FBO07u8F/
+ SsZEvH0y
+
+Name: com/e1c/edt/ai/context/DTO/DynamicListEntity.class
+SHA-384-Digest: d2RVlPLk/mR4P4rHGjEQ8fJucZ5K+MpMf0CPrEEWd8FRLJZQfwXaBlfR
+ ND4WoPjR
+
+Name: com/e1c/edt/ai/context/DTO/SubsystemEntity.class
+SHA-384-Digest: 4efRR3oNeDZkeBNVxKCHOY+yAYdf0YbX+gBwWLatltxqssxLW47N6jcS
+ KkfNhfs8
+
+Name: com/e1c/edt/ai/context/EntityFactory.class
+SHA-384-Digest: ngHrRsvT+aFpH6Y2dokCDKWPCaNFl20kZ6nKs4b1NZzMTKNjlq/b+mn4
+ HPrXFFzW
+
+Name: com/e1c/edt/ai/context/DTO/BorderEntity.class
+SHA-384-Digest: Q0ALSGsaV6+yKoNw/eVL0HQlVBn4dRHysp8KjIWbnuA+XZrSzF1SDMD6
+ jnizB2nP
+
+Name: com/e1c/edt/ai/context/IEntityInfo.class
+SHA-384-Digest: 3te/C0FgzpxYIzRXbIhHdkBpYEB7P+jPJNBgfg80bWt06O8wjWYagaFo
+ IX9dPN7e
+
+Name: com/e1c/edt/ai/context/ContextModule.class
+SHA-384-Digest: TdiWhD8gr4NSzo3PmYJ5CrA2rmZvZW06tBjlwFMRPo8G6jkF0Fxgzm5h
+ XpFQr4pH
+
+Name: com/e1c/edt/ai/context/DTO/RelatedEntitiesResponse.class
+SHA-384-Digest: hoIJuNnlSx1z18ZyDGi3gWecpDvfXAAfxrrf8lsBnoEIhaeZpJnqc4Ql
+ tDXzvIzd
+
+Name: com/e1c/edt/ai/context/DTO/RegisterDimensionEntity.class
+SHA-384-Digest: hODvC/8JAzvzdpIZFuaQitzXS1URxKghMfp04AkCPuQydtVmvW32m8Ei
+ jnUait7u
+
+Name: com/e1c/edt/ai/context/CodeProvider.class
+SHA-384-Digest: vzVaL/jXQrH+IyofvxVDpDI9iAX928wrrksiBc+8SyuIqON358cq0u01
+ ErQ/fLKY
+
+Name: com/e1c/edt/ai/context/IEntityVisitor.class
+SHA-384-Digest: raJjpq8z2TSx2eLXJFbA7zvsrqs0oWlJ+DYjoPqwmDaZsbyR90sw+HPX
+ YAGcQ2Qj
+
+Name: META-INF/maven/com.e1c.edt.ai/com.e1c.edt.ai.context/pom.propertie
+ s
+SHA-384-Digest: /4zLQCkq6aBUigrNQAsIvWQoOS/MetXDx9kJpaPbtOHoRS0F1Z8M34U/
+ gLSVQv1g
+
+Name: com/e1c/edt/ai/context/tools/messages.properties
+SHA-384-Digest: afgi4/wgz47R1K3K02GY1DtIoQsvm4atqia/k0dnrGgAkbY1HbzUR16B
+ SUbB3P1+
+
+Name: com/e1c/edt/ai/context/DTO/AccountTypeEntity.class
+SHA-384-Digest: znq0pdMwS0dAuFBszHfN326jLlAEleuT3oKINd75Zgu5zfXFhgJycnyf
+ YzhUmGm4
+
+Name: com/e1c/edt/ai/context/BmPovider$1.class
+SHA-384-Digest: CteHf75lNNjUadth4QoRpnnzfxmtIC6cMIpPOlZWHu0/kN9oW+Z1Uy4/
+ X92r3GYG
+
+Name: com/e1c/edt/ai/context/RelatedEntities.class
+SHA-384-Digest: JqXeTxrGVTpZzr5pFCZ67TBgX8/RhrovLptjAYlOgD2X7tYYTcO7EQZ9
+ zDgLRppN
+
+Name: com/e1c/edt/ai/context/tools/messages_ru.properties
+SHA-384-Digest: Xz4lgpNYAG7tKof4wQoeGmg0Kx+ONuA1lmK3dDsVejXA99FxHy+r62Z4
+ lfTdnYKO
+
+Name: com/e1c/edt/ai/context/BmRoot.class
+SHA-384-Digest: TQ/IovZKM1cbQMiRjF16dbjqyDe/EKr9H6Iz1cmNzyjZ+8cY+CnVf38V
+ u6fuxvqP
+
+Name: com/e1c/edt/ai/context/DTO/ChartLineTypeEntity.class
+SHA-384-Digest: 4v37znSVNlkI/lbzd6xjLWypEqbCGitIKvnmRsMJWL6A4momOa5DpZL5
+ 1dp3DGa7
+
+Name: com/e1c/edt/ai/context/tools/GetObjectMcpTool.class
+SHA-384-Digest: zogKcPAwJL/omCmPIXPVHVM7X1PH4mXv8YSD/05utqchsPmTSaDK3jLp
+ bNZWm1LY
+
+Name: com/e1c/edt/ai/context/EditingSupport.class
+SHA-384-Digest: NlNaXWLuGUlg/Gkn4s9bSGvrHDyG3j/w5BTnJOZCZOeFdGQEg+NleBFp
+ RcdWoHdc
+
+Name: com/e1c/edt/ai/context/DTO/Entity.class
+SHA-384-Digest: gt+nsDJpAZnCL4COsUW6BqJxYgqR7jJmKU9ONE2+TsTuG3WmLJvaayey
+ xrAe2M5G
+
+Name: com/e1c/edt/ai/context/IFormVisitor.class
+SHA-384-Digest: DrZI4btbm88PHspQnlJfRuHjYCbl1ZxLb8mdsAwQ20e7mBPTwwrJaN2S
+ 6P3W0Ia9
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool$TextSearchFile.class
+SHA-384-Digest: 83v3srXtJKrfQouxBe/rLEg2tRE7DBucWtRp3JriLoLipRwmcOAlUkOU
+ 1JqCe5h6
+
+Name: com/e1c/edt/ai/context/EntitiesWalker.class
+SHA-384-Digest: r88IivotKbW32+q3jVGLPuNrLFItNS+iWlk8wVCfXhIaG4xFTOgVbTxe
+ CghlgXl7
+
+Name: META-INF/maven/com.e1c.edt.ai/com.e1c.edt.ai.context/pom.xml
+SHA-384-Digest: lLPYMPD4/FH7MhXVr9LOkmRo0jHmonUPGAjRcOfwXB3cmfMVALGTEy8v
+ jsubJN76
+
+Name: com/e1c/edt/ai/context/DTO/CommentReturn.class
+SHA-384-Digest: 2zKUqifN7evPlNlg1Oamm/HompaGtBHtUq21W8P4LQ/XDgT9lFn54Aya
+ U8yFRnvc
+
+Name: com/e1c/edt/ai/context/tools/MethodListProvider.class
+SHA-384-Digest: Eb4OL04TjAUAjTB3M+TtqSLmysgoYefxAH1pWnJ1lhtmOXNrpnfrRqgl
+ jztqr7ru
+
+Name: com/e1c/edt/ai/context/BmPovider.class
+SHA-384-Digest: vXOxV0IC5OgB8TwOa7tfWgrDC675ALzuG7rXI++6gWPE7WlSkAgS8fWA
+ 51uJax8w
+
+Name: com/e1c/edt/ai/context/DTO/FormParameterEntity.class
+SHA-384-Digest: sAhSpSjgD6+QIB3SEOcG0a/DZCR52l6EKH/2e5UqG7yK9FW2q8IBIswY
+ yKzPWwKl
+
+Name: com/e1c/edt/ai/context/DTO/StandardPeriodEntity.class
+SHA-384-Digest: ghloeUBbI+c40HOURHd9Y0d7tH3e/UHbA2cXDryUIqOZABxz//3JgFh1
+ pyPM0wv1
+
+Name: com/e1c/edt/ai/context/DTO/FormGroupEntity.class
+SHA-384-Digest: L6BKdSqaL1Zo0EguBdtwEz3tRTG//fo/f/TbdEGGUF9GYs9tPTSfIBJE
+ 9gs8fzEp
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool$BslReferenceElement.class
+SHA-384-Digest: n/Zs/uGB3VhlCzDZ9e5GcBE2jYybc+bjyG+5TqeGmVGi222sbBE+Xt1O
+ nAguX6ry
+
+Name: com/e1c/edt/ai/context/DTO/CommentParameter.class
+SHA-384-Digest: wbYaUY+oiwwGrF/9gXwZCSiEWERwDhgs1IDXOY3B2+4DErgtK/wgww+j
+ MI92LbKP
+
+Name: com/e1c/edt/ai/context/BmObjectProvider.class
+SHA-384-Digest: X7xvL3zUI9m7Meu+ZnyzSJ4kbVIeCORWxuyfhymDqHrc+MVMuRy/GyjA
+ yeQ7GMs6
+
+Name: com/e1c/edt/ai/context/IRelatedEntities.class
+SHA-384-Digest: hXLwuNEdKcNApzYtYJpvRDTbpnCUlImFjvF61f3geHPZGb8x9Y5YlaTA
+ XMXjJsrC
+
+Name: com/e1c/edt/ai/context/tools/McpToolConstants.class
+SHA-384-Digest: Kxf7H+UYwsihKJXNun/E6k0KLlmRs/fZf7XT205lwI7jIpwdSadJt+zK
+ 0Bd16LsN
+
+Name: com/e1c/edt/ai/context/DTO/EntityInfoRequest.class
+SHA-384-Digest: YYLPxbfg+QaRdPAnfctIONhdWzIb3yL9w2d1hTukDmcfz02S18hcT8C4
+ jJrp6Mel
+
+Name: com/e1c/edt/ai/context/DTO/RegisterResourceEntity.class
+SHA-384-Digest: nOezRzgbsOqpluGyYG2bjj0xPcK4Jwg9TDbOHDmvOrzPskLlQjHIuuiJ
+ rujpgn4R
+
+Name: com/e1c/edt/ai/context/DTO/FormButtonEntity.class
+SHA-384-Digest: 3k5RQcYqCvPXrhFYtINr7HK4ecZwBykdJ/ake50Wk9TbrIzkMwSsBZCO
+ FOxQ6qej
+
+Name: com/e1c/edt/ai/context/DTO/DataType.class
+SHA-384-Digest: dhHZuRULtGDY18EIcPoFb8mmspQDm42oI2ZCfKitLrPF4iAhrkN20eHO
+ izL51maw
+
+Name: com/e1c/edt/ai/context/SourceSpan.class
+SHA-384-Digest: XxWYWSk0bL05HSLUnVCmm3u/5/Lm2vrIczYMAdjSjhtXl72FkeE8hKy5
+ eWzbJwl5
+
+Name: com/e1c/edt/ai/context/DTO/CommentType.class
+SHA-384-Digest: wezDcrDdskcfvZA+MnK5kH9tH6GIUGSbRIr+3zGUY96aV+2xn6N9EKyC
+ 0j7SBeQb
+
+Name: com/e1c/edt/ai/context/IBmPovider.class
+SHA-384-Digest: 6KPJJEYQP+Kh8t7RBMt5vbZIsygXq+m4xvTOUl7916rZqdrJKquBER9T
+ 4YYQTPO/
+
+Name: com/e1c/edt/ai/context/CodePartsProvider$CodePartIterator.class
+SHA-384-Digest: ZPJvghN/rcBSwfZV7H0mLCWeNZFgOw0jJEffPAFmo81AsTIsTbw0oVeB
+ jZlI2fjw
+
+Name: com/e1c/edt/ai/context/Dispatcher.class
+SHA-384-Digest: vQ65oUlKnSU/OiTPJcDvVTI+tlH4wh2gD3sKfP2WZ7Kd1ecMIbuGsmVC
+ I6tb/Q7n
+
+Name: com/e1c/edt/ai/context/FormVisitor.class
+SHA-384-Digest: koz2rNksVWTEVZd6+jtIC3N5qwXeRfTBDyCBONV36e3MDe9ebffAtZLP
+ N5Sq0bQ5
+
+Name: com/e1c/edt/ai/context/DTO/FontEntity.class
+SHA-384-Digest: KSOJBmYi6b8a0/SF9n8Ydwl91MAn0uRJDffl8kj25BCkRMxEjPuYMWOs
+ P2SLeJ8D
+
+Name: com/e1c/edt/ai/context/EntityInfo.class
+SHA-384-Digest: j7WT1Li/mqX5Jd1jUMs4UIu7S/LCvddqGWDGJE2zvgAMWhUGULV9mEbw
+ iH8kz7Yw
+
+Name: com/e1c/edt/ai/context/ModuleInfo.class
+SHA-384-Digest: vBrh5E4ymQ7JufXGJurDV6JrEnR3tQOWAwew6/zpyfxCufRxeUYjAVV/
+ wfDsYJi+
+
+Name: com/e1c/edt/ai/context/ModuleProvider$1.class
+SHA-384-Digest: xKizj5E1ytZ0wy88OhS/jMGFTm0QwKckdN+G5Ecdf22mxzI0wrA+gFne
+ GrFUIuiL
+
+Name: com/e1c/edt/ai/context/DTO/SignatureStructurized.class
+SHA-384-Digest: 5VaWNtUGLmcChynjXGLoClxthycK0kaMSCSo/YZRk/O1lYrSkw4AnuWZ
+ VyAsaTek
+
+Name: com/e1c/edt/ai/context/DTO/ValueEntity.class
+SHA-384-Digest: GsoCZwuNzODSB3wha3gm5LaBWS85AY0dVBf1LHMfOh1p2gsMfCtvxocm
+ NtUTDc8P
+
+Name: com/e1c/edt/ai/context/DTO/RelatedEntitiesRequest.class
+SHA-384-Digest: IQAQuufGfMIA5h58IAxeUJFhb49j4fDf1YR3zjfHe2uM8k41hpc/wP5/
+ 5pV2pNLR
+
+Name: com/e1c/edt/ai/context/DTO/MethodEntity.class
+SHA-384-Digest: cQyf6n/hW2a+PUk7Hd8c1yxw9b9qzCBNtPsLKlMUk44ghJSoSO8QlshG
+ VUnwp4jy
+
+Name: com/e1c/edt/ai/context/CodePartsProvider.class
+SHA-384-Digest: GTaFP5PkfV1oTC/9fBPnKGZbQr5hXePQtUp1T2xHyC87WYwg/ZjDpuuF
+ Is+EviAU
+
+Name: com/e1c/edt/ai/context/DTO/ColorEntity.class
+SHA-384-Digest: y4b2+Vmpkynt1Geoc8xzb6HO1eXoVuXfvT4/Zu/GvPDYnpdHfDjx1UhB
+ wQNikSAn
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool$EnumConversionResult.clas
+ s
+SHA-384-Digest: zMS/hEkqRhuzg5fzC6xoAvDNjW22W7L96J7t3O7FARVQ8pqc8RYt+MXz
+ OE+QgBfA
+
+Name: com/e1c/edt/ai/context/CommentFactory.class
+SHA-384-Digest: O4PHqlrLCcOng3LNGQblAwzwVHX7xUPQ62Cm9mN6hOgx9HH4lupVV8GZ
+ oIuqAnn+
+
+Name: com/e1c/edt/ai/context/tools/MetadataBindingProvider.class
+SHA-384-Digest: fZ9PtfIsAWE9IwwMdimC7O0oKf9/5EbW9Ueq84+MZBVvPwihlusrsOxQ
+ Qui/43YK
+
+Name: com/e1c/edt/ai/context/VisualContextProvider.class
+SHA-384-Digest: FAsqvdpkNozEEY2TgGYE6ZSxkc9a3WCUuAHuivXlyKhPROZHrqztWxD7
+ ApY0X6U2
+
+Name: com/e1c/edt/ai/context/IBmObjectProvider.class
+SHA-384-Digest: 4moMWr4Qah/2RAhO1NnVBoEQFTF9QmRC6gx3Fe0PqCLbhxGphfEp/sTv
+ BgtZYx06
+
+Name: com/e1c/edt/ai/context/DTO/FormEntity.class
+SHA-384-Digest: Ka6QVivkTGG1+eG+LtY7wR58Oka6LcjcWUxiTohV6BJKwfUO2sbeR7eM
+ bDXQbSpI
+
+Name: com/e1c/edt/ai/context/tools/Messages.class
+SHA-384-Digest: 056FDYYOlgc4Hg0L768V+tKy00wDDFKgQQO96lU0w61A7RMvCF594Wel
+ P3tZ5SA+
+
+Name: com/e1c/edt/ai/context/Files.class
+SHA-384-Digest: 20yzAepaGL+4B7lg6T1d208jC4zOOiz8KXKyRyiaRGFWonw8D8OM5r7+
+ 7SMuh6et
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool$BmRelatedObjectElement.cl
+ ass
+SHA-384-Digest: Pr4DQvQOdTFxjN2AOXoPeIiC+8qjFPdMC5DOMXLanY6dYfsQxp6O4Y17
+ KsVc4DSC
+
+Name: com/e1c/edt/ai/context/IIdFactory.class
+SHA-384-Digest: KPF6RkFOKjYOPXuh6JQj3uJwinByCQtwYPqlf/1osA4xqp/xbe6UTBLi
+ /7mIqWB9
+
+Name: com/e1c/edt/ai/context/CodePartsProvider$MarkerType.class
+SHA-384-Digest: PVYlyaic/do+1HEZTwN7CDANahbNXs4OejxyEm25ZpD0El9mP6NwXtZn
+ QAOmccrR
+
+Name: com/e1c/edt/ai/context/EntityInfo$2.class
+SHA-384-Digest: KMUvuEPlg72b7oya5kR8AwqIqWR6vwJw9zBHMQHvM6Fu71E7nVRoH0KP
+ IwEGc+ut
+
+Name: com/e1c/edt/ai/context/tools/GetObjectMcpTool$3.class
+SHA-384-Digest: yWYfKwyJ0FTUfg4NI4hO/KwePEZHGgn3zeAE2ZefOoZPmOd5YrExlJsp
+ cSXYzap/
+
+Name: com/e1c/edt/ai/context/DTO/ValueListEntity.class
+SHA-384-Digest: hqykVO27KeJEFgqus/0Yu/chq3Olm102+HcFpVStDjEK/6Y84iyxPJHP
+ AcqBI3ko
+
+Name: com/e1c/edt/ai/context/DTO/CommentDescriptionPart.class
+SHA-384-Digest: +9fmT70SS1UYlq9T+TB8QhzydJwO0jaj3wS6lhQPbt+tYPHR5w0DVuel
+ D5mJ6BJ3
+
+Name: com/e1c/edt/ai/context/DTO/ObjectFormEntity.class
+SHA-384-Digest: WLEfNUh4J1CzaM1wbf5dTUQJFJ/zbDOyAL1IK6qwO5dHt0SOs0EQvdNc
+ mtlnFtja
+
+Name: com/e1c/edt/ai/context/tools/MarkersProvider$1.class
+SHA-384-Digest: jg9yif6+L+lwhJcDIiLQPTzElEuPiMmpAjEND5azNCgN03PFBoSJlcKn
+ N6JrHUME
+
+Name: com/e1c/edt/ai/context/IdFactory.class
+SHA-384-Digest: CROmwkuCVx6WXcB3hUgSNMu+sIEwHXzO53wfczJoBDcjuRer2iBkumJG
+ QoRFBSa4
+
+Name: com/e1c/edt/ai/context/EntityInfo$3.class
+SHA-384-Digest: H6qsFxSRLQQbagrLBuZicZKOgB4X5HgJBpkbusITA7/QwGt16WivS9i5
+ itXljcwv
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool.class
+SHA-384-Digest: De0dUY8eaii/jGaw+JJQhZgm2Ybeaa06H946ICruqrs/7xOoC2G9Isem
+ VxPJeckl
+
+Name: com/e1c/edt/ai/context/RelatedEntities$1.class
+SHA-384-Digest: ToUWzrTWp0Ev4LSg5MYO/wMMhoaZwvdx0jLQgzHMqu70JT1EECnWAsXb
+ 9uYt2Drx
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool$Element.class
+SHA-384-Digest: E4IIqohTk9Lg1sTbVnLxXCheWJSd74TBVSkztCAuoDTx9nl459Q0Dmrx
+ bh7+dpPg
+
+Name: com/e1c/edt/ai/context/DTO/FormFieldEntity.class
+SHA-384-Digest: rEguspKhxBzopA/XrVzu/StBc7RoMnYn+yTylb5Wudtv/qgpWt8T7Ayc
+ pBCB8gOs
+
+Name: com/e1c/edt/ai/context/EntityInfo$BmObject.class
+SHA-384-Digest: kEstjYm6oOEMOchVPtNyGWuiC9TsRyYelGOGf3gi2qiXZnewmEd6XJbG
+ bpDNiOR2
+
+Name: com/e1c/edt/ai/context/DTO/PropertyEntity.class
+SHA-384-Digest: UWOTPD2++G+Jq+TSJTriGN61VbV+uVJ+QBPAIDucV6ubKHZYr+obsQua
+ uPrD7ZhO
+
+Name: com/e1c/edt/ai/context/tools/GetObjectMcpTool$Response.class
+SHA-384-Digest: H+LKavoMTsD0mpeBf2+tRz2BAe29juVwtqXRcrob1HUfVf/sasQ8ni76
+ bFj3apNc
+
+Name: com/e1c/edt/ai/context/DTO/CommentFieldDefinition.class
+SHA-384-Digest: 5HfUpdsB4vIRbgr+zcrMNn59v/ruSdBhw45tGvhkdG/41qcAG5IggRyN
+ 6of2PaNr
+
+Name: com/e1c/edt/ai/context/DTO/MetaEntity.class
+SHA-384-Digest: T1jD+q2z9PBCKgjP09VxmxcDEzeNfW2PEWXoIjjDw/Ew0kCdEmYanVVj
+ TEuC/2um
+
+Name: com/e1c/edt/ai/context/IEntityFactory.class
+SHA-384-Digest: 2um+Vfxq9N++ritNqyEQo+nOInnLRP1r8tJM5iLBtgLL6+G0GMHUyCjC
+ MEsFF2Lb
+
+Name: com/e1c/edt/ai/context/DTO/CommentParameters.class
+SHA-384-Digest: +wPk1iecnNhLnlEC6v6TOqfWaB+1bEALeFQRH6ruszujFZ0dpcJB0k6B
+ enawrKVn
+
+Name: com/e1c/edt/ai/context/FormWalker.class
+SHA-384-Digest: 00S6J6Wdmxh6HFzOSstuI6RfUyaoqO8/5T1HZYvnrh/JUYwfAmKaJfVj
+ Anioztlg
+
+Name: com/e1c/edt/ai/context/tools/FindMcpTool$BmObjectElement.class
+SHA-384-Digest: dBpJFNzCxSmrOUbs24ip5riqO76XLikRFGJqWM+G7gSo6m9ciofIqtMW
+ EV+59FVb
+
+Name: com/e1c/edt/ai/context/DTO/PredefinedEntity.class
+SHA-384-Digest: f/x0wkpXR8P2PVlSg35b7q7HNKIco8BA6OmUPWbkS2KVzJHUFLX8u5a5
+ KOKLkp/n
+
+Name: com/e1c/edt/ai/context/DTO/TabularSectionEntity.class
+SHA-384-Digest: MyTctZegiJ5zR0fmscjHJ1EWeikZ2Q066gOrnCgoEu0dRhOYdDxeg7ex
+ YOEwJ2pc
+
+Name: com/e1c/edt/ai/context/DTO/ColumnEntity.class
+SHA-384-Digest: Iu070LKb05Zz/8sF7eHpHPApvPvarM6TklJXPDgKp0Xs90P+1e2diJsw
+ 3ucTby3v
+
+Name: com/e1c/edt/ai/context/ICommentFactory.class
+SHA-384-Digest: 23ixI6496XJ7ZEHEVBEhAIOT8bIz5TJLqgnrWzzayZlWB+QOnHhdn0Kv
+ JidtimVI
+
+Name: com/e1c/edt/ai/context/V8Model.class
+SHA-384-Digest: lU2t95SNpr5104d6FlOZT2e1W2T/62m+KFT9126F/2Ye5Yth+5zyXKeW
+ FWYgOt5A
+

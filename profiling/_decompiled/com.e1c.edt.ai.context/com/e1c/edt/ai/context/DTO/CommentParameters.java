@@ -1,0 +1,14 @@
+package com.e1c.edt.ai.context.DTO;
+
+import com.google.gson.annotations.SerializedName;
+import java.util.List;
+
+public class CommentParameters {
+   public List<CommentParameter> parameters;
+   @SerializedName("parameters_field_definitions")
+   public List<CommentFieldDefinition> parametersFieldDefinitions;
+   @SerializedName("parameters_description")
+   public List<CommentDescriptionPart> parametersDescription;
+   @SerializedName("source_description")
+   public List<CommentDescriptionPart> sourceDescription;
+}

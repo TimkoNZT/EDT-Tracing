@@ -14,8 +14,14 @@ D:\EDT\EDT_tracing/
 │   ├── core/               - декомпилированные классы profiling.core (НЕ ИСПОЛЬЗУЕТСЯ)
 │   ├── ui/                 - декомпилированные классы profiling.ui (НЕ ИСПОЛЬЗУЕТСЯ)
 │   ├── perfinfo_extract/   - debug.model (EMF) + .xcore модели (НЕ ИСПОЛЬЗУЕТСЯ)
-│   ├── _decompiled/        - декомпилированные классы EDT для справки (IBslStackFrame, BslSourceDisplay и др.)
-│   └── _extracted/         - бинарные артефакты из JAR (НЕ ИСПОЛЬЗУЕТСЯ)
+│   ├── _decompiled/        - декомпилированные классы EDT/Eclipse для справки
+│   ├── com._1c.g5.v8.dt.bsl.model/
+│   ├── com._1c.g5.v8.dt.debug.core/
+│   ├── com._1c.g5.v8.dt.debug.ui/
+│   ├── com.e1c.edt.ai/          - AI plugin (3 бандла: ai.context, ai.ui.common, ai.ui)
+│   ├── org.eclipse.debug.ui/
+│   └── AGENTS_ai.md             - архитектура EDT AI (Guice, WebView bridge, MCP)
+├── _extracted/         - бинарные артефакты из JAR (НЕ ИСПОЛЬЗУЕТСЯ)
 ├── dist/                   - P2 репозиторий
 ├── AGENTS.md
 ├── build-minimal.ps1
@@ -95,7 +101,9 @@ D:\EDT\EDT_tracing/
   & "c:\Program Files\BellSoft\LibericaJDK-21\bin\java.exe" -cp "c:\Program Files\JetBrains\IntelliJ IDEA 2026.1\plugins\java-decompiler\lib\java-decompiler.jar" org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler -dgs=true <input.jar> "<output_dir>"
   ```
 - Результат: один `.java` файл на каждый `.class` (в той же структуре каталогов, что и JAR).
-- Декомпилированные классы EDT хранить в `profiling/_decompiled/<bundle>/`.
+- Декомпилированные классы EDT/Eclipse хранить в `profiling/_decompiled/<bundle>/`.
+- EDT AI plugin (3 бандла: `ai.context`, `ai.ui.common`, `ai.ui`) декомпилированы → `profiling/_decompiled/com.e1c.edt.ai.*/`.
+- Архитектура EDT AI описана в `profiling/_decompiled/AGENTS_ai.md` (Guice DI, WebView JS bridge, 23 MCP tools).
 
 ## Подводные камни OSGi (Require-Bundle vs Import-Package)
 
