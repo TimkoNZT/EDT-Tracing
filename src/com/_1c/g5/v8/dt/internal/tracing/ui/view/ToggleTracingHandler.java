@@ -24,25 +24,29 @@ public class ToggleTracingHandler extends AbstractHandler {
             .getActiveWorkbenchWindow().getActivePage();
         if (page == null) return null;
         TraceView view = (TraceView) page.findView(TraceView.ID);
-        if (view != null) {
-            boolean nowActive = view.toggleTracing();
-            Command cmd = event.getCommand();
-            if (cmd != null) {
-                State state = cmd.getState(RegistryToggleState.STATE_ID);
-                if (state != null) {
-                    state.setValue(nowActive);
-                }
+        if (view == null) {
+            try {
+                view = (TraceView) page.showView(TraceView.ID);
+            } catch (Exception e) {
+                TracingUIActivator.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, TracingUIActivator.PLUGIN_ID,
+                        "ToggleTracingHandler: failed to open TraceView", e));
+                return null;
             }
-            // Force UI elements to re-read the command state
-            ICommandService cs = (ICommandService)
-                page.getWorkbenchWindow().getService(ICommandService.class);
-            if (cs != null) cs.refreshElements(
-                "com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing", null);
-        } else {
-            TracingUIActivator.getDefault().getLog().log(
-                new Status(IStatus.WARNING, TracingUIActivator.PLUGIN_ID,
-                    "ToggleTracingHandler: TraceView not found"));
         }
+        boolean nowActive = view.toggleTracing();
+        Command cmd = event.getCommand();
+        if (cmd != null) {
+            State state = cmd.getState(RegistryToggleState.STATE_ID);
+            if (state != null) {
+                state.setValue(nowActive);
+            }
+        }
+        // Force UI elements to re-read the command state
+        ICommandService cs = (ICommandService)
+            page.getWorkbenchWindow().getService(ICommandService.class);
+        if (cs != null) cs.refreshElements(
+            "com._1c.g5.v8.dt.tracing.ui.commands.toggleTracing", null);
         return null;
     }
 }

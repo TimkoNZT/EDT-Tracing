@@ -1,7 +1,6 @@
 # Build outputs
 target/
-tracing_plugin/target/
-tracing_plugin/dist/
+dist/
 build.log
 
 # IDE

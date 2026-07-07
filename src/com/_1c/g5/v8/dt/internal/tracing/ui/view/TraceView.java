@@ -423,13 +423,13 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             try {
                 IThread[] threads = dt.getThreads();
                 if (threads == null) { attempts++; continue; }
-                boolean useStepOver = stepOverMode.contains(dt);
                 for (IThread t : threads) {
                     if (!t.isSuspended()) continue;
                     if (!(t instanceof IStep)) continue;
                     IStep step = (IStep) t;
-                    if (useStepOver ? step.canStepOver() : step.canStepInto()) {
-                        stepOnBackgroundThread(dt, t, useStepOver);
+                    boolean skip = shouldSkip(dt, t);
+                    if (skip ? (step.canStepReturn() || step.canStepInto()) : step.canStepInto()) {
+                        stepOnBackgroundThread(dt, t, skip);
                         return true;
                     }
                 }
@@ -441,16 +441,11 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
         return false;
     }
 
-    private void stepOnBackgroundThread(IDebugTarget dt, IThread t, boolean stepOver) {
+    private void stepOnBackgroundThread(IDebugTarget dt, IThread t, boolean skip) {
         final String name = safeTargetName(dt) + "/" + safeThreadName(t);
         Thread th = new Thread(() -> {
             try {
-                IStep step = (IStep) t;
-                if (stepOver) {
-                    step.stepOver();
-                } else {
-                    step.stepInto();
-                }
+                doStep(t, skip);
             } catch (DebugException e) {
                 log("step failed on " + name + " " + e.getMessage());
             } catch (Exception e) {
@@ -527,10 +522,14 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             IThread[] threads = dt.getThreads();
             if (threads == null) return;
             IThread stepped = null;
+            boolean steppedSkip = false;
             for (IThread t : threads) {
                 if (!t.isSuspended()) continue;
                 IStackFrame frame = getTopFrame(t);
                 if (frame == null) continue;
+
+                String moduleName = safeModuleName(frame);
+                boolean filtered = isFiltered(moduleName);
 
                 String key = dt.toString() + "|" + t.toString();
                 String pos = safeFrameName(frame) + ":" + safeLineNumber(frame);
@@ -538,12 +537,10 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
                 if (!pos.equals(oldPos)) {
                     lastPositions.put(key, pos);
-                    String targetName = safeTargetName(dt);
-                    String threadName = safeThreadName(t);
-                    String frameName = safeFrameName(frame);
-                    String moduleName = safeModuleName(frame);
-
-                    if (!isFiltered(moduleName)) {
+                    if (!filtered) {
+                        String targetName = safeTargetName(dt);
+                        String threadName = safeThreadName(t);
+                        String frameName = safeFrameName(frame);
                         int line = safeLineNumber(frame);
                         String sourceUri = frame instanceof IBslStackFrame
                             ? String.valueOf(((IBslStackFrame) frame).getSource()) : "";
@@ -560,19 +557,16 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
 
                 if (stepped == null && (t instanceof IStep)) {
                     IStep step = (IStep) t;
-                    boolean useStepOver = stepOverMode.contains(dt);
-                    if (useStepOver ? step.canStepOver() : step.canStepInto()) {
+                    boolean skip = filtered || stepOverMode.contains(dt);
+                    if (skip ? (step.canStepReturn() || step.canStepInto()) : step.canStepInto()) {
                         stepped = t;
+                        steppedSkip = skip;
                     }
                 }
             }
             if (stepped != null) {
-                int idx = currentTargetIndex;
-                // rotate index so poll loop continues from next target
                 currentTargetIndex = targets.indexOf(dt);
-                boolean useStepOver = stepOverMode.contains(dt);
-                if (useStepOver) ((IStep) stepped).stepOver();
-                else ((IStep) stepped).stepInto();
+                doStep((IThread) stepped, steppedSkip);
             }
         } catch (DebugException e) {
             log("handleSuspendAndStep error: " + e.getMessage());
@@ -641,6 +635,24 @@ public class TraceView extends ViewPart implements IDebugEventSetListener {
             }
         }
         return name.matches(sb.toString());
+    }
+
+    // ==================== Step helpers ====================
+
+    private boolean shouldSkip(IDebugTarget dt, IThread t) {
+        if (stepOverMode.contains(dt)) return true;
+        IStackFrame frame = getTopFrame(t);
+        if (frame == null) return false;
+        return isFiltered(safeModuleName(frame));
+    }
+
+    private void doStep(IThread t, boolean skip) throws DebugException {
+        IStep step = (IStep) t;
+        if (skip && step.canStepReturn()) {
+            step.stepReturn();
+        } else {
+            step.stepInto();
+        }
     }
 
     // ==================== Safe accessors ====================

@@ -116,7 +116,7 @@ Set-Location $PluginDir
 Write-Output "Feature JAR: $featureJar ($((Get-Item $featureJar).Length) bytes)"
 
 # ---------- 6. P2 repo ----------
-$p2repoDir = Join-Path $OutDir "p2repo"
+$p2repoDir = Join-Path $OutDir "p2_repo"
 if (Test-Path $p2repoDir) { Remove-Item $p2repoDir -Recurse -Force }
 $1cedtc = Get-ChildItem $edtHome -Recurse -Filter "1cedtc.exe" | Select-Object -First 1 -ExpandProperty FullName
 if (-not $1cedtc) { Write-Error "1cedtc.exe not found"; exit 1 }

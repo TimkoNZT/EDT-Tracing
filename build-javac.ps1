@@ -2,12 +2,21 @@
 # build-javac.ps1 — Compile, JAR, P2 repo, ZIP for EDT Tracing Plugin
 # Detects EDT installation automatically.
 
+param(
+    [string]$Version,
+    [string]$OutDir,
+    [string]$SrcDir
+)
+
 $ErrorActionPreference = "Stop"
 $PluginDir = Split-Path -Parent $PSCommandPath
 $ModuleDir = Join-Path $PluginDir "com._1c.g5.v8.dt.tracing.ui"
-$SrcDir    = Join-Path $PluginDir "src"
-$OutDir    = Join-Path $PluginDir "dist"
+if (-not $SrcDir) { $SrcDir = Join-Path $PluginDir "src" }
+if (-not $OutDir) { $OutDir = Join-Path $PluginDir "dist" }
 $TargetDir = Join-Path $PluginDir "target"
+
+# Clean output at the start
+if (Test-Path $OutDir) { Remove-Item $OutDir -Recurse -Force }
 
 # ---------- 1. Find EDT ----------
 $edtHomeCandidates = @(
@@ -35,7 +44,27 @@ if (-not $edtHome -or -not (Test-Path $edtHome)) {
 $pluginsDir = Join-Path $edtHome "plugins"
 Write-Output "EDT: $edtHome"
 
-# ---------- 2. Find required JARs ----------
+# ---------- 2. Version ----------
+$PluginId = "com._1c.g5.v8.dt.tracing.ui"
+$FeatureId = "$PluginId.feature"
+$manifestPath = Join-Path $ModuleDir "META-INF\MANIFEST.MF"
+$manifestText = Get-Content $manifestPath -Raw
+$baseVersion = if ($manifestText -match 'Bundle-Version:\s*(\S+)') { $matches[1] } else { "1.0.0.qualifier" }
+
+# If -Version given, update MANIFEST.MF
+if ($Version) {
+    $manifestText = $manifestText -replace '(Bundle-Version:\s*)\S+', "`$1$Version"
+    [System.IO.File]::WriteAllText($manifestPath, $manifestText, [System.Text.UTF8Encoding]::new($false))
+    $baseVersion = $Version
+}
+
+$timestamp = Get-Date -Format "yyyyMMddHHmm"
+$PluginVersion = $baseVersion -replace 'qualifier', "v$timestamp"
+$FeatureVersion = $PluginVersion
+$catVersion = $baseVersion -replace '\.qualifier$', ''
+Write-Output "Version: $PluginVersion"
+
+# ---------- 3. Find required JARs ----------
 $requiredPatterns = @(
     "com._1c.g5.v8.dt.profiling.core_*.jar",
     "com._1c.g5.wiring_*.jar",
@@ -87,7 +116,7 @@ foreach ($pat in $requiredPatterns) {
 $classpath = $classpathJars -join ";"
 Write-Output "Classpath JARs: $($classpathJars.Count)"
 
-# ---------- 3. Clean & compile ----------
+# ---------- 4. Clean & compile ----------
 if (Test-Path $TargetDir) { Remove-Item $TargetDir -Recurse -Force }
 $classesOut = Join-Path $TargetDir "classes"
 New-Item -ItemType Directory -Path $classesOut -Force | Out-Null
@@ -130,7 +159,7 @@ $srcArgs = @(
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Write-Output "Compilation OK"
 
-# ---------- 4. Build JAR ----------
+# ---------- 5. Build JAR ----------
 $jarStage = Join-Path $TargetDir "jar-stage"
 New-Item -ItemType Directory -Path $jarStage -Force | Out-Null
 
@@ -156,17 +185,34 @@ Get-ChildItem $SrcDir -Recurse -Filter "*.properties" | ForEach-Object {
     Copy-Item $_.FullName $destDir -Force
 }
 
+# Convert .properties to ASCII \uXXXX for Java PropertyResourceBundle
+Get-ChildItem $jarStage -Recurse -Filter "*.properties" | ForEach-Object {
+    $raw = [System.IO.File]::ReadAllText($_.FullName, [System.Text.UTF8Encoding]::new($false))
+    $sb = New-Object System.Text.StringBuilder $raw.Length
+    $raw.ToCharArray() | ForEach-Object {
+        if ([int]$_ -gt 127) { $sb.AppendFormat("\u{0:X4}", [int]$_) | Out-Null }
+        else { $sb.Append($_) | Out-Null }
+    }
+    [System.IO.File]::WriteAllText($_.FullName, $sb.ToString(), [System.Text.Encoding]::ASCII)
+}
+
 # Copy root-level files (plugin.xml, fragment.e4xmi) to JAR root
 if (Test-Path (Join-Path $ModuleDir "plugin.xml")) { Copy-Item (Join-Path $ModuleDir "plugin.xml") $jarStage -Force }
 if (Test-Path (Join-Path $ModuleDir "fragment.e4xmi")) { Copy-Item (Join-Path $ModuleDir "fragment.e4xmi") $jarStage -Force }
 
-$jarFile = Join-Path $TargetDir "com._1c.g5.v8.dt.tracing.ui_1.0.0.jar"
+# Patch Bundle-Version in staged manifest
+$manifestStage = Join-Path $jarStage "META-INF\MANIFEST.MF"
+$manifestText = Get-Content $manifestStage -Raw
+$manifestText = $manifestText -replace '(Bundle-Version:\s*)\S+', ('${1}' + $PluginVersion)
+[System.IO.File]::WriteAllText($manifestStage, $manifestText, [System.Text.UTF8Encoding]::New($false))
+
+$jarFile = Join-Path $TargetDir "com._1c.g5.v8.dt.tracing.ui_$PluginVersion.jar"
 Set-Location $jarStage
 & "$($javaHome)\bin\jar" cfm $jarFile "META-INF\MANIFEST.MF" .
 Set-Location $PluginDir
 Write-Output "JAR: $jarFile ($((Get-Item $jarFile).Length) bytes)"
 
-# ---------- 5. Build Feature JAR ----------
+# ---------- 6. Build Feature JAR ----------
 $featureDir = Join-Path $TargetDir "feature"
 New-Item -ItemType Directory -Path $featureDir -Force | Out-Null
 $featureMetaInf = Join-Path $featureDir "META-INF"
@@ -177,27 +223,27 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EDT Tracing Feature
 Bundle-SymbolicName: com._1c.g5.v8.dt.tracing.ui.feature;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: $FeatureVersion
 Bundle-Vendor: 1C
 "@ | Set-Content (Join-Path $featureMetaInf "MANIFEST.MF") -Encoding Ascii
 
 @"
 <?xml version="1.0" encoding="UTF-8"?>
-<feature id="com._1c.g5.v8.dt.tracing.ui.feature" label="EDT Tracing Plugin" version="1.0.0" provider-name="1C">
+<feature id="com._1c.g5.v8.dt.tracing.ui.feature" label="EDT Tracing Plugin" version="$FeatureVersion" provider-name="1C">
 <description>EDT Tracing UI - просмотр и экспорт трейсинга (CSV/JSONL)</description>
 <license url="https://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</license>
-<plugin id="com._1c.g5.v8.dt.tracing.ui" download-size="18" install-size="36" version="1.0.0" unpack="false"/>
+<plugin id="com._1c.g5.v8.dt.tracing.ui" download-size="18" install-size="36" version="$PluginVersion" unpack="false"/>
 </feature>
 "@ | Set-Content (Join-Path $featureDir "feature.xml") -Encoding Utf8
 
-$featureJar = Join-Path $TargetDir "com._1c.g5.v8.dt.tracing.ui.feature_1.0.0.jar"
+$featureJar = Join-Path $TargetDir "com._1c.g5.v8.dt.tracing.ui.feature_$FeatureVersion.jar"
 Set-Location $featureDir
 & "$($javaHome)\bin\jar" cfm $featureJar "META-INF\MANIFEST.MF" feature.xml
 Set-Location $PluginDir
 Write-Output "Feature JAR: $featureJar ($((Get-Item $featureJar).Length) bytes)"
 
-# ---------- 6. Build P2 repo ----------
-$p2repoDir = Join-Path $OutDir "p2repo"
+# ---------- 7. Build P2 repo ----------
+$p2repoDir = Join-Path $OutDir "p2_repo"
 if (Test-Path $p2repoDir) { Remove-Item $p2repoDir -Recurse -Force }
 
 # Find 1cedtc.exe
@@ -224,7 +270,7 @@ $p2repoUri = "file:/$($p2repoDir -replace '\\', '/')"
     -publishArtifacts -compress
 if ($LASTEXITCODE -ne 0) { Write-Warning "Publisher returned $LASTEXITCODE" }
 
-# ---------- 7. Add category ----------
+# ---------- 8. Add category ----------
 $contentJar = Join-Path $p2repoDir "content.jar"
 if (Test-Path $contentJar) {
     # Inject category into content.xml
@@ -240,7 +286,7 @@ if (Test-Path $contentJar) {
     # Add plugin IU if missing
     if ($contentXml -notmatch '<unit id=''com._1c.g5.v8.dt.tracing.ui''') {
         $pluginUnit = @"
-    <unit id='com._1c.g5.v8.dt.tracing.ui' version='1.0.0' singleton='false'>
+    <unit id='com._1c.g5.v8.dt.tracing.ui' version='$PluginVersion' singleton='false'>
       <properties size='4'>
         <property name='org.eclipse.equinox.p2.name' value='EDT Tracing UI Plugin'/>
         <property name='org.eclipse.equinox.p2.description' value='EDT Tracing UI - просмотр и экспорт трейсинга'/>
@@ -248,8 +294,8 @@ if (Test-Path $contentJar) {
         <property name='org.eclipse.equinox.p2.type' value='Bundle'/>
       </properties>
       <provides size='2'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='com._1c.g5.v8.dt.tracing.ui' version='1.0.0'/>
-        <provided namespace='osgi.bundle' name='com._1c.g5.v8.dt.tracing.ui' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com._1c.g5.v8.dt.tracing.ui' version='$PluginVersion'/>
+        <provided namespace='osgi.bundle' name='com._1c.g5.v8.dt.tracing.ui' version='$PluginVersion'/>
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -258,7 +304,7 @@ if (Test-Path $contentJar) {
             Bundle-ManifestVersion: 2
 Bundle-Name: EDT Tracing UI
 Bundle-SymbolicName: com._1c.g5.v8.dt.tracing.ui;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: $PluginVersion
 Bundle-Activator: com._1c.g5.v8.dt.internal.tracing.ui.TracingUIActivator
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: 1C
@@ -298,35 +344,30 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
     }
 
     # Add category unit if missing
-    if ($contentXml -notmatch '<unit id=''edt-tracing.category''') {
+    $catId = "${PluginId}.category"
+    $catPattern = [regex]::Escape("<unit id='$catId'")
+    if ($contentXml -notmatch $catPattern) {
         $categoryUnit = @"
-    <unit id='edt-tracing.category' version='1.0.0' singleton='false'>
-      <properties size='3'>
-        <property name='org.eclipse.equinox.p2.name' value='EDT Tracing'/>
-        <property name='org.eclipse.equinox.p2.description' value='EDT Tracing UI - просмотр и экспорт трейсинга (CSV/JSONL)'/>
+    <unit id='$PluginId.category' version='$catVersion' singleton='false'>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='NZT Tools'/>
         <property name='org.eclipse.equinox.p2.type.category' value='true'/>
       </properties>
       <provides size='1'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='edt-tracing.category' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='$PluginId.category' version='$catVersion'/>
       </provides>
       <requires size='1'>
-        <required namespace='org.eclipse.equinox.p2.iu' name='com._1c.g5.v8.dt.tracing.ui.feature.feature.group' range='[1.0.0,1.0.0]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='${FeatureId}.feature.group' range='[$PluginVersion,$PluginVersion]'/>
       </requires>
       <touchpoint id='null' version='0.0.0'/>
     </unit>
 
-"@ | Out-String
-
-        # Remove any existing edt-tracing category unit before inserting new one
-        $contentXml = $contentXml -replace '\s*<unit id=''edt-tracing[^'']*''.*?</unit>\s*', "`n"
-
-        # Bump units size by 1 (we're adding one category IU)
+"@
         $sizeMatch = [regex]::Match($contentXml, "<units size='(\d+)'")
         if ($sizeMatch.Success) {
             $oldSize = [int]$sizeMatch.Groups[1].Value
             $contentXml = $contentXml -replace "<units size='$oldSize'>", "<units size='$($oldSize + 1)'>"
         }
-
         $contentXml = $contentXml -replace '</units>', "$categoryUnit</units>"
     }
 
@@ -340,15 +381,15 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
     Remove-Item $tmp -Recurse -Force
 }
 
-# ---------- 8. Create p2.index ----------
+# ---------- 9. Create p2.index ----------
 @"
 version=1
 metadata.repository.factory.order= content.jar,content.xml.xz!
 artifact.repository.factory.order= artifacts.jar,artifacts.xml.xz!
 "@ | Set-Content (Join-Path $p2repoDir "p2.index") -Encoding Ascii
 
-# ---------- 9. Create ZIP ----------
-$zipFile = Join-Path $OutDir "edt-tracing-plugin_1.0.0.zip"
+# ---------- 10. Create ZIP ----------
+$zipFile = Join-Path $OutDir "edt-tracing-plugin_$PluginVersion.zip"
 if (Test-Path $zipFile) { Remove-Item $zipFile -Force }
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::CreateFromDirectory($p2repoDir, $zipFile)

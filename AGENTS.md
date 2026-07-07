@@ -9,34 +9,44 @@
 
 ```
 D:\EDT\EDT_tracing/
-├── tracing_plugin/         - основной плагин (src, build)
-├── profiling/
-│   ├── core/               - декомпилированные классы profiling.core (НЕ ИСПОЛЬЗУЕТСЯ)
-│   ├── ui/                 - декомпилированные классы profiling.ui (НЕ ИСПОЛЬЗУЕТСЯ)
-│   ├── perfinfo_extract/   - debug.model (EMF) + .xcore модели (НЕ ИСПОЛЬЗУЕТСЯ)
-│   ├── _decompiled/        - декомпилированные классы EDT/Eclipse для справки
+├── src/                    - исходники плагина (.java)
+├── com._1c.g5.v8.dt.tracing.ui/ - module dir (plugin.xml, META-INF, icons)
+├── com._1c.g5.v8.dt.tracing.ui.feature/ - feature descriptor
+├── profiling/         - декомпилированные классы EDT/Eclipse для справки
+│   ├── core/               - (НЕ ИСПОЛЬЗУЕТСЯ)
+│   ├── ui/                 - (НЕ ИСПОЛЬЗУЕТСЯ)
+│   ├── perfinfo_extract/   - (НЕ ИСПОЛЬЗУЕТСЯ)
+│   ├── _decompiled/        - декомпилированные классы EDT/Eclipse
 │   ├── com._1c.g5.v8.dt.bsl.model/
 │   ├── com._1c.g5.v8.dt.debug.core/
 │   ├── com._1c.g5.v8.dt.debug.ui/
-│   ├── com.e1c.edt.ai/          - AI plugin (3 бандла: ai.context, ai.ui.common, ai.ui)
+│   ├── com.e1c.edt.ai/     - AI plugin (3 бандла)
 │   ├── org.eclipse.debug.ui/
-│   └── AGENTS_ai.md             - архитектура EDT AI (Guice, WebView bridge, MCP)
-├── _extracted/         - бинарные артефакты из JAR (НЕ ИСПОЛЬЗУЕТСЯ)
-├── dist/                   - P2 репозиторий
+│   └── AGENTS_ai.md
+├── dist/                   - P2 репозиторий + ZIP
 ├── AGENTS.md
+├── build-javac.ps1
 ├── build-minimal.ps1
 └── .gitignore
 ```
 
+## Versioning
+
+- **Source**: `META-INF/MANIFEST.MF` → `Bundle-Version: 1.0.0.qualifier`
+- **Build time**: `qualifier` заменяется на `v<yyyyMMddHHmm>` (минутный timestamp)
+- **Пример**: `1.0.0.v20260707160148`
+- **Категория (p2)**: получает версию без qualifier (`1.0.0`) — не timestampится
+- Все артефакты (JAR, JAR filename, ZIP) используют timestamp-версию
+
 ## Build (javac, no Maven)
 
-- **EDT Tracing**: `cd tracing_plugin && .\build-javac.ps1`
+- **EDT Tracing**: `.\build-javac.ps1`
   - Авто-определяет EDT, компилирует `src/`, пакует JAR.
-  - Итог: P2-репозиторий + ZIP в `tracing_plugin/dist/`.
+  - Итог: P2-репозиторий + ZIP в `dist/`.
 
 - **Deploy (quick copy)**: после сборки скопировать JAR в кэш EDT для быстрого тестирования (без переустановки через P2):
   ```
-  Copy-Item -LiteralPath "D:\EDT\EDT_tracing\tracing_plugin\dist\p2repo\plugins\com._1c.g5.v8.dt.tracing.ui_1.0.0.jar" `
+  Copy-Item -LiteralPath "D:\EDT\EDT_tracing\dist\p2_repo\plugins\com._1c.g5.v8.dt.tracing.ui_1.0.0.jar" `
     -Destination "C:\Users\Тимур\.eclipse\org.eclipse.platform_4.30.0_233488020_win32_win32_x86_64\plugins\" -Force
   ```
   (путь может отличаться для другой версии EDT — находится через `eclipse.p2.data.area` в `configuration/config.ini` EDT-установки + смотрим `plugins/` в конфигурационной локации Eclipse, куда P2 ставит плагины)
