@@ -1,9 +1,0 @@
-package com.e1c.edt.ai.context.DTO;
-
-import com._1c.g5.v8.dt.mcore.util.Date;
-import com.e1c.edt.ai.assistent.model.IContextEntity;
-
-public class StandardPeriodEntity implements IContextEntity {
-   public Date startDate;
-   public Date endDate;
-}

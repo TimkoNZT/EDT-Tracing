@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="com.nzt.edt.tracing.feature" label="EDT Tracing Plugin" version="1.0.0" provider-name="NZT">
+<description>Плагин для EDT добавляющий пошаговую трассировку и экспорт результатов</description>
+<license url="https://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</license>
+<plugin id="com.nzt.edt.tracing" download-size="18" install-size="36" version="1.0.0" unpack="false"/>
+</feature>

@@ -10,7 +10,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $PluginDir = Split-Path -Parent $PSCommandPath
-$ModuleDir = Join-Path $PluginDir "com._1c.g5.v8.dt.tracing.ui"
+$ModuleDir = Join-Path $PluginDir "com.nzt.edt.tracing"
 if (-not $SrcDir) { $SrcDir = Join-Path $PluginDir "src" }
 if (-not $OutDir) { $OutDir = Join-Path $PluginDir "dist" }
 $TargetDir = Join-Path $PluginDir "target"
@@ -45,7 +45,7 @@ $pluginsDir = Join-Path $edtHome "plugins"
 Write-Output "EDT: $edtHome"
 
 # ---------- 2. Version ----------
-$PluginId = "com._1c.g5.v8.dt.tracing.ui"
+$PluginId = "com.nzt.edt.tracing"
 $FeatureId = "$PluginId.feature"
 $manifestPath = Join-Path $ModuleDir "META-INF\MANIFEST.MF"
 $manifestText = Get-Content $manifestPath -Raw
@@ -206,7 +206,7 @@ $manifestText = Get-Content $manifestStage -Raw
 $manifestText = $manifestText -replace '(Bundle-Version:\s*)\S+', ('${1}' + $PluginVersion)
 [System.IO.File]::WriteAllText($manifestStage, $manifestText, [System.Text.UTF8Encoding]::New($false))
 
-$jarFile = Join-Path $TargetDir "com._1c.g5.v8.dt.tracing.ui_$PluginVersion.jar"
+$jarFile = Join-Path $TargetDir "com.nzt.edt.tracing_$PluginVersion.jar"
 Set-Location $jarStage
 & "$($javaHome)\bin\jar" cfm $jarFile "META-INF\MANIFEST.MF" .
 Set-Location $PluginDir
@@ -222,28 +222,27 @@ New-Item -ItemType Directory -Path $featureMetaInf -Force | Out-Null
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EDT Tracing Feature
-Bundle-SymbolicName: com._1c.g5.v8.dt.tracing.ui.feature;singleton:=true
+Bundle-SymbolicName: com.nzt.edt.tracing.feature;singleton:=true
 Bundle-Version: $FeatureVersion
-Bundle-Vendor: 1C
+Bundle-Vendor: NZT
 "@ | Set-Content (Join-Path $featureMetaInf "MANIFEST.MF") -Encoding Ascii
 
 @"
 <?xml version="1.0" encoding="UTF-8"?>
-<feature id="com._1c.g5.v8.dt.tracing.ui.feature" label="EDT Tracing" version="$FeatureVersion" provider-name="1C">
-<description>EDT Tracing UI - просмотр и экспорт трейсинга (CSV/JSONL)</description>
-<license url="https://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</license>
-<plugin id="com._1c.g5.v8.dt.tracing.ui" download-size="18" install-size="36" version="$PluginVersion" unpack="false"/>
+<feature id="com.nzt.edt.tracing.feature" label="EDT Tracing" version="$FeatureVersion" provider-name="NZT">
+<description>Плагин для EDT добавляющий пошаговую трассировку и экспорт результатов</description>
+<plugin id="com.nzt.edt.tracing" download-size="18" install-size="36" version="$PluginVersion" unpack="false"/>
 </feature>
 "@ | Set-Content (Join-Path $featureDir "feature.xml") -Encoding Utf8
 
-$featureJar = Join-Path $TargetDir "com._1c.g5.v8.dt.tracing.ui.feature_$FeatureVersion.jar"
+$featureJar = Join-Path $TargetDir "com.nzt.edt.tracing.feature_$FeatureVersion.jar"
 Set-Location $featureDir
 & "$($javaHome)\bin\jar" cfm $featureJar "META-INF\MANIFEST.MF" feature.xml
 Set-Location $PluginDir
 Write-Output "Feature JAR: $featureJar ($((Get-Item $featureJar).Length) bytes)"
 
 # ---------- 7. Build P2 repo ----------
-$p2repoDir = Join-Path $OutDir "p2_repo"
+$p2repoDir = Join-Path $OutDir "p2repo"
 if (Test-Path $p2repoDir) { Remove-Item $p2repoDir -Recurse -Force }
 
 # Find 1cedtc.exe
@@ -284,18 +283,18 @@ if (Test-Path $contentJar) {
     $contentXml = Get-Content (Join-Path $tmp "content.xml") -Raw
 
     # Add plugin IU if missing
-    if ($contentXml -notmatch '<unit id=''com._1c.g5.v8.dt.tracing.ui''') {
+    if ($contentXml -notmatch '<unit id=''com\.nzt\.edt\.tracing''') {
         $pluginUnit = @"
-    <unit id='com._1c.g5.v8.dt.tracing.ui' version='$PluginVersion' singleton='false'>
+    <unit id='com.nzt.edt.tracing' version='$PluginVersion' singleton='false'>
       <properties size='4'>
         <property name='org.eclipse.equinox.p2.name' value='EDT Tracing UI Plugin'/>
-        <property name='org.eclipse.equinox.p2.description' value='EDT Tracing UI - просмотр и экспорт трейсинга'/>
-        <property name='org.eclipse.equinox.p2.provider' value='1C'/>
+        <property name='org.eclipse.equinox.p2.description' value='Плагин для EDT добавляющий пошаговую трассировку и экспорт результатов'/>
+        <property name='org.eclipse.equinox.p2.provider' value='NZT'/>
         <property name='org.eclipse.equinox.p2.type' value='Bundle'/>
       </properties>
       <provides size='2'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='com._1c.g5.v8.dt.tracing.ui' version='$PluginVersion'/>
-        <provided namespace='osgi.bundle' name='com._1c.g5.v8.dt.tracing.ui' version='$PluginVersion'/>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.nzt.edt.tracing' version='$PluginVersion'/>
+        <provided namespace='osgi.bundle' name='com.nzt.edt.tracing' version='$PluginVersion'/>
       </provides>
       <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
       <touchpointData size='1'>
@@ -303,11 +302,11 @@ if (Test-Path $contentJar) {
           <instruction key='manifest'>
             Bundle-ManifestVersion: 2
 Bundle-Name: EDT Tracing UI
-Bundle-SymbolicName: com._1c.g5.v8.dt.tracing.ui;singleton:=true
+Bundle-SymbolicName: com.nzt.edt.tracing;singleton:=true
 Bundle-Version: $PluginVersion
-Bundle-Activator: com._1c.g5.v8.dt.internal.tracing.ui.TracingUIActivator
+Bundle-Activator: com.nzt.edt.tracing.TracingUIActivator
 Bundle-ActivationPolicy: lazy
-Bundle-Vendor: 1C
+Bundle-Vendor: NZT
 Bundle-Localization: META-INF/messages
 Require-Bundle: org.eclipse.debug.ui,
                  org.eclipse.debug.core,
@@ -320,7 +319,7 @@ Import-Package: com._1c.g5.v8.dt.profiling.core;version="[5.0.0,10.0.0)",
   org.eclipse.core.commands,
   org.eclipse.emf.common,
   org.osgi.framework
-Export-Package: com._1c.g5.v8.dt.internal.tracing.ui.view;version="1.0.0"
+Export-Package: com.nzt.edt.tracing.view;version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
           </instruction>
         </instructions>
@@ -330,7 +329,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 "@ | Out-String
 
         # Remove any existing plugin unit before inserting new one
-        $contentXml = $contentXml -replace '\s*<unit id=''com._1c.g5.v8.dt.tracing.ui[^'']*''.*?</unit>\s*', "`n"
+        $contentXml = $contentXml -replace '\s*<unit id=''com\.nzt\.edt\.tracing[^'']*''.*?</unit>\s*', "`n"
 
         # Find the units closing tag and add plugin before it
         $contentXml = $contentXml -replace '</units>', "$pluginUnit</units>"
